@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:saji_pos_app/features/product/data/models/category_model.dart';
-import 'package:saji_pos_app/features/product/data/models/category_response.dart';
+import 'package:saji_pos_app/features/category/data/models/category_model.dart';
+import 'package:saji_pos_app/features/category/data/models/category_response.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/error/exception.dart';
 import '../models/product_model.dart';
