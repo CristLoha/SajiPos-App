@@ -6,7 +6,7 @@ import '../widgets/header_section.dart';
 import '../../../../core/components/product_card.dart';
 import '../pages/checkout/mobile_order_confirmation_page.dart';
 
-import '../../../../core/data/dummy_data.dart';
+
 import 'package:intl/intl.dart';
 
 class MobileLayout extends StatefulWidget {
