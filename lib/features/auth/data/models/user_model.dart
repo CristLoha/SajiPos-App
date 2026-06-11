@@ -24,8 +24,9 @@ class UserModel extends Equatable {
       name: json['name'] as String,
       email: json['email'] as String,
       emailVerifiedAt: json['email_verified_at'] as String?,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
+      // Mengamankan casting null/String jika data created_at dan updated_at bernilai null dari API
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
     );
   }
 

@@ -25,8 +25,12 @@ class Product extends Equatable {
   final String createdAt;
   final String updatedAt;
 
+  // Temporary getter for UI product card compatibility
+  String get category => categoryId == 1 ? 'Minuman' : 'Makanan';
+
   @override
   List<Object?> get props => [
+
     id,
     categoryId,
     name,

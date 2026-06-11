@@ -4,16 +4,7 @@ import '../../../../core/error/exception.dart';
 import '../models/auth_model.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<AuthModel> login({
-    required String email,
-    required String password,
-  });
-
-  Future<AuthModel> register({
-    required String name,
-    required String email,
-    required String password,
-  });
+  Future<AuthModel> login({required String email, required String password});
 
   Future<void> logout(String token);
 }
@@ -29,12 +20,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String password,
   }) async {
     try {
+      print('=== DEBUG LOGIN ===');
+      print('URL: ${ApiConstants.loginEndpoint}');
+      print('Payload: {"email": "$email", "password": "$password"}');
+      
       final response = await dio.post(
         ApiConstants.loginEndpoint,
-        data: {
-          'email': email,
-          'password': password,
-        },
+        data: {'email': email, 'password': password},
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -43,57 +35,51 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return AuthModel.fromJson(response.data as Map<String, dynamic>);
-      } else {
-        throw ServerException(
-          response.data['message']?.toString() ?? 'Gagal masuk: ${response.statusMessage}',
-        );
-      }
-    } on DioException catch (e) {
-      final message = e.response?.data['message']?.toString() ?? e.message ?? 'Terjadi kesalahan koneksi';
-      throw ServerException(message);
-    } catch (e) {
-      throw ServerException('Masalah koneksi internet atau server: $e');
-    }
-  }
-
-  @override
-  Future<AuthModel> register({
-    required String name,
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final response = await dio.post(
-        ApiConstants.registerEndpoint,
-        data: {
-          'name': name,
-          'email': email,
-          'password': password,
-        },
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        ),
-      );
+      print('Response Status: ${response.statusCode}');
+      print('Response Data: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AuthModel.fromJson(response.data as Map<String, dynamic>);
       } else {
-        throw ServerException(
-          response.data['message']?.toString() ?? 'Gagal mendaftar: ${response.statusMessage}',
+        throw const ServerException(
+          'Email atau kata sandi Anda salah. Silakan periksa kembali.',
         );
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message']?.toString() ?? e.message ?? 'Terjadi kesalahan koneksi';
-      throw ServerException(message);
+      print('=== DEBUG DIO EXCEPTION ===');
+      print('Type: ${e.type}');
+      print('Error message: ${e.message}');
+      print('Response status code: ${e.response?.statusCode}');
+      print('Response data: ${e.response?.data}');
+      print('Error detail: ${e.error}');
+
+      String userFriendlyMessage = 'Gagal masuk ke sistem. Silakan coba beberapa saat lagi.';
+
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        userFriendlyMessage = 'Koneksi internet lambat atau terputus. Silakan coba lagi.';
+      } else if (e.type == DioExceptionType.connectionError) {
+        userFriendlyMessage = 'Tidak dapat terhubung ke server kasir. Periksa koneksi internet Anda.';
+      } else if (e.response != null) {
+        final int? statusCode = e.response?.statusCode;
+        if (statusCode == 400 || statusCode == 401) {
+          userFriendlyMessage = 'Email atau kata sandi salah. Silakan coba lagi.';
+        } else if (statusCode == 422) {
+          userFriendlyMessage = 'Data yang Anda masukkan tidak sesuai format.';
+        } else if (statusCode == 500) {
+          userFriendlyMessage = 'Server kasir sedang mengalami gangguan. Hubungi admin toko Anda.';
+        }
+      }
+
+      throw ServerException(userFriendlyMessage);
     } catch (e) {
-      throw ServerException('Masalah koneksi internet atau server: $e');
+      print('=== DEBUG SYSTEM EXCEPTION ===');
+      print('Error: $e');
+      throw const ServerException('Terjadi kesalahan tidak terduga. Silakan buka ulang aplikasi.');
     }
   }
+
 
   @override
   Future<void> logout(String token) async {
@@ -110,15 +96,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw ServerException(
-          response.data['message']?.toString() ?? 'Gagal keluar: ${response.statusMessage}',
-        );
+        throw const ServerException('Gagal keluar dari aplikasi.');
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message']?.toString() ?? e.message ?? 'Terjadi kesalahan koneksi';
-      throw ServerException(message);
+      String userFriendlyMessage = 'Gagal memproses keluar sistem.';
+      
+      if (e.type == DioExceptionType.connectionError) {
+        userFriendlyMessage = 'Gagal logout karena tidak ada jaringan internet.';
+      }
+      
+      throw ServerException(userFriendlyMessage);
     } catch (e) {
-      throw ServerException('Masalah koneksi internet atau server: $e');
+      throw const ServerException('Gagal memproses keluar sistem.');
     }
   }
 }
