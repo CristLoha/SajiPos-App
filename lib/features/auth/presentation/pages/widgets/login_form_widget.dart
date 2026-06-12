@@ -7,6 +7,8 @@ class LoginFormWidget extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final bool obscurePassword;
+  final bool rememberMe;
+  final ValueChanged<bool?> onRememberMeChanged;
   final VoidCallback onLoginPressed;
   final VoidCallback onToggleObscure;
   final AuthState state;
@@ -17,6 +19,8 @@ class LoginFormWidget extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
     required this.obscurePassword,
+    required this.rememberMe,
+    required this.onRememberMeChanged,
     required this.onLoginPressed,
     required this.onToggleObscure,
     required this.state,
@@ -27,7 +31,6 @@ class LoginFormWidget extends StatelessWidget {
     // Membungkus seluruh text field di dalam Form widget dengan kunci validasi
     return Form(
       key: formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction, // Otomatis memvalidasi/menghilangkan error saat kasir mengetik
       child: Column(
 
         mainAxisAlignment: MainAxisAlignment.center,
@@ -42,8 +45,43 @@ class LoginFormWidget extends StatelessWidget {
           _buildPasswordLabel(),
           const SizedBox(height: 8),
           _buildPasswordTextField(),
-          const SizedBox(height: 36),
+          const SizedBox(height: 12),
+          _buildRememberMe(),
+          const SizedBox(height: 24),
           _buildLoginButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRememberMe() {
+    return GestureDetector(
+      onTap: () => onRememberMeChanged(!rememberMe),
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: Checkbox(
+              value: rememberMe,
+              onChanged: onRememberMeChanged,
+              activeColor: AppColors.accent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          const Text(
+            'Ingat Saya',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textPrimary,
+            ),
+          ),
         ],
       ),
     );
@@ -84,6 +122,7 @@ class LoginFormWidget extends StatelessWidget {
   Widget _buildEmailTextField() {
     return TextFormField(
       controller: emailController,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       // Validasi input email kosong
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
@@ -113,11 +152,11 @@ class LoginFormWidget extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+          borderSide: const BorderSide(color: AppColors.danger, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+          borderSide: const BorderSide(color: AppColors.danger, width: 2),
         ),
       ),
     );
@@ -138,6 +177,7 @@ class LoginFormWidget extends StatelessWidget {
     return TextFormField(
       controller: passwordController,
       obscureText: obscurePassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       // Validasi input password kosong
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
@@ -177,11 +217,11 @@ class LoginFormWidget extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+          borderSide: const BorderSide(color: AppColors.danger, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+          borderSide: const BorderSide(color: AppColors.danger, width: 2),
         ),
       ),
     );
@@ -195,7 +235,7 @@ class LoginFormWidget extends StatelessWidget {
         onPressed: state is AuthLoading ? null : onLoginPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.accent,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),

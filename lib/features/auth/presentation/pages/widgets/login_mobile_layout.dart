@@ -8,6 +8,8 @@ class LoginMobileLayout extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final bool obscurePassword;
+  final bool rememberMe;
+  final ValueChanged<bool?> onRememberMeChanged;
   final VoidCallback onLoginPressed;
   final AuthState state;
   final VoidCallback onToggleObscure;
@@ -18,6 +20,8 @@ class LoginMobileLayout extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
     required this.obscurePassword,
+    required this.rememberMe,
+    required this.onRememberMeChanged,
     required this.onLoginPressed,
     required this.state,
     required this.onToggleObscure,
@@ -25,30 +29,26 @@ class LoginMobileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Container(
-        padding: const EdgeInsets.all(32.0),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: AppColors.white,
+      child: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 48.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(child: _buildLogoIcon()),
+                const SizedBox(height: 24),
+                Center(child: _buildTitle()),
+                const SizedBox(height: 48),
+                _buildLoginForm(),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildLogoIcon(),
-            const SizedBox(height: 16),
-            _buildTitle(),
-            const SizedBox(height: 32),
-            _buildLoginForm(),
-          ],
+          ),
         ),
       ),
     );
@@ -83,6 +83,8 @@ class LoginMobileLayout extends StatelessWidget {
       emailController: emailController,
       passwordController: passwordController,
       obscurePassword: obscurePassword,
+      rememberMe: rememberMe,
+      onRememberMeChanged: onRememberMeChanged,
       onLoginPressed: onLoginPressed,
       onToggleObscure: onToggleObscure,
       state: state,

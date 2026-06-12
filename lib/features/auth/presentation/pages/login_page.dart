@@ -1,11 +1,12 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:saji_pos_app/injection.dart' as di;
 import '../../../../core/components/custom_snackbar.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/responsive_layout.dart';
-import '../../../home/presentation/home_page.dart';
 import 'widgets/login_mobile_layout.dart';
 import 'widgets/login_tablet_layout.dart';
 
@@ -17,13 +18,64 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // GlobalKey untuk validasi form kasir
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSavedCredentials();
+    });
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    try {
+      final prefs = di.locator<SharedPreferences>();
+      final savedEmail = prefs.getString('remember_email');
+      final savedPassword = prefs.getString('remember_password');
+      final rememberMe = prefs.getBool('remember_me') ?? false;
+
+      debugPrint('=== LOAD CREDENTIALS ===');
+      debugPrint('rememberMe: $rememberMe');
+      debugPrint('savedEmail: $savedEmail');
+
+      if (rememberMe && savedEmail != null && savedPassword != null) {
+        setState(() {
+          _emailController.text = savedEmail;
+          _passwordController.text = savedPassword;
+          _rememberMe = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading credentials: $e');
+    }
+  }
+
+  Future<void> _saveCredentials() async {
+    final prefs = di.locator<SharedPreferences>();
+    debugPrint('=== SAVE CREDENTIALS ===');
+    debugPrint('_rememberMe state: $_rememberMe');
+    if (_rememberMe) {
+      debugPrint('Saving email: ${_emailController.text}');
+      await prefs.setString('remember_email', _emailController.text.trim());
+      await prefs.setString(
+        'remember_password',
+        _passwordController.text.trim(),
+      );
+      await prefs.setBool('remember_me', true);
+    } else {
+      debugPrint('Clearing remembered credentials');
+      await prefs.remove('remember_email');
+      await prefs.remove('remember_password');
+      await prefs.setBool('remember_me', false);
+    }
+  }
 
   @override
   void dispose() {
@@ -46,40 +98,27 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          _buildBackgroundGradient(),
           _buildTopBlurOrb(),
           _buildBottomBlurOrb(),
-          _buildGlassEffectBlur(),
           _buildMainResponsiveLayout(),
         ],
       ),
     );
   }
 
-  Widget _buildBackgroundGradient() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF0F1629), Color(0xFF1A1D3B), Color(0xFF1E2A5E)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-    );
-  }
-
   Widget _buildTopBlurOrb() {
     return Positioned(
-      top: -80,
-      right: -60,
+      top: -150,
+      right: -100,
       child: Container(
-        width: 280,
-        height: 280,
+        width: 400,
+        height: 400,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.accent.withValues(alpha: 0.2),
+          color: AppColors.accent.withValues(alpha: 0.05),
         ),
       ),
     );
@@ -87,42 +126,35 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildBottomBlurOrb() {
     return Positioned(
-      bottom: -100,
+      bottom: -150,
       left: -100,
       child: Container(
-        width: 350,
-        height: 350,
+        width: 400,
+        height: 400,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.accent.withValues(alpha: 0.1),
+          color: AppColors.accent.withValues(alpha: 0.05),
         ),
       ),
-    );
-  }
-
-  Widget _buildGlassEffectBlur() {
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-      child: Container(color: Colors.transparent),
     );
   }
 
   Widget _buildMainResponsiveLayout() {
     return Center(
       child: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is AuthAuthenticated) {
+            await _saveCredentials();
+            if (!context.mounted) return;
             CustomSnackBar.showSuccess(
               context,
               'Selamat datang, login berhasil!',
             );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const HomePage()),
-            );
+            context.go('/');
           }
 
           if (state is AuthFailure) {
+            if (!context.mounted) return;
             CustomSnackBar.showErr(context, state.errorMessage);
           }
         },
@@ -142,6 +174,12 @@ class _LoginPageState extends State<LoginPage> {
       emailController: _emailController,
       passwordController: _passwordController,
       obscurePassword: _obscurePassword,
+      rememberMe: _rememberMe,
+      onRememberMeChanged: (value) {
+        setState(() {
+          _rememberMe = value ?? false;
+        });
+      },
       onLoginPressed: _login,
       onToggleObscure: _toggleObscurePassword,
       state: state,
@@ -154,6 +192,12 @@ class _LoginPageState extends State<LoginPage> {
       emailController: _emailController,
       passwordController: _passwordController,
       obscurePassword: _obscurePassword,
+      rememberMe: _rememberMe,
+      onRememberMeChanged: (value) {
+        setState(() {
+          _rememberMe = value ?? false;
+        });
+      },
       onLoginPressed: _login,
       onToggleObscure: _toggleObscurePassword,
       state: state,

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/core/utils/app_router.dart';
 import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:saji_pos_app/features/home/presentation/home_page.dart';
 import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
 import 'core/theme/app_theme.dart';
-import 'features/auth/presentation/pages/login_page.dart';
 import 'injection.dart' as di;
 
 void main() async {
@@ -31,23 +30,11 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(create: (_) => di.locator<ProductBloc>()),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'Saji Pos App',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthAuthenticated) {
-              return const HomePage();
-            }
-            if (state is AuthAuthenticated) {
-              return const LoginPage();
-            }
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          },
-        ),
+        routerConfig: AppRouter.router,
       ),
     );
   }

@@ -8,6 +8,8 @@ class LoginTabletLayout extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final bool obscurePassword;
+  final bool rememberMe;
+  final ValueChanged<bool?> onRememberMeChanged;
   final VoidCallback onLoginPressed;
   final VoidCallback onToggleObscure;
   final AuthState state;
@@ -18,6 +20,8 @@ class LoginTabletLayout extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
     required this.obscurePassword,
+    required this.rememberMe,
+    required this.onRememberMeChanged,
     required this.onLoginPressed,
     required this.onToggleObscure,
     required this.state,
@@ -32,7 +36,7 @@ class LoginTabletLayout extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 40,
             offset: const Offset(0, 16),
           ),
@@ -117,6 +121,8 @@ class LoginTabletLayout extends StatelessWidget {
         emailController: emailController,
         passwordController: passwordController,
         obscurePassword: obscurePassword,
+        rememberMe: rememberMe,
+        onRememberMeChanged: onRememberMeChanged,
         onLoginPressed: onLoginPressed,
         onToggleObscure: onToggleObscure,
         state: state,

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Primary Palette - Modern Deep Indigo
   static const Color primary = Color(0xFF1A1D3B);       // Deep navy for sidebar & headers
-  static const Color primaryLight = Color(0xFF4F5B93);   // Lighter variant
   static const Color accent = Color(0xFF4361EE);         // Vivid blue for CTA buttons & highlights
   static const Color accentLight = Color(0xFFEEF1FF);    // Very subtle blue tint
 
@@ -23,5 +22,4 @@ class AppColors {
   // Semantic
   static const Color success = Color(0xFF22C55E);        // Green
   static const Color danger = Color(0xFFEF4444);         // Red
-  static const Color warning = Color(0xFFF59E0B);        // Amber
 }

@@ -4,7 +4,7 @@ import '../../widgets/payment_view.dart';
 import 'mobile_payment_success_page.dart';
 
 class MobilePaymentPage extends StatelessWidget {
-  const MobilePaymentPage({Key? key}) : super(key: key);
+  const MobilePaymentPage({super.key});
 
   @override
   Widget build(BuildContext context) {
