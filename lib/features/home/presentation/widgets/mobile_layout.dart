@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:saji_pos_app/features/home/presentation/pages/katalog_product_mobile_page.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/components/custom_bottom_nav.dart';
 import '../pages/checkout/mobile_order_confirmation_page.dart';
-import '../pages/katalog_product_page.dart';
 import '../pages/promo_page.dart';
 import '../pages/report_page.dart';
 import '../pages/settings_page.dart';
@@ -20,14 +20,16 @@ class MobileLayout extends StatelessWidget {
   void _showOrderPanel(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const MobileOrderConfirmationPage()),
+      MaterialPageRoute(
+        builder: (context) => const MobileOrderConfirmationPage(),
+      ),
     );
   }
 
   Widget _buildBody() {
     switch (selectedIndex) {
       case 0:
-        return const KatalogProductPage();
+        return const KatalogProductMobilePage();
       case 1:
         return const PromoPage();
       case 2:
@@ -35,7 +37,7 @@ class MobileLayout extends StatelessWidget {
       case 3:
         return const SettingsPage();
       default:
-        return const KatalogProductPage();
+        return const KatalogProductMobilePage();
     }
   }
 
@@ -58,7 +60,10 @@ class MobileLayout extends StatelessWidget {
               backgroundColor: AppColors.accent,
               elevation: 4,
               onPressed: () => _showOrderPanel(context),
-              child: const Icon(Icons.shopping_cart_rounded, color: AppColors.white),
+              child: const Icon(
+                Icons.shopping_cart_rounded,
+                color: AppColors.white,
+              ),
             )
           : null,
     );

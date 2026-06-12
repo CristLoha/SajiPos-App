@@ -7,10 +7,10 @@ class CategoryTabs extends StatelessWidget {
   final Function(int) onCategorySelected;
 
   const CategoryTabs({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.onCategorySelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class CategoryTabs extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final isSelected = selectedIndex == index;
           return GestureDetector(

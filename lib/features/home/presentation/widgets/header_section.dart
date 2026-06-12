@@ -3,7 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/responsive_layout.dart';
 
 class HeaderSection extends StatelessWidget {
-  const HeaderSection({Key? key}) : super(key: key);
+  const HeaderSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +42,43 @@ class HeaderSection extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Minggu, 21 Januari 2024',
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          _getFormattedDate(),
+          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
         ),
       ],
     );
+  }
+
+  String _getFormattedDate() {
+    final now = DateTime.now();
+    final days = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
+    ];
+    final months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+
+    final dayName = days[now.weekday - 1];
+    final monthName = months[now.month - 1];
+
+    return '$dayName, ${now.day} $monthName ${now.year}';
   }
 
   Widget _buildSearchBar() {
@@ -61,11 +93,17 @@ class HeaderSection extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'Cari makanan, minuman...',
           hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-          prefixIcon: Icon(Icons.search_rounded, color: AppColors.textSecondary),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: AppColors.textSecondary,
+          ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
     );

@@ -8,11 +8,13 @@ class ProductResponse extends Equatable {
 
   factory ProductResponse.fromJson(Map<String, dynamic> json) {
     return ProductResponse(
-      productList: List<ProductModel>.from(
-        (json["data"] as List).map(
-          (x) => ProductModel.fromJson(x as Map<String, dynamic>),
-        ),
-      ),
+      productList: json["data"] != null
+          ? List<ProductModel>.from(
+              (json["data"] as List).map(
+                (x) => ProductModel.fromJson(x as Map<String, dynamic>),
+              ),
+            )
+          : [],
     );
   }
 

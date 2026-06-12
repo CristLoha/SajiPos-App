@@ -6,16 +6,18 @@ class ProductCard extends StatelessWidget {
   final String category;
   final String price;
   final int quantity;
+  final String? imageUrl;
   final VoidCallback? onTap;
 
   const ProductCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.category,
     required this.price,
     this.quantity = 0,
+    this.imageUrl,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,21 +43,44 @@ class ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Image placeholder area
+                    // Image area
                     Expanded(
                       flex: 3,
-                      child: Center(
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: AppColors.accentLight,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(
-                            Icons.fastfood_rounded,
-                            color: AppColors.accent.withValues(alpha: 0.5),
-                            size: 48,
-                          ),
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.accentLight,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: imageUrl != null && imageUrl!.isNotEmpty
+                              ? Image.network(
+                                  imageUrl!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: Icon(
+                                        Icons.fastfood_rounded,
+                                        color: AppColors.accent.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                        size: 48,
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Center(
+                                  child: Icon(
+                                    Icons.fastfood_rounded,
+                                    color: AppColors.accent.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                    size: 48,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
@@ -77,24 +102,30 @@ class ProductCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.accentLight,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            category,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.accent,
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.accentLight,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              category,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.accent,
+                              ),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 4),
                         Flexible(
                           child: Text(
                             price,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -116,7 +147,9 @@ class ProductCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: quantity > 0 ? AppColors.accent : AppColors.accent.withValues(alpha: 0.85),
+                    color: quantity > 0
+                        ? AppColors.accent
+                        : AppColors.accent.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(

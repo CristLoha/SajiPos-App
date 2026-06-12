@@ -9,16 +9,20 @@ import '../../../../core/constants/api_constants.dart';
 import '../widgets/category_tabs.dart';
 import '../widgets/header_section.dart';
 
-class KatalogProductTabletPage extends StatefulWidget {
-  const KatalogProductTabletPage({super.key});
+class KatalogProductMobilePage extends StatefulWidget {
+  const KatalogProductMobilePage({super.key});
 
   @override
-  State<KatalogProductTabletPage> createState() => _KatalogProductTabletPageState();
+  State<KatalogProductMobilePage> createState() => _KatalogProductPageState();
 }
 
-class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
+class _KatalogProductPageState extends State<KatalogProductMobilePage> {
   int _selectedCategoryIndex = 0;
-  final formatCurrency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+  final formatCurrency = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
 
   @override
   void initState() {
@@ -30,8 +34,9 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: 16),
         const HeaderSection(),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
         CategoryTabs(
           selectedIndex: _selectedCategoryIndex,
           onCategorySelected: (index) {
@@ -46,9 +51,7 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
             builder: (context, state) {
               if (state is ProductLoading) {
                 return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.accent,
-                  ),
+                  child: CircularProgressIndicator(color: AppColors.accent),
                 );
               }
 
@@ -56,10 +59,7 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                 return Center(
                   child: Text(
                     'Terjadi kesalahan: ${state.message}',
-                    style: const TextStyle(
-                      color: AppColors.danger,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(color: AppColors.danger),
                   ),
                 );
               }
@@ -78,26 +78,28 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                     ),
                   );
                 }
-
                 return AnimatedBuilder(
                   animation: globalCartState,
                   builder: (context, _) {
                     return GridView.builder(
                       padding: const EdgeInsets.only(bottom: 24),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.75,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.7,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
                       itemCount: products.length,
                       itemBuilder: (context, index) {
                         final product = products[index];
                         final cartItem = globalCartState.items
                             .where((item) => item.product.id == product.id)
                             .toList();
-                        final qty = cartItem.isNotEmpty ? cartItem.first.quantity : 0;
-                        
+                        final qty = cartItem.isNotEmpty
+                            ? cartItem.first.quantity
+                            : 0;
+                            
                         final baseUrl = ApiConstants.baseUrl.replaceAll('/api', '');
                         final imageUrl = product.image.isNotEmpty ? '$baseUrl/storage/${product.image}' : null;
 
@@ -116,7 +118,6 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                   },
                 );
               }
-
               return const SizedBox();
             },
           ),

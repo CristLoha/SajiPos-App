@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class LayananDialog extends StatefulWidget {
-  const LayananDialog({Key? key}) : super(key: key);
+  const LayananDialog({super.key});
 
   @override
   State<LayananDialog> createState() => _LayananDialogState();

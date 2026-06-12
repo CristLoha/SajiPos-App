@@ -32,16 +32,16 @@ class ProductModel extends Equatable {
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
-      id: json['id'] as int,
-      categoryId: json['category_id'] as int,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      price: json['price'] as int,
-      stock: json['stock'] as int,
-      image: json['image'] as String,
-      status: json['status'] as int,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
+      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()) ?? 0,
+      categoryId: json['category_id'] is int ? json['category_id'] as int : int.tryParse(json['category_id'].toString()) ?? 0,
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      price: json['price'] is int ? json['price'] as int : int.tryParse(json['price'].toString()) ?? 0,
+      stock: json['stock'] is int ? json['stock'] as int : int.tryParse(json['stock'].toString()) ?? 0,
+      image: json['image']?.toString() ?? '',
+      status: json['status'] is int ? json['status'] as int : int.tryParse(json['status'].toString()) ?? 0,
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
       category: json['category'] != null
           ? CategoryModel.fromJson(json['category'] as Map<String, dynamic>)
           : null,
