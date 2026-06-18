@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/data/dummy_data.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'order_confirmation_view.dart';
 import 'payment_view.dart';
 import 'payment_success_view.dart';
@@ -36,7 +37,7 @@ class _OrderPanelState extends State<OrderPanel> {
   }
   
   void _resetOrder() {
-    globalCartState.clearCart();
+    context.read<CartCubit>().clearCart();
     setState(() {
       _currentState = OrderFlowState.confirmation;
     });

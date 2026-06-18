@@ -8,6 +8,8 @@ class ProductCard extends StatelessWidget {
   final int quantity;
   final String? imageUrl;
   final VoidCallback? onTap;
+  final VoidCallback? onAdd;
+  final VoidCallback? onRemove;
 
   const ProductCard({
     super.key,
@@ -17,6 +19,8 @@ class ProductCard extends StatelessWidget {
     this.quantity = 0,
     this.imageUrl,
     this.onTap,
+    this.onAdd,
+    this.onRemove,
   });
 
   @override
@@ -104,7 +108,10 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.accentLight,
                               borderRadius: BorderRadius.circular(6),
@@ -152,11 +159,12 @@ class ProductCard extends StatelessWidget {
                         : AppColors.accent.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
-                      BoxShadow(
-                        color: AppColors.accent.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
+                      if (quantity > 0)
+                        BoxShadow(
+                          color: AppColors.accent.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
                     ],
                   ),
                   child: Center(

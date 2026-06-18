@@ -3,8 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:saji_pos_app/core/constants/app_colors.dart';
 import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../core/data/dummy_data.dart';
-import '../../../../core/components/product_card.dart';
+import '../widgets/product_card.dart';
+import '../../../../core/components/custom_error_widget.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../widgets/category_tabs.dart';
 import '../widgets/header_section.dart';
@@ -45,22 +49,45 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
           child: BlocBuilder<ProductBloc, ProductState>(
             builder: (context, state) {
               if (state is ProductLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.accent,
+                return Skeletonizer(
+                  enabled: true,
+                  child: GridView.builder(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      childAspectRatio: 0.75,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: 6,
+                    itemBuilder: (context, index) {
+                      return ProductCard(
+                        title: 'Nama Produk Yang Sangat Panjang',
+                        category: 'Kategori Makanan',
+                        price: 'Rp 150.000',
+                        quantity: 0,
+                        imageUrl: null,
+                        onTap: () {},
+                      );
+                    },
                   ),
                 );
               }
 
               if (state is ProductError) {
-                return Center(
-                  child: Text(
-                    'Terjadi kesalahan: ${state.message}',
-                    style: const TextStyle(
-                      color: AppColors.danger,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                final isNetworkError = state.message.toLowerCase().contains('socket') || 
+                                       state.message.toLowerCase().contains('network') ||
+                                       state.message.toLowerCase().contains('connection');
+
+                return CustomErrorWidget(
+                  title: isNetworkError ? 'Koneksi Terputus' : 'Oops! Server Bermasalah',
+                  message: isNetworkError 
+                      ? 'Pastikan kamu terhubung ke WiFi atau data seluler ya.'
+                      : 'Tenang, data kamu aman. Tim kami sedang memperbaiki masalah ini.',
+                  icon: isNetworkError ? Icons.wifi_off_rounded : Icons.dns_rounded,
+                  onRetry: () {
+                    context.read<ProductBloc>().add(GetProductsEvent());
+                  },
                 );
               }
 
@@ -79,9 +106,8 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                   );
                 }
 
-                return AnimatedBuilder(
-                  animation: globalCartState,
-                  builder: (context, _) {
+                return BlocBuilder<CartCubit, CartState>(
+                  builder: (context, cartState) {
                     return GridView.builder(
                       padding: const EdgeInsets.only(bottom: 24),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -93,7 +119,7 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                       itemCount: products.length,
                       itemBuilder: (context, index) {
                         final product = products[index];
-                        final cartItem = globalCartState.items
+                        final cartItem = cartState.items
                             .where((item) => item.product.id == product.id)
                             .toList();
                         final qty = cartItem.isNotEmpty ? cartItem.first.quantity : 0;
@@ -108,7 +134,7 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                           quantity: qty,
                           imageUrl: imageUrl,
                           onTap: () {
-                            globalCartState.addToCart(product);
+                            context.read<CartCubit>().addToCart(product);
                           },
                         );
                       },

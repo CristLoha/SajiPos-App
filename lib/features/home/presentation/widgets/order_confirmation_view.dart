@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/data/dummy_data.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
+import 'package:saji_pos_app/features/cart/domain/entities/cart_item.dart';
 import 'pajak_dialog.dart';
 import 'layanan_dialog.dart';
 import 'diskon_dialog.dart';
@@ -10,19 +13,19 @@ import 'ongkir_dialog.dart';
 class OrderConfirmationView extends StatelessWidget {
   final VoidCallback onProceedToPayment;
 
-  const OrderConfirmationView({
-    Key? key,
-    required this.onProceedToPayment,
-  }) : super(key: key);
+  const OrderConfirmationView({super.key, required this.onProceedToPayment});
 
   @override
   Widget build(BuildContext context) {
-    final formatCurrency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
     return Container(
       color: AppColors.white,
-      child: AnimatedBuilder(
-        animation: globalCartState,
-        builder: (context, _) {
+      child: BlocBuilder<CartCubit, CartState>(
+        builder: (context, cartState) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,7 +48,7 @@ class OrderConfirmationView extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Orders #${globalCartState.items.length}',
+                          'Orders #${cartState.items.length}',
                           style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.textSecondary,
@@ -60,30 +63,10 @@ class OrderConfirmationView extends StatelessWidget {
                         color: AppColors.accent,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.add_rounded, color: AppColors.white, size: 22),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              // Column headers
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 14.0),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      flex: 3,
-                      child: Text('Item', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary, fontSize: 12)),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Center(child: Text('Qty', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary, fontSize: 12))),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text('Price', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textSecondary, fontSize: 12)),
+                      child: const Icon(
+                        Icons.add_rounded,
+                        color: AppColors.white,
+                        size: 22,
                       ),
                     ),
                   ],
@@ -95,27 +78,41 @@ class OrderConfirmationView extends StatelessWidget {
                 child: ListView(
                   padding: const EdgeInsets.all(24),
                   children: [
-                    if (globalCartState.items.isEmpty)
+                    if (cartState.items.isEmpty)
                       Center(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 48),
                           child: Column(
                             children: [
-                              Icon(Icons.shopping_cart_outlined, color: AppColors.textSecondary.withValues(alpha: 0.4), size: 48),
+                              Icon(
+                                Icons.shopping_cart_outlined,
+                                color: AppColors.textSecondary.withValues(
+                                  alpha: 0.4,
+                                ),
+                                size: 48,
+                              ),
                               const SizedBox(height: 12),
-                              const Text('Keranjang kosong', style: TextStyle(color: AppColors.textSecondary)),
+                              const Text(
+                                'Keranjang kosong',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       )
                     else
-                      ...globalCartState.items.map((item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: _buildOrderItem(
-                          item: item,
-                          formatCurrency: formatCurrency,
+                      ...cartState.items.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: _buildOrderItem(
+                            context: context,
+                            item: item,
+                            formatCurrency: formatCurrency,
+                          ),
                         ),
-                      )),
+                      ),
                     const SizedBox(height: 24),
                     _buildActionButtons(context),
                   ],
@@ -138,22 +135,33 @@ class OrderConfirmationView extends StatelessWidget {
                     _buildSummaryRow('Diskon', 'Rp 0'),
                     const SizedBox(height: 14),
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.accentLight,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: _buildSummaryRow('Sub total', formatCurrency.format(globalCartState.subTotal), isBold: true),
+                      child: _buildSummaryRow(
+                        'Sub total',
+                        formatCurrency.format(cartState.subTotal),
+                        isBold: true,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
                       height: 54,
                       child: ElevatedButton(
-                        onPressed: globalCartState.items.isEmpty ? null : onProceedToPayment,
+                        onPressed: cartState.items.isEmpty
+                            ? null
+                            : onProceedToPayment,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.accent,
-                          disabledBackgroundColor: AppColors.accent.withValues(alpha: 0.3),
+                          disabledBackgroundColor: AppColors.accent.withValues(
+                            alpha: 0.3,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -161,7 +169,11 @@ class OrderConfirmationView extends StatelessWidget {
                         ),
                         child: const Text(
                           'Lanjutkan Pembayaran',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.white),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -170,12 +182,16 @@ class OrderConfirmationView extends StatelessWidget {
               ),
             ],
           );
-        }
+        },
       ),
     );
   }
 
-  Widget _buildOrderItem({required CartItem item, required NumberFormat formatCurrency}) {
+  Widget _buildOrderItem({
+    required BuildContext context,
+    required CartItem item,
+    required NumberFormat formatCurrency,
+  }) {
     return Column(
       children: [
         Row(
@@ -188,11 +204,14 @@ class OrderConfirmationView extends StatelessWidget {
                 color: AppColors.accentLight,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.fastfood_rounded, color: AppColors.accent.withValues(alpha: 0.6), size: 22),
+              child: Icon(
+                Icons.fastfood_rounded,
+                color: AppColors.accent.withValues(alpha: 0.6),
+                size: 22,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -200,40 +219,96 @@ class OrderConfirmationView extends StatelessWidget {
                     item.product.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, fontSize: 14),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                      fontSize: 14,
+                    ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 4),
                   Text(
                     formatCurrency.format(item.product.price),
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.accent, width: 1.5),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text('${item.quantity}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent, fontSize: 15)),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
                   formatCurrency.format(item.totalPrice),
-                  style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14),
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.border),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: () => context.read<CartCubit>().decreaseQuantity(
+                          item.product,
+                        ),
+                        borderRadius: const BorderRadius.horizontal(
+                          left: Radius.circular(8),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          child: Icon(
+                            Icons.remove,
+                            size: 16,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        constraints: const BoxConstraints(minWidth: 24),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${item.quantity}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () =>
+                            context.read<CartCubit>().addToCart(item.product),
+                        borderRadius: const BorderRadius.horizontal(
+                          right: Radius.circular(8),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            size: 16,
+                            color: AppColors.accent,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -252,14 +327,20 @@ class OrderConfirmationView extends StatelessWidget {
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Catatan pesanan...',
-                    hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6), fontSize: 13),
+                    hintStyle: TextStyle(
+                      color: AppColors.textSecondary.withValues(alpha: 0.6),
+                      fontSize: 13,
+                    ),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
-                  style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textPrimary,
+                  ),
                   onChanged: (val) {
-                    globalCartState.updateNote(item.product, val);
+                    context.read<CartCubit>().updateNote(item.product, val);
                   },
                 ),
               ),
@@ -267,7 +348,7 @@ class OrderConfirmationView extends StatelessWidget {
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
-                globalCartState.updateQuantity(item.product, 0);
+                context.read<CartCubit>().updateQuantity(item.product, 0);
               },
               child: Container(
                 width: 44,
@@ -276,7 +357,11 @@ class OrderConfirmationView extends StatelessWidget {
                   color: AppColors.danger.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.delete_outline_rounded, color: AppColors.danger, size: 20),
+                child: Icon(
+                  Icons.delete_outline_rounded,
+                  color: AppColors.danger,
+                  size: 20,
+                ),
               ),
             ),
           ],
@@ -290,16 +375,28 @@ class OrderConfirmationView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _buildActionButton(Icons.local_shipping_outlined, 'Ongkir', () {
-          showDialog(context: context, builder: (context) => const OngkirDialog());
+          showDialog(
+            context: context,
+            builder: (context) => const OngkirDialog(),
+          );
         }),
         _buildActionButton(Icons.discount_outlined, 'Diskon', () {
-          showDialog(context: context, builder: (context) => const DiskonDialog());
+          showDialog(
+            context: context,
+            builder: (context) => const DiskonDialog(),
+          );
         }),
         _buildActionButton(Icons.receipt_long_outlined, 'Pajak', () {
-          showDialog(context: context, builder: (context) => const PajakDialog());
+          showDialog(
+            context: context,
+            builder: (context) => const PajakDialog(),
+          );
         }),
         _buildActionButton(Icons.storefront_outlined, 'Layanan', () {
-          showDialog(context: context, builder: (context) => const LayananDialog());
+          showDialog(
+            context: context,
+            builder: (context) => const LayananDialog(),
+          );
         }),
       ],
     );
@@ -322,7 +419,11 @@ class OrderConfirmationView extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w500, fontSize: 12),
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
+            ),
           ),
         ],
       ),

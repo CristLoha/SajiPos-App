@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/data/dummy_data.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
 
 class PaymentSuccessView extends StatelessWidget {
   final VoidCallback onBackToHome;
@@ -19,11 +21,10 @@ class PaymentSuccessView extends StatelessWidget {
 
     return Container(
       color: AppColors.white,
-      child: AnimatedBuilder(
-        animation: globalCartState,
-        builder: (context, _) {
-          final items = globalCartState.items;
-          final subTotal = globalCartState.subTotal;
+      child: BlocBuilder<CartCubit, CartState>(
+        builder: (context, cartState) {
+          final items = cartState.items;
+          final subTotal = cartState.subTotal;
 
           return Column(
             children: [
