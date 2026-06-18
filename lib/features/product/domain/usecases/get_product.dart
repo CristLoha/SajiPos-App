@@ -8,7 +8,10 @@ class GetProduct {
 
   GetProduct(this.repository);
 
-  Future<Either<Failure, List<Product>>> execute(){
-    return repository.getProducts( );
+  Future<Either<Failure, List<Product>>> execute({
+    String? search,
+    int? categoryId,
+  }) {
+    return repository.getProducts(search: search, categoryId: categoryId);
   }
 }

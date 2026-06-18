@@ -28,12 +28,6 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
   );
 
   @override
-  void initState() {
-    super.initState();
-    context.read<ProductBloc>().add(GetProductsEvent());
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -42,10 +36,12 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
         const SizedBox(height: 24),
         CategoryTabs(
           selectedIndex: _selectedCategoryIndex,
-          onCategorySelected: (index) {
+          onCategorySelected: (index, categoryId) {
             setState(() {
               _selectedCategoryIndex = index;
             });
+            final filterId = categoryId == 0 ? null : categoryId;
+            context.read<ProductBloc>().add(GetProductsEvent(categoryId: filterId));
           },
         ),
         const SizedBox(height: 24),
@@ -57,12 +53,13 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
                   enabled: true,
                   child: GridView.builder(
                     padding: const EdgeInsets.only(bottom: 24),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.7,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.7,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
                     itemCount: 6,
                     itemBuilder: (context, index) {
                       return ProductCard(
@@ -79,16 +76,21 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
               }
 
               if (state is ProductError) {
-                final isNetworkError = state.message.toLowerCase().contains('socket') || 
-                                       state.message.toLowerCase().contains('network') ||
-                                       state.message.toLowerCase().contains('connection');
+                final isNetworkError =
+                    state.message.toLowerCase().contains('socket') ||
+                    state.message.toLowerCase().contains('network') ||
+                    state.message.toLowerCase().contains('connection');
 
                 return CustomErrorWidget(
-                  title: isNetworkError ? 'Koneksi Terputus' : 'Oops! Server Bermasalah',
-                  message: isNetworkError 
+                  title: isNetworkError
+                      ? 'Koneksi Terputus'
+                      : 'Oops! Server Bermasalah',
+                  message: isNetworkError
                       ? 'Pastikan kamu terhubung ke WiFi atau data seluler ya.'
                       : 'Tenang, data kamu aman. Tim kami sedang memperbaiki masalah ini.',
-                  icon: isNetworkError ? Icons.wifi_off_rounded : Icons.dns_rounded,
+                  icon: isNetworkError
+                      ? Icons.wifi_off_rounded
+                      : Icons.dns_rounded,
                   onRetry: () {
                     context.read<ProductBloc>().add(GetProductsEvent());
                   },
@@ -101,7 +103,7 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
                 if (products.isEmpty) {
                   return const Center(
                     child: Text(
-                      'Belum ada produk yang tersedia.',
+                      'Belum ada di kategori ini.',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 16,
@@ -129,9 +131,14 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
                         final qty = cartItem.isNotEmpty
                             ? cartItem.first.quantity
                             : 0;
-                            
-                        final baseUrl = ApiConstants.baseUrl.replaceAll('/api', '');
-                        final imageUrl = product.image.isNotEmpty ? '$baseUrl/storage/${product.image}' : null;
+
+                        final baseUrl = ApiConstants.baseUrl.replaceAll(
+                          '/api',
+                          '',
+                        );
+                        final imageUrl = product.image.isNotEmpty
+                            ? '$baseUrl/storage/${product.image}'
+                            : null;
 
                         return ProductCard(
                           title: product.name,

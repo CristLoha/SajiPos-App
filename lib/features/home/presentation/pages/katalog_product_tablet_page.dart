@@ -6,7 +6,6 @@ import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dar
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import '../../../../core/data/dummy_data.dart';
 import '../widgets/product_card.dart';
 import '../../../../core/components/custom_error_widget.dart';
 import '../../../../core/constants/api_constants.dart';
@@ -17,18 +16,17 @@ class KatalogProductTabletPage extends StatefulWidget {
   const KatalogProductTabletPage({super.key});
 
   @override
-  State<KatalogProductTabletPage> createState() => _KatalogProductTabletPageState();
+  State<KatalogProductTabletPage> createState() =>
+      _KatalogProductTabletPageState();
 }
 
 class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
   int _selectedCategoryIndex = 0;
-  final formatCurrency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<ProductBloc>().add(GetProductsEvent());
-  }
+  final formatCurrency = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +36,14 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
         const SizedBox(height: 32),
         CategoryTabs(
           selectedIndex: _selectedCategoryIndex,
-          onCategorySelected: (index) {
+          onCategorySelected: (index, categoryId) {
             setState(() {
               _selectedCategoryIndex = index;
             });
+            final filterId = categoryId == 0 ? null : categoryId;
+            context.read<ProductBloc>().add(
+              GetProductsEvent(categoryId: filterId),
+            );
           },
         ),
         const SizedBox(height: 24),
@@ -53,12 +55,13 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                   enabled: true,
                   child: GridView.builder(
                     padding: const EdgeInsets.only(bottom: 24),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 0.75,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
                     itemCount: 6,
                     itemBuilder: (context, index) {
                       return ProductCard(
@@ -75,16 +78,21 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
               }
 
               if (state is ProductError) {
-                final isNetworkError = state.message.toLowerCase().contains('socket') || 
-                                       state.message.toLowerCase().contains('network') ||
-                                       state.message.toLowerCase().contains('connection');
+                final isNetworkError =
+                    state.message.toLowerCase().contains('socket') ||
+                    state.message.toLowerCase().contains('network') ||
+                    state.message.toLowerCase().contains('connection');
 
                 return CustomErrorWidget(
-                  title: isNetworkError ? 'Koneksi Terputus' : 'Oops! Server Bermasalah',
-                  message: isNetworkError 
+                  title: isNetworkError
+                      ? 'Koneksi Terputus'
+                      : 'Oops! Server Bermasalah',
+                  message: isNetworkError
                       ? 'Pastikan kamu terhubung ke WiFi atau data seluler ya.'
                       : 'Tenang, data kamu aman. Tim kami sedang memperbaiki masalah ini.',
-                  icon: isNetworkError ? Icons.wifi_off_rounded : Icons.dns_rounded,
+                  icon: isNetworkError
+                      ? Icons.wifi_off_rounded
+                      : Icons.dns_rounded,
                   onRetry: () {
                     context.read<ProductBloc>().add(GetProductsEvent());
                   },
@@ -93,11 +101,10 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
 
               if (state is ProductLoaded) {
                 final products = state.products;
-
                 if (products.isEmpty) {
                   return const Center(
                     child: Text(
-                      'Belum ada produk yang tersedia.',
+                      'Belum ada di kategori ini.',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 16,
@@ -110,22 +117,30 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                   builder: (context, cartState) {
                     return GridView.builder(
                       padding: const EdgeInsets.only(bottom: 24),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.75,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
                       itemCount: products.length,
                       itemBuilder: (context, index) {
                         final product = products[index];
                         final cartItem = cartState.items
                             .where((item) => item.product.id == product.id)
                             .toList();
-                        final qty = cartItem.isNotEmpty ? cartItem.first.quantity : 0;
-                        
-                        final baseUrl = ApiConstants.baseUrl.replaceAll('/api', '');
-                        final imageUrl = product.image.isNotEmpty ? '$baseUrl/storage/${product.image}' : null;
+                        final qty = cartItem.isNotEmpty
+                            ? cartItem.first.quantity
+                            : 0;
+
+                        final baseUrl = ApiConstants.baseUrl.replaceAll(
+                          '/api',
+                          '',
+                        );
+                        final imageUrl = product.image.isNotEmpty
+                            ? '$baseUrl/storage/${product.image}'
+                            : null;
 
                         return ProductCard(
                           title: product.name,

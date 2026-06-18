@@ -17,13 +17,22 @@ class ProductRepositoryImpl implements ProductRepository {
   });
 
   @override
-  Future<Either<Failure, List<Product>>> getProducts() async {
+  Future<Either<Failure, List<Product>>> getProducts({
+    String? search,
+    int? categoryId,
+  }) async {
     try {
       final token = await localDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi telah berakhir. Silakan login kembali.'));
+        return const Left(
+          ServerFailure('Sesi telah berakhir. Silakan login kembali.'),
+        );
       }
-      final productModels = await remoteDataSource.getProducts(token);
+      final productModels = await remoteDataSource.getProducts(
+        token,
+        search: search,
+        categoryId: categoryId,
+      );
       final products = productModels.map((model) => model.toEntity()).toList();
       return Right(products);
     } on ServerException catch (e) {
@@ -38,9 +47,14 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final token = await localDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi telah berakhir. Silakan login kembali.'));
+        return const Left(
+          ServerFailure('Sesi telah berakhir. Silakan login kembali.'),
+        );
       }
-      final productModels = await remoteDataSource.getProducts(token, search: query);
+      final productModels = await remoteDataSource.getProducts(
+        token,
+        search: query,
+      );
       final products = productModels.map((model) => model.toEntity()).toList();
       return Right(products);
     } on ServerException catch (e) {
@@ -55,9 +69,14 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       final token = await localDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi telah berakhir. Silakan login kembali.'));
+        return const Left(
+          ServerFailure('Sesi telah berakhir. Silakan login kembali.'),
+        );
       }
-      final productDetailModel = await remoteDataSource.getProductDetail(token, id);
+      final productDetailModel = await remoteDataSource.getProductDetail(
+        token,
+        id,
+      );
       return Right(productDetailModel.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message ?? 'Gagal mengambil detail produk'));

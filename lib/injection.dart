@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
@@ -35,13 +36,15 @@ Future<void> init() async {
   // External
   final sharedPreferences = await SharedPreferences.getInstance();
   locator.registerLazySingleton(() => sharedPreferences);
-  locator.registerLazySingleton(() => Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-      sendTimeout: const Duration(seconds: 10),
+  locator.registerLazySingleton(
+    () => Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+        sendTimeout: const Duration(seconds: 10),
+      ),
     ),
-  ));
+  );
 
   // Data sources
   locator.registerLazySingleton<AuthLocalDataSource>(
@@ -101,6 +104,6 @@ Future<void> init() async {
   );
   locator.registerFactory(() => ProductBloc(locator()));
   locator.registerFactory(() => CartCubit());
+
+  locator.registerFactory(() => CategoryBloc(locator()));
 }
-
-
