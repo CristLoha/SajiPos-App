@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/responsive_layout.dart';
 
@@ -15,14 +17,14 @@ class HeaderSection extends StatelessWidget {
             children: [
               _buildTitle(),
               const SizedBox(height: 16),
-              _buildSearchBar(),
+              _buildSearchBar(context),
             ],
           )
         : Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildTitle(),
-              SizedBox(width: 320, child: _buildSearchBar()),
+              SizedBox(width: 320, child: _buildSearchBar(context)),
             ],
           );
   }
@@ -81,7 +83,7 @@ class HeaderSection extends StatelessWidget {
     return '$dayName, ${now.day} $monthName ${now.year}';
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(BuildContext context) {
     return Container(
       height: 48,
       decoration: BoxDecoration(
@@ -90,6 +92,11 @@ class HeaderSection extends StatelessWidget {
         border: Border.all(color: AppColors.border),
       ),
       child: TextField(
+        onChanged: (value) {
+          context.read<ProductBloc>().add(
+            GetProductsEvent(search: value.isEmpty ? '' : value),
+          );
+        },
         decoration: InputDecoration(
           hintText: 'Cari makanan, minuman...',
           hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),

@@ -41,7 +41,9 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
               _selectedCategoryIndex = index;
             });
             final filterId = categoryId == 0 ? null : categoryId;
-            context.read<ProductBloc>().add(GetProductsEvent(categoryId: filterId));
+            context.read<ProductBloc>().add(
+              GetProductsEvent(categoryId: filterId, isCategoryUpdate: true),
+            );
           },
         ),
         const SizedBox(height: 24),

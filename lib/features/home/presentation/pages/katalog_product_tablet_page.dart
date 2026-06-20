@@ -42,7 +42,7 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
             });
             final filterId = categoryId == 0 ? null : categoryId;
             context.read<ProductBloc>().add(
-              GetProductsEvent(categoryId: filterId),
+              GetProductsEvent(categoryId: filterId, isCategoryUpdate: true),
             );
           },
         ),

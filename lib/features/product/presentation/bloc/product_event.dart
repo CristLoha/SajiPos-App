@@ -9,8 +9,14 @@ sealed class ProductEvent extends Equatable {
 
 class GetProductsEvent extends ProductEvent {
   final int? categoryId;
-  const GetProductsEvent({this.categoryId});
+  final String? search;
+  final bool isCategoryUpdate;
+  const GetProductsEvent({
+    this.categoryId,
+    this.search,
+    this.isCategoryUpdate = false,
+  });
 
   @override
-  List<Object> get props => [categoryId ?? -1];
+  List<Object> get props => [categoryId ?? -1, search ?? '', isCategoryUpdate];
 }
