@@ -1,5 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
+import 'package:saji_pos_app/features/order/data/datasource/order_remote_data_source.dart';
+import 'package:saji_pos_app/features/order/data/repositories/order_repository_impl.dart';
+import 'package:saji_pos_app/features/order/domain/repositories/order_repository.dart';
+import 'package:saji_pos_app/features/order/domain/usecases/submit_order.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
@@ -60,6 +64,10 @@ Future<void> init() async {
     () => CategoryRemoteDataSourceImpl(dio: locator()),
   );
 
+  locator.registerLazySingleton<OrderRemoteDataSource>(
+    () => OrderRemoteDataSourceImpl(dio: locator()),
+  );
+
   // Repositories
   locator.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -86,6 +94,13 @@ Future<void> init() async {
     ),
   );
 
+  locator.registerLazySingleton<OrderRepository>(
+    () => OrderRepositoryImpl(
+      remoteDataSource: locator(),
+      localDataSource: locator(), // Wajib ditambahin biar bisa ambil token
+    ),
+  );
+
   // Use cases
   locator.registerLazySingleton(() => GetToken(locator()));
   locator.registerLazySingleton(() => PostLogin(locator()));
@@ -93,6 +108,7 @@ Future<void> init() async {
   locator.registerLazySingleton(() => GetProduct(locator()));
   locator.registerLazySingleton(() => GetCategories(locator()));
   locator.registerLazySingleton(() => GetProductDetail(locator()));
+  locator.registerLazySingleton(() => SubmitOrder(locator()));
 
   // Bloc
   locator.registerFactory(
