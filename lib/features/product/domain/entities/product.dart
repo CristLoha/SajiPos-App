@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:saji_pos_app/core/constants/api_constants.dart';
 
 class Product extends Equatable {
   const Product({
@@ -26,6 +27,12 @@ class Product extends Equatable {
   final String updatedAt;
 
   String get category => categoryId == 1 ? 'Minuman' : 'Makanan';
+
+  String? get fullImageUrl {
+    if (image.isEmpty) return null;
+    final baseUrl = ApiConstants.baseUrl.replaceAll('/api', '');
+    return '$baseUrl/storage/$image';
+  }
 
   @override
   List<Object?> get props => [

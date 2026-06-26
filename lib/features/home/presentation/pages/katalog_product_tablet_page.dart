@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:saji_pos_app/core/constants/app_colors.dart';
+import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
 import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../widgets/product_card.dart';
 import '../../../../core/components/custom_error_widget.dart';
-import '../../../../core/constants/api_constants.dart';
 import '../widgets/category_tabs.dart';
 import '../widgets/header_section.dart';
 
@@ -95,6 +95,7 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                       : Icons.dns_rounded,
                   onRetry: () {
                     context.read<ProductBloc>().add(GetProductsEvent());
+                    context.read<CategoryBloc>().add(GetCategoriesEvent());
                   },
                 );
               }
@@ -134,20 +135,12 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                             ? cartItem.first.quantity
                             : 0;
 
-                        final baseUrl = ApiConstants.baseUrl.replaceAll(
-                          '/api',
-                          '',
-                        );
-                        final imageUrl = product.image.isNotEmpty
-                            ? '$baseUrl/storage/${product.image}'
-                            : null;
-
                         return ProductCard(
                           title: product.name,
                           category: product.category,
                           price: formatCurrency.format(product.price),
                           quantity: qty,
-                          imageUrl: imageUrl,
+                          imageUrl: product.fullImageUrl,
                           onTap: () {
                             context.read<CartCubit>().addToCart(product);
                           },
