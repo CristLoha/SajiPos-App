@@ -4,6 +4,7 @@ import 'package:saji_pos_app/features/order/data/datasource/order_remote_data_so
 import 'package:saji_pos_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:saji_pos_app/features/order/domain/repositories/order_repository.dart';
 import 'package:saji_pos_app/features/order/domain/usecases/submit_order.dart';
+import 'package:saji_pos_app/features/order/presentation/bloc/order_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
@@ -122,4 +123,7 @@ Future<void> init() async {
   locator.registerFactory(() => CartCubit());
 
   locator.registerFactory(() => CategoryBloc(locator()));
+  locator.registerFactory(()=> OrderBloc(submitOrder: locator()));
+
+
 }

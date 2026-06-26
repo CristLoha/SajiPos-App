@@ -14,6 +14,8 @@ class Order extends Equatable {
     required this.total,
     required this.paymentMethod,
     required this.orderItems,
+    this.transactionId,
+    this.qrString,
   });
 
   final int id;
@@ -27,6 +29,8 @@ class Order extends Equatable {
   final int total;
   final String paymentMethod;
   final List<OrderItem> orderItems;
+  final String? transactionId;
+  final String? qrString;
 
   @override
   List<Object?> get props => [
@@ -41,5 +45,7 @@ class Order extends Equatable {
     total,
     paymentMethod,
     orderItems,
+    transactionId,
+    qrString,
   ];
 }

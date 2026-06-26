@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:saji_pos_app/features/order/domain/entities/order_item_request.dart';
+import 'package:saji_pos_app/features/order/domain/entities/order_request.dart';
+import 'package:saji_pos_app/features/order/presentation/bloc/order_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class PaymentView extends StatefulWidget {
@@ -6,17 +11,18 @@ class PaymentView extends StatefulWidget {
   final VoidCallback onConfirm;
 
   const PaymentView({
-    Key? key,
+    super.key,
     required this.onCancel,
     required this.onConfirm,
-  }) : super(key: key);
+  });
 
   @override
   State<PaymentView> createState() => _PaymentViewState();
 }
 
 class _PaymentViewState extends State<PaymentView> {
-  int _selectedTabIndex = 0; // 0 for QRIS, 1 for Cash
+  int _selectedTabIndex = 0;
+  String? _qrString;
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +58,21 @@ class _PaymentViewState extends State<PaymentView> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(child: _buildTabButton(0, 'QRIS', Icons.qr_code_2_rounded)),
+                    Expanded(
+                      child: _buildTabButton(
+                        0,
+                        'QRIS',
+                        Icons.qr_code_2_rounded,
+                      ),
+                    ),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildTabButton(1, 'Cash', Icons.payments_outlined)),
+                    Expanded(
+                      child: _buildTabButton(
+                        1,
+                        'Cash',
+                        Icons.payments_outlined,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 40),
@@ -84,7 +102,11 @@ class _PaymentViewState extends State<PaymentView> {
                     ),
                     child: Text(
                       'Batalkan',
-                      style: TextStyle(fontSize: 16, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -93,19 +115,66 @@ class _PaymentViewState extends State<PaymentView> {
               Expanded(
                 child: SizedBox(
                   height: 54,
-                  child: ElevatedButton(
-                    onPressed: widget.onConfirm,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Konfirmasi',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.white),
-                    ),
+                  child: BlocConsumer<OrderBloc, OrderState>(
+                    listener: (context, state) {
+                      if (state is OrderSuccess) {
+                        final qr = state.order.qrString;
+
+                        if (qr != null && qr.isNotEmpty) {
+                          setState(() {
+                            _qrString = qr;
+                          });
+                        } else {
+                          widget.onConfirm();
+                        }
+                      } else if (state is OrderError) {
+                        print("🔥 ERROR SAAT CHECKOUT: ${state.message}");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.message),
+                            backgroundColor: AppColors.danger,
+                          ),
+                        );
+                      }
+                    },
+                    builder: (context, state) {
+                      final isLoading = state is OrderLoading;
+                      return ElevatedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                if (_qrString != null) {
+                                  widget.onConfirm();
+                                } else {
+                                  _submitOrder(context);
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _qrString != null ? Colors.green : AppColors.accent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                _qrString != null ? 'Selesaikan Pembayaran' : 'Konfirmasi',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.white,
+                                ),
+                              ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -129,16 +198,28 @@ class _PaymentViewState extends State<PaymentView> {
         height: 52,
         decoration: BoxDecoration(
           color: isSelected ? AppColors.accent : AppColors.white,
-          border: Border.all(color: isSelected ? AppColors.accent : AppColors.border),
+          border: Border.all(
+            color: isSelected ? AppColors.accent : AppColors.border,
+          ),
           borderRadius: BorderRadius.circular(14),
           boxShadow: isSelected
-              ? [BoxShadow(color: AppColors.accent.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 3))]
+              ? [
+                  BoxShadow(
+                    color: AppColors.accent.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
               : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: isSelected ? AppColors.white : AppColors.textSecondary, size: 20),
+            Icon(
+              icon,
+              color: isSelected ? AppColors.white : AppColors.textSecondary,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Text(
               title,
@@ -173,7 +254,10 @@ class _PaymentViewState extends State<PaymentView> {
           const SizedBox(height: 16),
           const Text(
             'Scan to Pay',
-            style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -249,5 +333,29 @@ class _PaymentViewState extends State<PaymentView> {
         ),
       ),
     );
+  }
+
+  void _submitOrder(BuildContext context) {
+    final cartState = context.read<CartCubit>().state;
+    final orderItems = cartState.items.map((item) {
+      return OrderItemRequest(
+        productId: item.product.id,
+        quantity: item.quantity,
+        price: item.product.price.toDouble(),
+        note: item.note,
+      );
+    }).toList();
+
+    final request = OrderRequest(
+      cashierId: 1,
+      transactionTime: DateTime.now().toIso8601String(),
+      subTotal: cartState.subTotal,
+      serviceCharge: 0.0,
+      tax: 0.0,
+      total: cartState.subTotal,
+      paymentMethod: _selectedTabIndex == 0 ? 'QRIS' : 'CASH',
+      orderItems: orderItems,
+    );
+    context.read<OrderBloc>().add(SubmitOrderEvent(request));
   }
 }

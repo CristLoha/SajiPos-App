@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/core/utils/app_router.dart';
 import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
+import 'package:saji_pos_app/features/order/presentation/bloc/order_bloc.dart';
 import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'core/theme/app_theme.dart';
@@ -30,9 +31,15 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => di.locator<AuthBloc>()..add(AuthCheckStatus()),
         ),
-        BlocProvider(create: (_) => di.locator<ProductBloc>()..add(GetProductsEvent())),
+        BlocProvider(
+          create: (_) => di.locator<ProductBloc>()..add(GetProductsEvent()),
+        ),
         BlocProvider(create: (_) => di.locator<CartCubit>()),
-        BlocProvider(create: (_) => di.locator<CategoryBloc>()..add(GetCategoriesEvent())),
+        BlocProvider(
+          create: (_) => di.locator<CategoryBloc>()..add(GetCategoriesEvent()),
+        ),
+
+        BlocProvider(create: (_) => di.locator<OrderBloc>()),
       ],
       child: MaterialApp.router(
         title: 'Saji Pos App',
