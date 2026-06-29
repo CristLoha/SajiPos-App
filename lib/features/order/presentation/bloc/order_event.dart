@@ -15,3 +15,11 @@ class SubmitOrderEvent extends OrderEvent {
   @override
   List<Object> get props => [request];
 }
+
+class CheckOrderStatusEvent extends OrderEvent {
+  final int orderId;
+  const CheckOrderStatusEvent(this.orderId);
+
+  @override
+  List<Object> get props => [orderId];
+}

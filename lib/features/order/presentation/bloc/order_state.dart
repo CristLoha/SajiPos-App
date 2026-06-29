@@ -26,3 +26,11 @@ final class OrderError extends OrderState {
   @override
   List<Object> get props => [message];
 }
+
+final class OrderStatusChecked extends OrderState {
+  final Order order;
+  const OrderStatusChecked(this.order);
+
+  @override
+  List<Object> get props => [order];
+}

@@ -6,6 +6,7 @@ import 'package:saji_pos_app/features/order/data/models/order_request_model.dart
 
 abstract class OrderRemoteDataSource {
   Future<OrderModel> submitOrder(String token, OrderRequestModel order);
+  Future<OrderModel> getOrderStatus(String token, int orderId);
 }
 
 class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
@@ -29,7 +30,17 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return OrderModel.fromJson(response.data['data']);
+        print('🔥 [API SUCCESS] submitOrder: ${response.data}');
+        
+        final Map<String, dynamic> responseData = response.data;
+        final Map<String, dynamic> orderData = Map<String, dynamic>.from(responseData['data'] ?? {});
+        
+        // Cek kalau backend naruh payment_details di luar data object
+        if (responseData.containsKey('payment_details') && !orderData.containsKey('payment_details')) {
+          orderData['payment_details'] = responseData['payment_details'];
+        }
+        
+        return OrderModel.fromJson(orderData);
       } else {
         throw const ServerException('Gagal memproses pesanan');
       }
@@ -37,6 +48,36 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       if (e.response != null && e.response?.data != null) {
         final message =
             e.response?.data['message'] ?? 'Gagal memproses pesanan';
+        throw ServerException(message);
+      }
+      throw ServerException('Masalah koneksi internet atau server: $e');
+    } catch (e) {
+      throw ServerException('Terjadi kesalahan yang tidak terduga: $e');
+    }
+  }
+  @override
+  Future<OrderModel> getOrderStatus(String token, int orderId) async {
+    try {
+      final response = await dio.get(
+        '${ApiConstants.ordersEndpoint}/$orderId',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return OrderModel.fromJson(response.data['data']);
+      } else {
+        throw const ServerException('Gagal mengecek status pesanan');
+      }
+    } on DioException catch (e) {
+      if (e.response != null && e.response?.data != null) {
+        final message =
+            e.response?.data['message'] ?? 'Gagal mengecek status pesanan';
         throw ServerException(message);
       }
       throw ServerException('Masalah koneksi internet atau server: $e');

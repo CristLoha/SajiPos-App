@@ -39,4 +39,25 @@ class OrderRepositoryImpl implements OrderRepository {
       return Left(ServerFailure('Terjadi kesalahan yang tidaak terdugaa: $e'));
     }
   }
+  @override
+  Future<Either<Failure, Order>> getOrderStatus(int orderId) async {
+    try {
+      final token = await localDataSource.getToken();
+
+      if (token == null) {
+        return const Left(
+          ServerFailure('Sesi telah berakhir. Silahkan login kembali.'),
+        );
+      }
+
+      final result = await remoteDataSource.getOrderStatus(token, orderId);
+      return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(
+        ServerFailure(e.message ?? 'Gagal mengecek status pesanan'),
+      );
+    } catch (e) {
+      return Left(ServerFailure('Terjadi kesalahan yang tidak terduga: $e'));
+    }
+  }
 }

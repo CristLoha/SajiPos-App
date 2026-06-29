@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:saji_pos_app/features/order/domain/entities/order_item_request.dart';
 import 'package:saji_pos_app/features/order/domain/entities/order_request.dart';
@@ -22,7 +24,16 @@ class PaymentView extends StatefulWidget {
 
 class _PaymentViewState extends State<PaymentView> {
   int _selectedTabIndex = 0;
-  String? _qrString;
+  String? _snapRedirectUrl;
+  int? _currentOrderId;
+
+  Timer? _timer;
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,25 +70,22 @@ class _PaymentViewState extends State<PaymentView> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildTabButton(
-                        0,
-                        'QRIS',
-                        Icons.qr_code_2_rounded,
-                      ),
+                      child: _buildTabButton(0, 'Cash', Icons.payments_outlined),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: _buildTabButton(
-                        1,
-                        'Cash',
-                        Icons.payments_outlined,
-                      ),
+                      child: _buildTabButton(1, 'QRIS', Icons.qr_code_2_rounded),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildTabButton(2, 'Transfer', Icons.account_balance_rounded),
                     ),
                   ],
                 ),
                 const SizedBox(height: 40),
-                if (_selectedTabIndex == 0) _buildQrisSection(),
-                if (_selectedTabIndex == 1) _buildCashSection(),
+                if (_selectedTabIndex == 0) _buildCashSection(),
+                if (_selectedTabIndex == 1) _buildQrisSection(),
+                if (_selectedTabIndex == 2) _buildTransferSection(),
               ],
             ),
           ),
@@ -118,14 +126,44 @@ class _PaymentViewState extends State<PaymentView> {
                   child: BlocConsumer<OrderBloc, OrderState>(
                     listener: (context, state) {
                       if (state is OrderSuccess) {
-                        final qr = state.order.qrString;
+                        final snapUrl = state.order.snapRedirectUrl;
+                        _currentOrderId = state.order.id;
 
-                        if (qr != null && qr.isNotEmpty) {
+                        if (snapUrl != null && snapUrl.isNotEmpty) {
+                          print('\n=============================================');
+                          print('🔗 LINK MIDTRANS (KLIK & BUKA DI LAPTOP):');
+                          print(snapUrl);
+                          print('=============================================\n');
                           setState(() {
-                            _qrString = qr;
+                            _snapRedirectUrl = snapUrl;
                           });
                         } else {
                           widget.onConfirm();
+                        }
+                      } else if (state is OrderStatusChecked) {
+                        final status = state.order.paymentStatus?.toLowerCase();
+                        if (status == 'settlement' ||
+                            status == 'paid' ||
+                            status == 'success' ||
+                            status == 'capture') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Pembayaran berhasil dikonfirmasi!',
+                              ),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                          widget.onConfirm();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Status pembayaran saat ini: ${status ?? 'pending'}. Silakan bayar terlebih dahulu.',
+                              ),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
                         }
                       } else if (state is OrderError) {
                         print("🔥 ERROR SAAT CHECKOUT: ${state.message}");
@@ -140,17 +178,35 @@ class _PaymentViewState extends State<PaymentView> {
                     builder: (context, state) {
                       final isLoading = state is OrderLoading;
                       return ElevatedButton(
+                        onLongPress: () {
+                          // 🛠️ DEV CHEAT: Bypass pembayaran untuk testing
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('🛠️ DEV CHEAT: Pembayaran QRIS dipaksa sukses!'),
+                              backgroundColor: Colors.purple,
+                            ),
+                          );
+                          widget.onConfirm();
+                        },
                         onPressed: isLoading
                             ? null
-                            : () {
-                                if (_qrString != null) {
-                                  widget.onConfirm();
+                            : () async {
+                                if (_selectedTabIndex == 1 || _selectedTabIndex == 2) {
+                                  if (_snapRedirectUrl != null && _currentOrderId != null) {
+                                    context.read<OrderBloc>().add(
+                                      CheckOrderStatusEvent(_currentOrderId!),
+                                    );
+                                  } else {
+                                    _submitOrder(context);
+                                  }
                                 } else {
                                   _submitOrder(context);
                                 }
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _qrString != null ? Colors.green : AppColors.accent,
+                          backgroundColor: (_snapRedirectUrl != null && (_selectedTabIndex == 1 || _selectedTabIndex == 2))
+                              ? Colors.green
+                              : AppColors.accent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -166,7 +222,11 @@ class _PaymentViewState extends State<PaymentView> {
                                 ),
                               )
                             : Text(
-                                _qrString != null ? 'Selesaikan Pembayaran' : 'Konfirmasi',
+                                (_selectedTabIndex == 1 || _selectedTabIndex == 2)
+                                    ? (_snapRedirectUrl != null
+                                        ? 'Cek Status Pembayaran'
+                                        : 'Konfirmasi')
+                                    : 'Konfirmasi',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -238,26 +298,154 @@ class _PaymentViewState extends State<PaymentView> {
     return Center(
       child: Column(
         children: [
-          Container(
-            width: 200,
-            height: 200,
-            decoration: BoxDecoration(
-              color: AppColors.accentLight,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              Icons.qr_code_2_rounded,
-              size: 140,
-              color: AppColors.accent.withValues(alpha: 0.7),
+          InkWell(
+            onTap: _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
+                ? () async {
+                    final uri = Uri.parse(_snapRedirectUrl!);
+                    try {
+                      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      if (!launched) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Gagal membuka browser di perangkat ini')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: Tidak dapat membuka link')),
+                      );
+                    }
+                  }
+                : null,
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              width: 200,
+              height: 200,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _snapRedirectUrl != null ? AppColors.accent : AppColors.border,
+                  width: _snapRedirectUrl != null ? 2 : 1,
+                ),
+              ),
+              child: _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.open_in_browser_rounded,
+                          size: 80,
+                          color: AppColors.accent,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Buka Link\nPembayaran',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.accent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Icon(
+                      Icons.qr_code_2_rounded,
+                      size: 140,
+                      color: AppColors.accent.withValues(alpha: 0.7),
+                    ),
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Scan to Pay',
-            style: TextStyle(
+          Text(
+            _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
+                ? 'Klik kotak di atas untuk membayar, lalu klik "Cek Status Pembayaran" di bawah'
+                : 'Pilih "Konfirmasi" untuk checkout',
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTransferSection() {
+    return Center(
+      child: Column(
+        children: [
+          InkWell(
+            onTap: _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
+                ? () async {
+                    final uri = Uri.parse(_snapRedirectUrl!);
+                    try {
+                      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      if (!launched) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Gagal membuka browser di perangkat ini')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: Tidak dapat membuka link')),
+                      );
+                    }
+                  }
+                : null,
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              width: 200,
+              height: 200,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _snapRedirectUrl != null ? AppColors.accent : AppColors.border,
+                  width: _snapRedirectUrl != null ? 2 : 1,
+                ),
+              ),
+              child: _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.open_in_browser_rounded,
+                          size: 80,
+                          color: AppColors.accent,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Buka Link\nTransfer',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.accent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Icon(
+                      Icons.account_balance_rounded,
+                      size: 140,
+                      color: AppColors.accent.withValues(alpha: 0.7),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
+                ? 'Klik kotak di atas untuk melihat pilihan Bank Transfer, lalu klik "Cek Status Pembayaran" di bawah'
+                : 'Pilih "Konfirmasi" untuk checkout via Transfer',
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -353,7 +541,7 @@ class _PaymentViewState extends State<PaymentView> {
       serviceCharge: 0.0,
       tax: 0.0,
       total: cartState.subTotal,
-      paymentMethod: _selectedTabIndex == 0 ? 'QRIS' : 'CASH',
+      paymentMethod: _selectedTabIndex == 0 ? 'CASH' : _selectedTabIndex == 1 ? 'QRIS' : 'transfer',
       orderItems: orderItems,
     );
     context.read<OrderBloc>().add(SubmitOrderEvent(request));

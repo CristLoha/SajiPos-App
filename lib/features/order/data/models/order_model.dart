@@ -17,6 +17,11 @@ class OrderModel extends Equatable {
     required this.orderItems,
     this.transactionId,
     this.qrString,
+    this.snapToken,
+    this.snapRedirectUrl,
+    this.qrImageUrl,
+    this.paymentStatus,
+    this.expiryTime,
   });
 
   final int? id;
@@ -32,6 +37,11 @@ class OrderModel extends Equatable {
   final List<OrderItemModel> orderItems;
   final String? transactionId;
   final String? qrString;
+  final String? snapToken;
+  final String? snapRedirectUrl;
+  final String? qrImageUrl;
+  final String? paymentStatus;
+  final String? expiryTime;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     final paymentDetails = json['payment_details'] as Map<String, dynamic>?;
@@ -69,6 +79,11 @@ class OrderModel extends Equatable {
           : [],
       transactionId: paymentDetails?['transaction_id']?.toString(),
       qrString: paymentDetails?['qr_string']?.toString(),
+      snapToken: paymentDetails?['snap_token']?.toString(),
+      snapRedirectUrl: paymentDetails?['snap_redirect_url']?.toString(),
+      qrImageUrl: paymentDetails?['qr_image_url']?.toString(),
+      paymentStatus: paymentDetails?['status']?.toString(),
+      expiryTime: paymentDetails?['expiry_time']?.toString(),
     );
   }
 
@@ -84,10 +99,15 @@ class OrderModel extends Equatable {
       'total': total,
       'payment_method': paymentMethod,
       'order_items': orderItems.map((e) => e.toJson()).toList(),
-      if (transactionId != null || qrString != null)
+      if (transactionId != null || qrString != null || snapToken != null || snapRedirectUrl != null || qrImageUrl != null)
         'payment_details': {
           if (transactionId != null) 'transaction_id': transactionId,
           if (qrString != null) 'qr_string': qrString,
+          if (snapToken != null) 'snap_token': snapToken,
+          if (snapRedirectUrl != null) 'snap_redirect_url': snapRedirectUrl,
+          if (qrImageUrl != null) 'qr_image_url': qrImageUrl,
+          if (paymentStatus != null) 'status': paymentStatus,
+          if (expiryTime != null) 'expiry_time': expiryTime,
         }
     };
   }
@@ -107,6 +127,11 @@ class OrderModel extends Equatable {
       orderItems: orderItems.map((e) => e.toEntity()).toList(),
       transactionId: transactionId,
       qrString: qrString,
+      snapToken: snapToken,
+      snapRedirectUrl: snapRedirectUrl,
+      qrImageUrl: qrImageUrl,
+      paymentStatus: paymentStatus,
+      expiryTime: expiryTime,
     );
   }
 
@@ -125,5 +150,10 @@ class OrderModel extends Equatable {
         orderItems,
         transactionId,
         qrString,
+        snapToken,
+        snapRedirectUrl,
+        qrImageUrl,
+        paymentStatus,
+        expiryTime,
       ];
 }

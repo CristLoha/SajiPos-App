@@ -5,4 +5,5 @@ import 'package:saji_pos_app/features/order/domain/entities/order.dart';
 
 abstract class OrderRepository {
   Future<Either<Failure, Order>> submitOrder(OrderRequest request);
+  Future<Either<Failure, Order>> getOrderStatus(int orderId);
 }

@@ -16,6 +16,11 @@ class Order extends Equatable {
     required this.orderItems,
     this.transactionId,
     this.qrString,
+    this.snapToken,
+    this.snapRedirectUrl,
+    this.qrImageUrl,
+    this.paymentStatus,
+    this.expiryTime,
   });
 
   final int id;
@@ -31,6 +36,11 @@ class Order extends Equatable {
   final List<OrderItem> orderItems;
   final String? transactionId;
   final String? qrString;
+  final String? snapToken;
+  final String? snapRedirectUrl;
+  final String? qrImageUrl;
+  final String? paymentStatus;
+  final String? expiryTime;
 
   @override
   List<Object?> get props => [
@@ -47,5 +57,10 @@ class Order extends Equatable {
     orderItems,
     transactionId,
     qrString,
+    snapToken,
+    snapRedirectUrl,
+    qrImageUrl,
+    paymentStatus,
+    expiryTime,
   ];
 }
