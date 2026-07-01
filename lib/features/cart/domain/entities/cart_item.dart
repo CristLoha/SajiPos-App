@@ -5,17 +5,9 @@ class CartItem {
   final int quantity;
   final String note;
 
-  CartItem({
-    required this.product,
-    this.quantity = 1,
-    this.note = '',
-  });
+  CartItem({required this.product, this.quantity = 1, this.note = ''});
 
-  CartItem copyWith({
-    Product? product,
-    int? quantity,
-    String? note,
-  }) {
+  CartItem copyWith({Product? product, int? quantity, String? note}) {
     return CartItem(
       product: product ?? this.product,
       quantity: quantity ?? this.quantity,
@@ -23,5 +15,5 @@ class CartItem {
     );
   }
 
-  int get totalPrice => product.price * quantity;
+  int get totalPrice => product.actualPrice * quantity;
 }

@@ -139,6 +139,9 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
                           title: product.name,
                           category: product.category,
                           price: formatCurrency.format(product.price),
+                          discountPrice: product.discountPrice != null
+                              ? formatCurrency.format(product.discountPrice)
+                              : null,
                           quantity: qty,
                           stock: product.stock,
                           imageUrl: product.fullImageUrl,

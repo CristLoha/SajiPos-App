@@ -8,6 +8,7 @@ class Product extends Equatable {
     required this.name,
     required this.description,
     required this.price,
+    this.discountPrice,
     required this.stock,
     required this.image,
     required this.status,
@@ -20,6 +21,7 @@ class Product extends Equatable {
   final String name;
   final String description;
   final int price;
+  final int? discountPrice;
   final int stock;
   final String image;
   final int status;
@@ -27,6 +29,7 @@ class Product extends Equatable {
   final String updatedAt;
 
   String get category => categoryId == 1 ? 'Minuman' : 'Makanan';
+  int get actualPrice => discountPrice ?? price;
 
   String? get fullImageUrl {
     if (image.isEmpty) return null;
@@ -36,11 +39,13 @@ class Product extends Equatable {
 
   @override
   List<Object?> get props => [
-
     id,
     categoryId,
     name,
     description,
+    price,
+    discountPrice,
+    stock,
     image,
     createdAt,
     updatedAt,

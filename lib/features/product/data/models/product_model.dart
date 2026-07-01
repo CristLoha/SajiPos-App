@@ -9,6 +9,7 @@ class ProductModel extends Equatable {
     required this.name,
     required this.description,
     required this.price,
+    this.discountPrice,
     required this.stock,
     required this.image,
     required this.status,
@@ -22,6 +23,7 @@ class ProductModel extends Equatable {
   final String name;
   final String description;
   final int price;
+  final int? discountPrice;
   final int stock;
   final String image;
   final int status;
@@ -29,17 +31,31 @@ class ProductModel extends Equatable {
   final String updatedAt;
   final CategoryModel? category;
 
-
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
-      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()) ?? 0,
-      categoryId: json['category_id'] is int ? json['category_id'] as int : int.tryParse(json['category_id'].toString()) ?? 0,
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse(json['id'].toString()) ?? 0,
+      categoryId: json['category_id'] is int
+          ? json['category_id'] as int
+          : int.tryParse(json['category_id'].toString()) ?? 0,
       name: json['name']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
-      price: json['price'] is int ? json['price'] as int : int.tryParse(json['price'].toString()) ?? 0,
-      stock: json['stock'] is int ? json['stock'] as int : int.tryParse(json['stock'].toString()) ?? 0,
+      price: json['price'] is int
+          ? json['price'] as int
+          : int.tryParse(json['price'].toString()) ?? 0,
+      discountPrice: json['discount_price'] != null
+          ? (json['discount_price'] is int
+                ? json['discount_price'] as int
+                : int.tryParse(json['discount_price'].toString()))
+          : null,
+      stock: json['stock'] is int
+          ? json['stock'] as int
+          : int.tryParse(json['stock'].toString()) ?? 0,
       image: json['image']?.toString() ?? '',
-      status: json['status'] is int ? json['status'] as int : int.tryParse(json['status'].toString()) ?? 0,
+      status: json['status'] is int
+          ? json['status'] as int
+          : int.tryParse(json['status'].toString()) ?? 0,
       createdAt: json['created_at']?.toString() ?? '',
       updatedAt: json['updated_at']?.toString() ?? '',
       category: json['category'] != null
@@ -48,7 +64,6 @@ class ProductModel extends Equatable {
     );
   }
 
-  /// Mengubah [ProductModel] menjadi format JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -56,6 +71,7 @@ class ProductModel extends Equatable {
       'name': name,
       'description': description,
       'price': price,
+      'discount_price': discountPrice,
       'stock': stock,
       'image': image,
       'status': status,
@@ -74,6 +90,7 @@ class ProductModel extends Equatable {
       name: name,
       description: description,
       price: price,
+      discountPrice: discountPrice,
       stock: stock,
       image: image,
       status: status,

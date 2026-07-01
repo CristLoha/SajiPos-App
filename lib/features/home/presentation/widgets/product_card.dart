@@ -5,6 +5,7 @@ class ProductCard extends StatelessWidget {
   final String title;
   final String category;
   final String price;
+  final String? discountPrice;
   final int quantity;
   final int stock;
   final String? imageUrl;
@@ -17,6 +18,7 @@ class ProductCard extends StatelessWidget {
     required this.title,
     required this.category,
     required this.price,
+    this.discountPrice,
     this.quantity = 0,
     this.stock = 0,
     this.imageUrl,
@@ -49,7 +51,6 @@ class ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Image area
                     Expanded(
                       flex: 3,
                       child: Container(
@@ -61,47 +62,66 @@ class ProductCard extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: ColorFiltered(
-                            colorFilter: stock > 0 
-                                ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
+                            colorFilter: stock > 0
+                                ? const ColorFilter.mode(
+                                    Colors.transparent,
+                                    BlendMode.multiply,
+                                  )
                                 : const ColorFilter.matrix(<double>[
-                                    0.2126, 0.7152, 0.0722, 0, 0,
-                                    0.2126, 0.7152, 0.0722, 0, 0,
-                                    0.2126, 0.7152, 0.0722, 0, 0,
-                                    0,      0,      0,      1, 0,
-                                  ]), // Grayscale filter
+                                    0.2126,
+                                    0.7152,
+                                    0.0722,
+                                    0,
+                                    0,
+                                    0.2126,
+                                    0.7152,
+                                    0.0722,
+                                    0,
+                                    0,
+                                    0.2126,
+                                    0.7152,
+                                    0.0722,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    1,
+                                    0,
+                                  ]),
                             child: imageUrl != null && imageUrl!.isNotEmpty
-                              ? Image.network(
-                                  imageUrl!,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Center(
-                                      child: Icon(
-                                        Icons.fastfood_rounded,
-                                        color: AppColors.accent.withValues(
-                                          alpha: 0.5,
+                                ? Image.network(
+                                    imageUrl!,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Center(
+                                        child: Icon(
+                                          Icons.fastfood_rounded,
+                                          color: AppColors.accent.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          size: 48,
                                         ),
-                                        size: 48,
+                                      );
+                                    },
+                                  )
+                                : Center(
+                                    child: Icon(
+                                      Icons.fastfood_rounded,
+                                      color: AppColors.accent.withValues(
+                                        alpha: 0.5,
                                       ),
-                                    );
-                                  },
-                                )
-                              : Center(
-                                  child: Icon(
-                                    Icons.fastfood_rounded,
-                                    color: AppColors.accent.withValues(
-                                      alpha: 0.5,
+                                      size: 48,
                                     ),
-                                    size: 48,
                                   ),
-                                ),
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    // Title
+
                     Text(
                       title,
                       maxLines: 2,
@@ -114,42 +134,52 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Category & Price
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.accentLight,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              category,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.accent,
+                          child: Column(
+                            children: [
+                              Text(
+                                category,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.accent,
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 4),
                         Flexible(
-                          child: Text(
-                            price,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.accent,
-                            ),
+                          child: Column(
+                            children: [
+                              if (discountPrice != null)
+                                Text(
+                                  price,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    decoration: TextDecoration.lineThrough,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              Text(
+                                discountPrice ?? price,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: 
+                                       AppColors.accent,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -157,7 +187,7 @@ class ProductCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Cart badge - shows cart icon or quantity
+
               if (stock > 0)
                 Positioned(
                   top: 10,
@@ -203,7 +233,10 @@ class ProductCard extends StatelessWidget {
                   top: 10,
                   right: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.danger,
                       borderRadius: BorderRadius.circular(10),
