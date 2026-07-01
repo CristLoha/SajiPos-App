@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/core/constants/app_colors.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import '../../widgets/payment_success_view.dart';
 
 class MobilePaymentSuccessPage extends StatelessWidget {
@@ -12,7 +14,7 @@ class MobilePaymentSuccessPage extends StatelessWidget {
       body: SafeArea(
         child: PaymentSuccessView(
           onBackToHome: () {
-            // Kembali ke layar paling awal (Home)
+            context.read<CartCubit>().clearCart();
             Navigator.popUntil(context, (route) => route.isFirst);
           },
         ),

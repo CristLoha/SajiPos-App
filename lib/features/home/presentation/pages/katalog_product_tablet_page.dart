@@ -140,6 +140,7 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                           category: product.category,
                           price: formatCurrency.format(product.price),
                           quantity: qty,
+                          stock: product.stock,
                           imageUrl: product.fullImageUrl,
                           onTap: () {
                             context.read<CartCubit>().addToCart(product);

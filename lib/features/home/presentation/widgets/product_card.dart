@@ -6,6 +6,7 @@ class ProductCard extends StatelessWidget {
   final String category;
   final String price;
   final int quantity;
+  final int stock;
   final String? imageUrl;
   final VoidCallback? onTap;
   final VoidCallback? onAdd;
@@ -17,6 +18,7 @@ class ProductCard extends StatelessWidget {
     required this.category,
     required this.price,
     this.quantity = 0,
+    this.stock = 0,
     this.imageUrl,
     this.onTap,
     this.onAdd,
@@ -30,7 +32,7 @@ class ProductCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       elevation: 0,
       child: InkWell(
-        onTap: onTap,
+        onTap: stock > 0 ? onTap : null,
         borderRadius: BorderRadius.circular(20),
         child: Container(
           decoration: BoxDecoration(
@@ -58,7 +60,16 @@ class ProductCard extends StatelessWidget {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: imageUrl != null && imageUrl!.isNotEmpty
+                          child: ColorFiltered(
+                            colorFilter: stock > 0 
+                                ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
+                                : const ColorFilter.matrix(<double>[
+                                    0.2126, 0.7152, 0.0722, 0, 0,
+                                    0.2126, 0.7152, 0.0722, 0, 0,
+                                    0.2126, 0.7152, 0.0722, 0, 0,
+                                    0,      0,      0,      1, 0,
+                                  ]), // Grayscale filter
+                            child: imageUrl != null && imageUrl!.isNotEmpty
                               ? Image.network(
                                   imageUrl!,
                                   fit: BoxFit.cover,
@@ -85,6 +96,7 @@ class ProductCard extends StatelessWidget {
                                     size: 48,
                                   ),
                                 ),
+                          ),
                         ),
                       ),
                     ),
@@ -146,45 +158,66 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
               // Cart badge - shows cart icon or quantity
-              Positioned(
-                top: 10,
-                right: 10,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: quantity > 0
-                        ? AppColors.accent
-                        : AppColors.accent.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      if (quantity > 0)
-                        BoxShadow(
-                          color: AppColors.accent.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                    ],
-                  ),
-                  child: Center(
-                    child: quantity > 0
-                        ? Text(
-                            '$quantity',
-                            style: const TextStyle(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          )
-                        : const Icon(
-                            Icons.shopping_cart_outlined,
-                            color: AppColors.white,
-                            size: 18,
+              if (stock > 0)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: quantity > 0
+                          ? AppColors.accent
+                          : AppColors.accent.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        if (quantity > 0)
+                          BoxShadow(
+                            color: AppColors.accent.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
                           ),
+                      ],
+                    ),
+                    child: Center(
+                      child: quantity > 0
+                          ? Text(
+                              '$quantity',
+                              style: const TextStyle(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.shopping_cart_outlined,
+                              color: AppColors.white,
+                              size: 18,
+                            ),
+                    ),
+                  ),
+                )
+              else
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'Habis',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

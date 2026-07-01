@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:saji_pos_app/features/order/presentation/bloc/order_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
@@ -8,14 +9,15 @@ import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
 class PaymentSuccessView extends StatelessWidget {
   final VoidCallback onBackToHome;
 
-  const PaymentSuccessView({
-    Key? key,
-    required this.onBackToHome,
-  }) : super(key: key);
+  const PaymentSuccessView({super.key, required this.onBackToHome});
 
   @override
   Widget build(BuildContext context) {
-    final formatCurrency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
     final now = DateTime.now();
     final dateFormat = DateFormat('dd MMM yyyy, HH:mm');
 
@@ -86,53 +88,58 @@ class PaymentSuccessView extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // Item list
-                      ...items.map((item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.product.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
-                                      fontSize: 14,
+                      ...items.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 4,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.product.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                        fontSize: 14,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '${item.quantity}x  ${formatCurrency.format(item.product.price)}',
-                                    style: const TextStyle(
-                                      color: AppColors.textSecondary,
-                                      fontSize: 12,
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${item.quantity}x  ${formatCurrency.format(item.product.price)}',
+                                      style: const TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 12,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            Text(
-                              formatCurrency.format(item.totalPrice),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                                fontSize: 14,
+                              Text(
+                                formatCurrency.format(item.totalPrice),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                  fontSize: 14,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      )),
+                      ),
 
                       const SizedBox(height: 8),
                       _buildDashedDivider(),
                       const SizedBox(height: 16),
 
                       // Summary rows
-                      _buildReceiptRow('Subtotal', formatCurrency.format(subTotal)),
+                      _buildReceiptRow(
+                        'Subtotal',
+                        formatCurrency.format(subTotal),
+                      ),
                       const SizedBox(height: 8),
                       _buildReceiptRow('Pajak', 'Rp 0'),
                       const SizedBox(height: 8),
@@ -145,7 +152,10 @@ class PaymentSuccessView extends StatelessWidget {
 
                       // Total
                       Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 16,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.accentLight,
                           borderRadius: BorderRadius.circular(12),
@@ -175,19 +185,43 @@ class PaymentSuccessView extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       // Payment method
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.credit_card_rounded, size: 16, color: AppColors.textSecondary),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Metode: QRIS',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
+                      BlocBuilder<OrderBloc, OrderState>(
+                        builder: (context, orderState) {
+                          String paymentMethod = 'Tidak diketahui';
+
+                          if (orderState is OrderSuccess) {
+                            paymentMethod = orderState.order.paymentMethod;
+                          } else if (orderState is OrderStatusChecked) {
+                            paymentMethod = orderState.order.paymentMethod;
+                          }
+
+                          if (paymentMethod.toLowerCase() == 'qris') {
+                            paymentMethod = 'QRIS';
+                          } else if (paymentMethod.toLowerCase() ==
+                              'transfer') {
+                            paymentMethod = 'Transfer Bank';
+                          } else if (paymentMethod.toLowerCase() == 'cash') {
+                            paymentMethod = 'Tunai / Cash';
+                          }
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.credit_card_rounded,
+                                size: 16,
+                                color: AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Metode: $paymentMethod',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -214,7 +248,11 @@ class PaymentSuccessView extends StatelessWidget {
                     ),
                     child: const Text(
                       'Kembali ke Beranda',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.white),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -230,8 +268,18 @@ class PaymentSuccessView extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-        Text(value, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w500, fontSize: 14)),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
+        ),
       ],
     );
   }
@@ -241,7 +289,8 @@ class PaymentSuccessView extends StatelessWidget {
       builder: (context, constraints) {
         final dashWidth = 6.0;
         final dashSpace = 4.0;
-        final dashCount = (constraints.maxWidth / (dashWidth + dashSpace)).floor();
+        final dashCount = (constraints.maxWidth / (dashWidth + dashSpace))
+            .floor();
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(dashCount, (_) {

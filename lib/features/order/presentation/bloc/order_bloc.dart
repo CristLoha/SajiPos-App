@@ -29,11 +29,33 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
 
     on<CheckOrderStatusEvent>((event, emit) async {
       emit(OrderLoading());
-      final result = await getOrderStatus(event.orderId);
-      result.fold(
-        (failure) => emit(OrderError(failure.message)),
-        (success) => emit(OrderStatusChecked(success)),
+      
+      // Simulasi backend belum online: delay sebentar lalu kembalikan status success/paid
+      await Future.delayed(const Duration(seconds: 1));
+      
+      final dummyOrder = Order(
+        id: event.orderId,
+        cashierId: 1,
+        transactionTime: DateTime.now().toIso8601String(),
+        subTotal: 0,
+        discountAmount: 0,
+        shippingCost: 0,
+        serviceCharge: 0,
+        tax: 0,
+        total: 0,
+        paymentMethod: 'SIMULASI',
+        orderItems: const [],
+        paymentStatus: 'settlement', // PENTING: Supaya masuk kondisi sukses
       );
+      
+      emit(OrderStatusChecked(dummyOrder));
+
+      // Aslinya:
+      // final result = await getOrderStatus(event.orderId);
+      // result.fold(
+      //   (failure) => emit(OrderError(failure.message)),
+      //   (success) => emit(OrderStatusChecked(success)),
+      // );
     });
   }
 }

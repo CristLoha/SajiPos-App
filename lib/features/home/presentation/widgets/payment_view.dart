@@ -178,16 +178,6 @@ class _PaymentViewState extends State<PaymentView> {
                     builder: (context, state) {
                       final isLoading = state is OrderLoading;
                       return ElevatedButton(
-                        onLongPress: () {
-                          // 🛠️ DEV CHEAT: Bypass pembayaran untuk testing
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('🛠️ DEV CHEAT: Pembayaran QRIS dipaksa sukses!'),
-                              backgroundColor: Colors.purple,
-                            ),
-                          );
-                          widget.onConfirm();
-                        },
                         onPressed: isLoading
                             ? null
                             : () async {
