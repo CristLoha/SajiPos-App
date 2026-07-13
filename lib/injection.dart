@@ -1,5 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
+import 'package:saji_pos_app/features/discount/data/datasources/discount_remote_data_source.dart';
+import 'package:saji_pos_app/features/discount/data/repositories/discount_repository_impl.dart';
+import 'package:saji_pos_app/features/discount/domain/repositories/discount_repository.dart';
+import 'package:saji_pos_app/features/discount/domain/usecases/get_active_discount.dart';
+import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
 import 'package:saji_pos_app/features/order/data/datasource/order_remote_data_source.dart';
 import 'package:saji_pos_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:saji_pos_app/features/order/domain/repositories/order_repository.dart';
@@ -70,6 +75,10 @@ Future<void> init() async {
     () => OrderRemoteDataSourceImpl(dio: locator()),
   );
 
+  locator.registerLazySingleton<DiscountRemoteDataSource>(
+    () => DiscountRemoteDataSourceImpl(dio: locator()),
+  );
+
   // Repositories
   locator.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -99,7 +108,14 @@ Future<void> init() async {
   locator.registerLazySingleton<OrderRepository>(
     () => OrderRepositoryImpl(
       remoteDataSource: locator(),
-      localDataSource: locator(), // Wajib ditambahin biar bisa ambil token
+      localDataSource: locator(),
+    ),
+  );
+
+  locator.registerLazySingleton<DiscountRepository>(
+    () => DiscountRepositoryImpl(
+      remoteDataSource: locator(),
+      localDataSource: locator(),
     ),
   );
 
@@ -112,6 +128,7 @@ Future<void> init() async {
   locator.registerLazySingleton(() => GetProductDetail(locator()));
   locator.registerLazySingleton(() => SubmitOrder(locator()));
   locator.registerLazySingleton(() => GetOrderStatus(locator()));
+  locator.registerLazySingleton(() => GetActiveDiscount(locator()));
 
   // Bloc
   locator.registerFactory(
@@ -125,10 +142,9 @@ Future<void> init() async {
   locator.registerFactory(() => CartCubit());
 
   locator.registerFactory(() => CategoryBloc(locator()));
-  locator.registerFactory(() => OrderBloc(
-    submitOrder: locator(),
-    getOrderStatus: locator(),
-  ));
+  locator.registerFactory(
+    () => OrderBloc(submitOrder: locator(), getOrderStatus: locator()),
+  );
 
-
+  locator.registerFactory(() => DiscountBloc(locator()));
 }

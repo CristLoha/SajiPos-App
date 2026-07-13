@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class DiskonDialog extends StatefulWidget {
-  const DiskonDialog({Key? key}) : super(key: key);
+  const DiskonDialog({super.key});
 
   @override
   State<DiskonDialog> createState() => _DiskonDialogState();
 }
 
 class _DiskonDialogState extends State<DiskonDialog> {
-  bool _isValentineSelected = true;
-  bool _isGrandOpeningSelected = true;
+  final Set<int> _selectedDiscountIds = {};
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         width: 316,
         padding: const EdgeInsets.all(24.0),
@@ -31,7 +30,7 @@ class _DiskonDialogState extends State<DiskonDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(width: 32), // Placeholder to balance the close button for centering
+                const SizedBox(width: 32),
                 const Expanded(
                   child: Text(
                     'DISKON',
@@ -53,33 +52,66 @@ class _DiskonDialogState extends State<DiskonDialog> {
                       color: AppColors.accent,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close, color: AppColors.white, size: 20),
+                    child: const Icon(
+                      Icons.close,
+                      color: AppColors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 32),
-            _buildDiscountOption(
-              title: 'Diskon Valentine (10%)',
-              subtitle: 'Kode promo: V12',
-              isSelected: _isValentineSelected,
-              onChanged: (val) {
-                setState(() {
-                  _isValentineSelected = val ?? false;
-                });
+            BlocBuilder<DiscountBloc, DiscountState>(
+              builder: (context, state) {
+                if (state is DiscountLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is DiscountError) {
+                  return Center(
+                    child: Text(
+                      state.message,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                } else if (state is DiscountEmpty) {
+                  return const Center(child: Text('Tidak ada diskon tersedia'));
+                } else if (state is DiscountLoaded) {
+                  final discounts = state.discounts;
+
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: discounts.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 24),
+                    itemBuilder: (context, index) {
+                      final discount = discounts[index];
+
+                      final isSelected = _selectedDiscountIds.contains(
+                        discount.id,
+                      );
+
+                      return _buildDiscountOption(
+                        title: discount.name ?? 'Diskon',
+                        subtitle: 'Potongan: ${discount.value}',
+                        isSelected: isSelected,
+                        onChanged: (val) {
+                          setState(() {
+                            if (val == true) {
+                              _selectedDiscountIds.add(discount.id);
+                            } else {
+                              _selectedDiscountIds.remove(discount.id);
+                            }
+                          });
+                        },
+                      );
+                    },
+                  );
+                }
+                return const SizedBox();
               },
             ),
-            const SizedBox(height: 24),
-            _buildDiscountOption(
-              title: 'Diskon Grand Opening (40%)',
-              subtitle: 'Kode promo: 10',
-              isSelected: _isGrandOpeningSelected,
-              onChanged: (val) {
-                setState(() {
-                  _isGrandOpeningSelected = val ?? false;
-                });
-              },
-            ),
+
             const SizedBox(height: 16),
           ],
         ),
@@ -127,7 +159,10 @@ class _DiskonDialogState extends State<DiskonDialog> {
             height: 28,
             decoration: BoxDecoration(
               color: isSelected ? AppColors.accent : AppColors.white,
-              border: Border.all(color: isSelected ? AppColors.accent : AppColors.border, width: 2),
+              border: Border.all(
+                color: isSelected ? AppColors.accent : AppColors.border,
+                width: 2,
+              ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: isSelected

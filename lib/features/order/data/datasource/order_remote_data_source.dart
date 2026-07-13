@@ -30,16 +30,16 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        print('🔥 [API SUCCESS] submitOrder: ${response.data}');
-        
         final Map<String, dynamic> responseData = response.data;
-        final Map<String, dynamic> orderData = Map<String, dynamic>.from(responseData['data'] ?? {});
-        
-        // Cek kalau backend naruh payment_details di luar data object
-        if (responseData.containsKey('payment_details') && !orderData.containsKey('payment_details')) {
+        final Map<String, dynamic> orderData = Map<String, dynamic>.from(
+          responseData['data'] ?? {},
+        );
+
+        if (responseData.containsKey('payment_details') &&
+            !orderData.containsKey('payment_details')) {
           orderData['payment_details'] = responseData['payment_details'];
         }
-        
+
         return OrderModel.fromJson(orderData);
       } else {
         throw const ServerException('Gagal memproses pesanan');
@@ -55,6 +55,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       throw ServerException('Terjadi kesalahan yang tidak terduga: $e');
     }
   }
+
   @override
   Future<OrderModel> getOrderStatus(String token, int orderId) async {
     try {
