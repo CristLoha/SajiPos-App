@@ -6,6 +6,7 @@ import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.d
 import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
+import 'package:saji_pos_app/features/promo/presentation/bloc/campaign/campaign_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import '../widgets/product_card.dart';
 import '../../../../core/components/custom_error_widget.dart';
@@ -139,12 +140,12 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
                           title: product.name,
                           category: product.category,
                           price: formatCurrency.format(product.price),
-                          discountPrice: product.discountPrice != null
-                              ? formatCurrency.format(product.discountPrice)
-                              : null,
                           quantity: qty,
                           stock: product.stock,
                           imageUrl: product.fullImageUrl,
+                          discountPrice: product.discountPrice != null
+                              ? formatCurrency.format(product.discountPrice)
+                              : null,
                           onTap: () {
                             context.read<CartCubit>().addToCart(product);
                           },

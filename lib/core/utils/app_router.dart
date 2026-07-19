@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:saji_pos_app/features/auth/presentation/pages/login_page.dart';
-import 'package:saji_pos_app/features/home/presentation/home_page.dart';
+import 'package:saji_pos_app/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:saji_pos_app/injection.dart' as di;
 
 class AppRouter {
@@ -32,7 +32,7 @@ class AppRouter {
       GoRoute(
         path: '/',
         name: 'home',
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) => const DashboardPage(),
       ),
       GoRoute(
         path: '/login',

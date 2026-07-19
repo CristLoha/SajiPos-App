@@ -10,6 +10,7 @@ class ProductModel extends Equatable {
     required this.description,
     required this.price,
     this.discountPrice,
+    this.isCampaignActive = false,
     required this.stock,
     required this.image,
     required this.status,
@@ -24,6 +25,7 @@ class ProductModel extends Equatable {
   final String description;
   final int price;
   final int? discountPrice;
+  final bool isCampaignActive;
   final int stock;
   final String image;
   final int status;
@@ -43,12 +45,14 @@ class ProductModel extends Equatable {
       description: json['description']?.toString() ?? '',
       price: json['price'] is int
           ? json['price'] as int
-          : int.tryParse(json['price'].toString()) ?? 0,
+          : (double.tryParse(json['price'].toString())?.toInt() ?? 0),
       discountPrice: json['discount_price'] != null
           ? (json['discount_price'] is int
                 ? json['discount_price'] as int
-                : int.tryParse(json['discount_price'].toString()))
+                : double.tryParse(json['discount_price'].toString())?.toInt())
           : null,
+      isCampaignActive:
+          json['is_campaign_active'] == true || json['is_campaign_active'] == 1,
       stock: json['stock'] is int
           ? json['stock'] as int
           : int.tryParse(json['stock'].toString()) ?? 0,
@@ -91,6 +95,7 @@ class ProductModel extends Equatable {
       description: description,
       price: price,
       discountPrice: discountPrice,
+      isCampaignActive: isCampaignActive,
       stock: stock,
       image: image,
       status: status,

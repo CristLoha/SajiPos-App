@@ -3,17 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../../core/utils/responsive_layout.dart';
-import 'widgets/mobile_layout.dart';
-import 'widgets/tablet_layout.dart';
+import '../widgets/dashboard_mobile_layout.dart';
+import '../widgets/dashboard_tablet_layout.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _DashboardPageState extends State<DashboardPage> {
   int _selectedIndex = 0;
 
   void _onItemSelected(int index) {
@@ -34,11 +34,11 @@ class _HomePageState extends State<HomePage> {
         }
       },
       child: ResponsiveLayout(
-        mobile: MobileLayout(
+        mobile: DashboardMobileLayout(
           selectedIndex: _selectedIndex,
           onItemSelected: _onItemSelected,
         ),
-        tablet: TabletLayout(
+        tablet: DashboardTabletLayout(
           selectedIndex: _selectedIndex,
           onItemSelected: _onItemSelected,
         ),

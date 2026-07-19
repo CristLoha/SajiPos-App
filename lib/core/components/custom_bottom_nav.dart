@@ -31,7 +31,7 @@ class CustomBottomNav extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildNavItem(0, Icons.home_rounded, 'Beranda'),
-            _buildNavItem(1, Icons.discount_rounded, 'Promo'),
+            _buildNavItem(1, Icons.discount_rounded, 'Promo', badgeCount: 2), // Hardcoded dummy badge count
             _buildNavItem(2, Icons.analytics_rounded, 'Report'),
             _buildNavItem(3, Icons.settings_rounded, 'Settings'),
             _buildNavItem(4, Icons.logout_rounded, 'Keluar'),
@@ -41,7 +41,7 @@ class CustomBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
       onTap: () => onItemSelected(index),
@@ -55,10 +55,35 @@ class CustomBottomNav extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.white : AppColors.white.withValues(alpha: 0.5),
-              size: 22,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? AppColors.white : AppColors.white.withValues(alpha: 0.5),
+                  size: 22,
+                ),
+                if (badgeCount > 0)
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.danger,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        badgeCount.toString(),
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 2),
             Text(

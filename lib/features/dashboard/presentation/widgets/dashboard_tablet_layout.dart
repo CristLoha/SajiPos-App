@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:saji_pos_app/features/promo/presentation/pages/promo_page.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/components/custom_sidebar.dart';
-import '../widgets/order_panel.dart';
-import '../pages/katalog_product_tablet_page.dart';
-import '../pages/promo_page.dart';
-import '../pages/report_page.dart';
-import '../pages/settings_page.dart';
+import 'package:saji_pos_app/features/home/presentation/widgets/order_panel.dart';
+import 'package:saji_pos_app/features/home/presentation/pages/katalog_product_tablet_page.dart';
+import '../../../report/presentation/pages/report_page.dart';
+import 'package:saji_pos_app/features/home/presentation/pages/settings_page.dart';
 
-class TabletLayout extends StatelessWidget {
+class DashboardTabletLayout extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
 
-  const TabletLayout({
+  const DashboardTabletLayout({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
@@ -49,7 +49,7 @@ class TabletLayout extends StatelessWidget {
                 child: _buildBody(),
               ),
             ),
-            // Tampilkan panel keranjang pesanan hanya pada tab transaksi utama (Katalog Produk)
+            
             if (selectedIndex == 0)
               Container(
                 width: 360,

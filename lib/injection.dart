@@ -1,10 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
-import 'package:saji_pos_app/features/discount/data/datasources/discount_remote_data_source.dart';
-import 'package:saji_pos_app/features/discount/data/repositories/discount_repository_impl.dart';
-import 'package:saji_pos_app/features/discount/domain/repositories/discount_repository.dart';
-import 'package:saji_pos_app/features/discount/domain/usecases/get_active_discount.dart';
-import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
+import 'package:saji_pos_app/features/promo/data/datasources/discount_remote_data_source.dart';
+import 'package:saji_pos_app/features/promo/data/repositories/discount_repository_impl.dart';
+import 'package:saji_pos_app/features/promo/domain/repositories/discount_repository.dart';
+import 'package:saji_pos_app/features/promo/domain/usecases/get_active_discount.dart';
+import 'package:saji_pos_app/features/promo/presentation/bloc/discount/discount_bloc.dart';
 import 'package:saji_pos_app/features/order/data/datasource/order_remote_data_source.dart';
 import 'package:saji_pos_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:saji_pos_app/features/order/domain/repositories/order_repository.dart';
@@ -14,8 +14,6 @@ import 'package:saji_pos_app/features/order/presentation/bloc/order_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
-
-// Auth
 import 'package:saji_pos_app/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:saji_pos_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:saji_pos_app/features/auth/data/repositories/auth_repository_impl.dart';
@@ -24,14 +22,10 @@ import 'package:saji_pos_app/features/auth/domain/usecases/get_token.dart';
 import 'package:saji_pos_app/features/auth/domain/usecases/post_login.dart';
 import 'package:saji_pos_app/features/auth/domain/usecases/post_logout.dart';
 import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
-
-// Category
 import 'package:saji_pos_app/features/category/data/datasources/category_remote_data_source.dart';
 import 'package:saji_pos_app/features/category/data/repositories/category_repository_impl.dart';
 import 'package:saji_pos_app/features/category/domain/repositories/category_repository.dart';
 import 'package:saji_pos_app/features/category/domain/usecases/get_categories.dart';
-
-// Product
 import 'package:saji_pos_app/features/product/data/datasources/product_remote_data_source.dart';
 import 'package:saji_pos_app/features/product/data/repositories/product_repository_impl.dart';
 import 'package:saji_pos_app/features/product/data/repositories/product_detail_repository_impl.dart';

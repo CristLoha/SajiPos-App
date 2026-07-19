@@ -46,6 +46,7 @@ class ProductCard extends StatelessWidget {
           ),
           child: Stack(
             children: [
+
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -175,8 +176,7 @@ class ProductCard extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: 
-                                       AppColors.accent,
+                                  color: AppColors.accent,
                                 ),
                               ),
                             ],
@@ -247,6 +247,29 @@ class ProductCard extends StatelessWidget {
                         color: AppColors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              if (discountPrice != null)
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'PROMO',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
                       ),
                     ),
                   ),

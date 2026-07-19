@@ -3,24 +3,43 @@ import '../../domain/entities/cart_item.dart';
 
 class CartState extends Equatable {
   final List<CartItem> items;
+  final double diskon;
+  final Set<int> selectedDiscountIds;
 
-  const CartState({this.items = const []});
+  const CartState({
+    this.items = const [],
+    this.diskon = 0.0,
+    this.selectedDiscountIds = const {},
+  });
 
   double get subTotal => items.fold(0, (sum, item) => sum + item.totalPrice);
-  double get pajak => subTotal * 0.1;
-  double get layanan => subTotal * 0.05;
-  double get diskon => 0.0;
-  double get ongkir => 0.0;
-  double get total => subTotal + pajak + layanan + ongkir - diskon;
+  double get subTotalAfterDiscount {
+    double result = subTotal - diskon;
+    return result < 0 ? 0 : result;
+  }
 
-  CartState copyWith({List<CartItem>? items}) {
-    return CartState(items: items ?? this.items);
+  double get pajak => 0.0;
+  double get layanan => 0.0;
+  double get ongkir => 0.0;
+  double get total => subTotalAfterDiscount + pajak + layanan + ongkir;
+
+  CartState copyWith({
+    List<CartItem>? items,
+    double? diskon,
+    Set<int>? selectedDiscountIds,
+  }) {
+    return CartState(
+      items: items ?? this.items,
+      diskon: diskon ?? this.diskon,
+      selectedDiscountIds: selectedDiscountIds ?? this.selectedDiscountIds,
+    );
   }
 
   @override
   List<Object?> get props => [
     items,
-    // Add unique mapping of items to track state changes
+    diskon,
+    selectedDiscountIds,
     items.map((e) => '${e.product.id}-${e.quantity}-${e.note}').toList(),
   ];
 }

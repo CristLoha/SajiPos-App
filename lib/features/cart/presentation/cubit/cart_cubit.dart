@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/features/product/domain/entities/product.dart';
+import 'package:saji_pos_app/features/promo/domain/entities/discount.dart';
 import '../../domain/entities/cart_item.dart';
 import 'cart_state.dart';
 
@@ -65,6 +66,36 @@ class CartCubit extends Cubit<CartState> {
         currentItems.removeAt(index);
       }
       emit(state.copyWith(items: currentItems));
+    }
+  }
+
+  void setDiskon(double amount, {Set<int>? selectedIds}) {
+    emit(
+      state.copyWith(
+        diskon: amount,
+        selectedDiscountIds: selectedIds ?? state.selectedDiscountIds,
+      ),
+    );
+  }
+
+  void calculateVoucherDiscount(Discount discount, double cartSubTotal) {
+    if (discount.minTransaction != null &&
+        cartSubTotal < discount.minTransaction!) {
+      print("Failed: Minimum transaction is Rp ${discount.minTransaction}");
+      return;
+    }
+    double discountAmount = 0.0;
+    double discountValue = discount.value ?? 0.0;
+    if (discount.type == 'percentage') {
+      discountAmount = cartSubTotal * (discountValue / 100);
+      if (discount.maxDiscount != null &&
+          discountAmount > discount.maxDiscount!) {
+        discountAmount = discount.maxDiscount!;
+      } else {
+        discountAmount = discountValue;
+      }
+      double grandTotal = cartSubTotal - discountAmount;
+      if (grandTotal < 0) grandTotal = 0;
     }
   }
 

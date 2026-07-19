@@ -247,7 +247,7 @@ class PaymentSuccessView extends StatelessWidget {
                       elevation: 0,
                     ),
                     child: const Text(
-                      'Kembali ke Beranda',
+                      'Transaksi Baru',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

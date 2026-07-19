@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:saji_pos_app/features/home/presentation/pages/katalog_product_mobile_page.dart';
+import 'package:saji_pos_app/features/promo/presentation/pages/promo_page.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/components/custom_bottom_nav.dart';
-import '../pages/checkout/mobile_order_confirmation_page.dart';
-import '../pages/promo_page.dart';
-import '../pages/report_page.dart';
-import '../pages/settings_page.dart';
+import 'package:saji_pos_app/features/home/presentation/pages/checkout/mobile_order_confirmation_page.dart';
+import 'package:saji_pos_app/features/report/presentation/pages/report_page.dart';
+import 'package:saji_pos_app/features/home/presentation/pages/settings_page.dart';
 
-class MobileLayout extends StatelessWidget {
+class DashboardMobileLayout extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
 
-  const MobileLayout({
+  const DashboardMobileLayout({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,

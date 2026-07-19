@@ -9,6 +9,7 @@ class Product extends Equatable {
     required this.description,
     required this.price,
     this.discountPrice,
+    this.isCampaignActive = false,
     required this.stock,
     required this.image,
     required this.status,
@@ -22,6 +23,7 @@ class Product extends Equatable {
   final String description;
   final int price;
   final int? discountPrice;
+  final bool isCampaignActive;
   final int stock;
   final String image;
   final int status;

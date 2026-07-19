@@ -132,7 +132,10 @@ class OrderConfirmationView extends StatelessWidget {
                     const SizedBox(height: 10),
                     _buildSummaryRow('Pajak', '0%'),
                     const SizedBox(height: 10),
-                    _buildSummaryRow('Diskon', 'Rp 0'),
+                    _buildSummaryRow(
+                      'Diskon',
+                      '- ${formatCurrency.format(cartState.diskon)} %',
+                    ),
                     const SizedBox(height: 14),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -144,8 +147,8 @@ class OrderConfirmationView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: _buildSummaryRow(
-                        'Sub total',
-                        formatCurrency.format(cartState.subTotal),
+                        'Total Bayar',
+                        formatCurrency.format(cartState.total),
                         isBold: true,
                       ),
                     ),

@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
+import 'package:saji_pos_app/features/promo/presentation/bloc/discount/discount_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 
-class DiskonDialog extends StatefulWidget {
+class DiskonDialog extends StatelessWidget {
   const DiskonDialog({super.key});
-
-  @override
-  State<DiskonDialog> createState() => _DiskonDialogState();
-}
-
-class _DiskonDialogState extends State<DiskonDialog> {
-  final Set<int> _selectedDiscountIds = {};
 
   @override
   Widget build(BuildContext context) {
@@ -63,46 +58,69 @@ class _DiskonDialogState extends State<DiskonDialog> {
             ),
             const SizedBox(height: 32),
             BlocBuilder<DiscountBloc, DiscountState>(
-              builder: (context, state) {
-                if (state is DiscountLoading) {
+              builder: (context, discountState) {
+                if (discountState is DiscountLoading) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (state is DiscountError) {
+                } else if (discountState is DiscountError) {
                   return Center(
                     child: Text(
-                      state.message,
+                      discountState.message,
                       style: const TextStyle(color: Colors.red),
                     ),
                   );
-                } else if (state is DiscountEmpty) {
+                } else if (discountState is DiscountEmpty) {
                   return const Center(child: Text('Tidak ada diskon tersedia'));
-                } else if (state is DiscountLoaded) {
-                  final discounts = state.discounts;
+                } else if (discountState is DiscountLoaded) {
+                  final discounts = discountState.discounts;
 
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: discounts.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 24),
-                    itemBuilder: (context, index) {
-                      final discount = discounts[index];
+                  return BlocBuilder<CartCubit, CartState>(
+                    builder: (context, cartState) {
+                      final selectedIds = cartState.selectedDiscountIds;
+                      return ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: discounts.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 24),
+                        itemBuilder: (context, index) {
+                          final discount = discounts[index];
 
-                      final isSelected = _selectedDiscountIds.contains(
-                        discount.id,
-                      );
+                          final isSelected = selectedIds.contains(discount.id);
 
-                      return _buildDiscountOption(
-                        title: discount.name ?? 'Diskon',
-                        subtitle: 'Potongan: ${discount.value}',
-                        isSelected: isSelected,
-                        onChanged: (val) {
-                          setState(() {
-                            if (val == true) {
-                              _selectedDiscountIds.add(discount.id);
-                            } else {
-                              _selectedDiscountIds.remove(discount.id);
-                            }
-                          });
+                          return _buildDiscountOption(
+                            title: discount.name ?? 'Diskon',
+                            subtitle: discount.type == 'percentage'
+                                ? 'Diskon: ${discount.value}%'
+                                : 'Potongan: Rp ${discount.value}',
+                            isSelected: isSelected,
+                            onChanged: (val) {
+                              final newSelectedIds = Set<int>.from(selectedIds);
+                              if (val == true) {
+                                newSelectedIds.add(discount.id);
+                              } else {
+                                newSelectedIds.remove(discount.id);
+                              }
+
+                              double subTotal = cartState.subTotal;
+                              double totalDiskonRp = 0;
+
+                              for (var d in discounts) {
+                                if (newSelectedIds.contains(d.id)) {
+                                  double angkaDiskon = d.value ?? 0.0;
+                                  if (d.type == 'percentage') {
+                                    totalDiskonRp +=
+                                        (subTotal * angkaDiskon / 100);
+                                  } else {
+                                    totalDiskonRp += angkaDiskon;
+                                  }
+                                }
+                              }
+                              context.read<CartCubit>().setDiskon(
+                                totalDiskonRp,
+                                selectedIds: newSelectedIds,
+                              );
+                            },
+                          );
                         },
                       );
                     },
