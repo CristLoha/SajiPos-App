@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saji_pos_app/features/home/presentation/pages/katalog_product_mobile_page.dart';
-import 'package:saji_pos_app/features/promo/presentation/pages/promo_page.dart';
+import 'package:saji_pos_app/features/discount/presentation/pages/promo_page.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/components/custom_bottom_nav.dart';
 import 'package:saji_pos_app/features/home/presentation/pages/checkout/mobile_order_confirmation_page.dart';

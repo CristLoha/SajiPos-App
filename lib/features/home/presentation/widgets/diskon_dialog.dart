@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
-import 'package:saji_pos_app/features/promo/presentation/bloc/discount/discount_bloc.dart';
+import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class DiskonDialog extends StatelessWidget {
@@ -88,7 +88,7 @@ class DiskonDialog extends StatelessWidget {
                           final isSelected = selectedIds.contains(discount.id);
 
                           return _buildDiscountOption(
-                            title: discount.name ?? 'Diskon',
+                            title: discount.name,
                             subtitle: discount.type == 'percentage'
                                 ? 'Diskon: ${discount.value}%'
                                 : 'Potongan: Rp ${discount.value}',

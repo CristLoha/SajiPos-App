@@ -7,9 +7,11 @@ class DiscountResponse extends Equatable {
   const DiscountResponse({required this.discountList});
 
   factory DiscountResponse.fromJson(Map<String, dynamic> json) => DiscountResponse(
-        discountList: List<DiscountModel>.from(
-          (json["data"] as List).map((x) => DiscountModel.fromJson(x)),
-        ),
+        discountList: json["data"] != null
+            ? List<DiscountModel>.from(
+                (json["data"] as List).map((x) => DiscountModel.fromJson(x)),
+              )
+            : [],
       );
 
   Map<String, dynamic> toJson() => {

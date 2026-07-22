@@ -5,7 +5,7 @@ import 'package:saji_pos_app/core/utils/app_router.dart';
 import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
 
-import 'package:saji_pos_app/features/promo/presentation/bloc/discount/discount_bloc.dart';
+import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
 import 'package:saji_pos_app/features/order/presentation/bloc/order_bloc.dart';
 import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
 
         BlocProvider(
           create: (_) =>
-              di.locator<DiscountBloc>()..add(FetchActiveDiscounts()),
+              di.locator<DiscountBloc>()..add(const FetchActiveDiscounts(status: 'active')),
         ),
       ],
       child: MaterialApp.router(

@@ -7,10 +7,14 @@ part 'discount_state.dart';
 
 class DiscountBloc extends Bloc<DiscountEvent, DiscountState> {
   final GetActiveDiscount getActiveDiscount;
-  DiscountBloc(this.getActiveDiscount) : super(DiscountInitial()) {
-    on<DiscountEvent>((event, emit) async {
+  DiscountBloc({required this.getActiveDiscount}) : super(DiscountInitial()) {
+    on<FetchActiveDiscounts>((event, emit) async {
       emit(DiscountLoading());
-      final result = await getActiveDiscount();
+
+      final result = await getActiveDiscount(
+        search: event.search,
+        status: event.status,
+      );
 
       result.fold((failure) => emit(DiscountError(failure.message)), (data) {
         if (data.isEmpty) {

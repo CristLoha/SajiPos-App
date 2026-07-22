@@ -2,40 +2,43 @@ import 'package:equatable/equatable.dart';
 
 class Discount extends Equatable {
   final int id;
-  final String? name;
-  final String? code;
+  final String name;
+  final String code;
   final String? description;
-  final String? type;
-  final String? value;
-  final String? status;
-  final String? expiredDate;
-  final String? createdAt;
-  final String? updatedAt;
+  final String type;
+  final double? value;
+  final double? minTransaction;
+  final double? maxDiscount;
+  final String status;
+  final DateTime startDate;
+  final DateTime expiredDate;
 
   const Discount({
     required this.id,
-    this.name,
-    this.code,
+    required this.name,
+    required this.code,
     this.description,
-    this.type,
+    required this.type,
     this.value,
-    this.status,
-    this.expiredDate,
-    this.createdAt,
-    this.updatedAt,
+    this.minTransaction,
+    this.maxDiscount,
+    required this.status,
+    required this.startDate,
+    required this.expiredDate,
   });
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        code,
-        description,
-        type,
-        value,
-        status,
-        expiredDate,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    name,
+    code,
+    description,
+    type,
+    value,
+    minTransaction,
+    maxDiscount,
+    status,
+    startDate,
+    expiredDate,
+  ];
 }

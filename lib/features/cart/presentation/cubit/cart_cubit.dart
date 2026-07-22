@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/features/product/domain/entities/product.dart';
-import 'package:saji_pos_app/features/promo/domain/entities/discount.dart';
+import 'package:saji_pos_app/features/discount/domain/entities/discount.dart';
 import '../../domain/entities/cart_item.dart';
 import 'cart_state.dart';
 

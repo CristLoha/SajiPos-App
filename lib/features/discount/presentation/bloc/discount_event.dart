@@ -7,4 +7,9 @@ sealed class DiscountEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class FetchActiveDiscounts extends DiscountEvent {}
+class FetchActiveDiscounts extends DiscountEvent {
+  final String? status;
+  final String? search;
+
+  const FetchActiveDiscounts({this.status, this.search});
+}

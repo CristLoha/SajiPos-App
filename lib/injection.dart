@@ -1,10 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
-import 'package:saji_pos_app/features/promo/data/datasources/discount_remote_data_source.dart';
-import 'package:saji_pos_app/features/promo/data/repositories/discount_repository_impl.dart';
-import 'package:saji_pos_app/features/promo/domain/repositories/discount_repository.dart';
-import 'package:saji_pos_app/features/promo/domain/usecases/get_active_discount.dart';
-import 'package:saji_pos_app/features/promo/presentation/bloc/discount/discount_bloc.dart';
+import 'package:saji_pos_app/features/discount/data/datasources/discount_remote_data_source.dart';
+import 'package:saji_pos_app/features/discount/data/repositories/discount_repository_impl.dart';
+import 'package:saji_pos_app/features/discount/domain/repositories/discount_repository.dart';
+import 'package:saji_pos_app/features/discount/domain/usecases/get_active_discount.dart';
+import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
 import 'package:saji_pos_app/features/order/data/datasource/order_remote_data_source.dart';
 import 'package:saji_pos_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:saji_pos_app/features/order/domain/repositories/order_repository.dart';
@@ -140,5 +140,5 @@ Future<void> init() async {
     () => OrderBloc(submitOrder: locator(), getOrderStatus: locator()),
   );
 
-  locator.registerFactory(() => DiscountBloc(locator()));
+  locator.registerFactory(() => DiscountBloc(getActiveDiscount: locator()));
 }

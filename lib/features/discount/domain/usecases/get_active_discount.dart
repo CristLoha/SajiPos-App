@@ -8,7 +8,10 @@ class GetActiveDiscount {
 
   GetActiveDiscount(this.repository);
 
-  Future<Either<Failure, List<Discount>>> call() async {
-    return await repository.getActiveDiscounts();
+  Future<Either<Failure, List<Discount>>> call({
+    String? status,
+    String? search,
+  }) async {
+    return await repository.getActiveDiscounts(status: status, search: search);
   }
 }

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
 
-class PromoTabletPage extends StatefulWidget {
-  const PromoTabletPage({super.key});
+class PromoMobilePage extends StatefulWidget {
+  const PromoMobilePage({super.key});
 
   @override
-  State<PromoTabletPage> createState() => _PromoTabletPageState();
+  State<PromoMobilePage> createState() => _PromoMobilePageState();
 }
 
-class _PromoTabletPageState extends State<PromoTabletPage> {
+class _PromoMobilePageState extends State<PromoMobilePage> {
   int _selectedTabIndex = 0;
   final TextEditingController _searchController = TextEditingController();
 
@@ -70,171 +70,126 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Row (Title + Search + Filter)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Promo & Diskon',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
-                      letterSpacing: -0.5,
+      appBar: AppBar(
+        title: const Text('Promo & Diskon'),
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              // TODO: Tampilkan filter bottom sheet
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Header Section (Search & Tabs) blended with AppBar
+          Container(
+            color: AppColors.white,
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              children: [
+                // Search Bar
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: SizedBox(
+                    height: 48,
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: 'Cari nama atau kode promo...',
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: AppColors.textSecondary,
+                        ),
+                        filled: true,
+                        fillColor: AppColors.background,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 16,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 320,
-                        height: 48,
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) => setState(() {}),
-                          decoration: InputDecoration(
-                            hintText: 'Cari nama atau kode promo...',
-                            hintStyle: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 14,
-                            ),
-                            prefixIcon: const Icon(
-                              Icons.search_rounded,
-                              color: AppColors.textSecondary,
-                            ),
-                            filled: true,
-                            fillColor: AppColors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 16,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(
-                                color: AppColors.border,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(
-                                color: AppColors.border,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: const BorderSide(
-                                color: AppColors.border,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.filter_list_rounded,
-                            color: AppColors.textPrimary,
-                          ),
-                          onPressed: () {
-                            // TODO: Tampilkan filter bottom sheet
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Segmented Control / Tabs
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: SizedBox(
-                height: 42,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildTab(0, 'Berlaku Sekarang'),
-                    const SizedBox(width: 12),
-                    _buildTab(1, 'Kedaluwarsa'),
-                  ],
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
 
-            // Promo List
-            // Promo List
-            // Promo List
-            // Promo List
-            Expanded(
-              child: _filteredPromos.isEmpty
-                  ? _buildEmptyState()
-                  : GridView.builder(
-                      padding: const EdgeInsets.only(
-                        bottom: 24,
-                        left: 16,
-                        right: 16,
-                        top: 8,
-                      ),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                      itemCount: _filteredPromos.length,
-                      itemBuilder: (context, index) {
-                        return _buildPromoCard(_filteredPromos[index]);
-                      },
+                // Segmented Control / Tabs
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(24),
                     ),
+                    child: Row(
+                      children: [
+                        _buildTab(0, 'Berlaku Sekarang'),
+                        _buildTab(1, 'Kedaluwarsa'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // Promo List
+          Expanded(
+            child: _filteredPromos.isEmpty
+                ? _buildEmptyState()
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    itemCount: _filteredPromos.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      return _buildPromoCard(_filteredPromos[index]);
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildTab(int index, String title) {
     bool isSelected = _selectedTabIndex == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTabIndex = index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.accent : AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: isSelected ? null : Border.all(color: AppColors.border),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.accent.withValues(alpha: 0.25),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ]
-              : null,
-        ),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: isSelected ? AppColors.white : AppColors.textSecondary,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            fontSize: 14,
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedTabIndex = index),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: TextStyle(
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontSize: 13,
+            ),
           ),
         ),
       ),
@@ -264,7 +219,7 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
         break;
     }
 
-    String discountValue = promo['type'] == 'percent'
+    String discountValueText = promo['type'] == 'percent'
         ? '${promo['value']}%'
         : 'Rp ${promo['value'].toString()}';
 
@@ -282,7 +237,6 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Tinggi dinamis sesuai konten
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header: Name & Badge
@@ -358,8 +312,6 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Value
           Row(
             children: [
               const Icon(
@@ -369,7 +321,7 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Diskon $discountValue',
+                'Diskon $discountValueText',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -382,7 +334,6 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
           const Divider(height: 1, color: AppColors.border),
           const SizedBox(height: 12),
 
-          // Terms & Dates
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -426,13 +377,11 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
           ),
           const SizedBox(height: 16),
 
-          // Action Button
           if (_selectedTabIndex == 0)
-            Align(
-              alignment: Alignment.centerRight,
+            SizedBox(
+              width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Apply to active order
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Promo diterapkan ke pesanan'),
@@ -440,10 +389,7 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 24,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 child: const Text('Gunakan di Transaksi'),
               ),
@@ -458,10 +404,14 @@ class _PromoTabletPageState extends State<PromoTabletPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.discount_outlined, size: 64, color: AppColors.border),
+          const Icon(
+            Icons.discount_outlined,
+            size: 64,
+            color: AppColors.border,
+          ),
           const SizedBox(height: 16),
           const Text(
-            'Tidak ada promo di kategori ini',
+            'Belum ada Promo',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

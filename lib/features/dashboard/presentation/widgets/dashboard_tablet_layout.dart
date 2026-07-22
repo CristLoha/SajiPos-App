@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saji_pos_app/features/promo/presentation/pages/promo_page.dart';
+import 'package:saji_pos_app/features/discount/presentation/pages/promo_page.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/components/custom_sidebar.dart';
 import 'package:saji_pos_app/features/home/presentation/widgets/order_panel.dart';
