@@ -327,7 +327,7 @@ class _PaymentViewState extends State<PaymentView> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
-                              'Gagal membuka browser di perangkat ini',
+                              'Browsernya gak mau kebuka nih di perangkat ini.',
                             ),
                           ),
                         );
@@ -417,7 +417,7 @@ class _PaymentViewState extends State<PaymentView> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
-                              'Gagal membuka browser di perangkat ini',
+                              'Browsernya gak mau kebuka nih di perangkat ini.',
                             ),
                           ),
                         );

@@ -49,7 +49,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final products = filtered.map((model) => model.toEntity()).toList();
       return Right(products);
     } catch (e) {
-      return Left(ServerFailure('Gagal mengambil data lokal: $e'));
+      return Left(ServerFailure('Data belum bisa dimuat dari perangkat.'));
     }
   }
 
@@ -59,7 +59,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final token = await localDataSource.getToken();
       if (token == null) {
         return const Left(
-          ServerFailure('Sesi telah berakhir. Silakan login kembali.'),
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
         );
       }
       final productModels = await remoteDataSource.getProducts(
@@ -69,9 +69,9 @@ class ProductRepositoryImpl implements ProductRepository {
       final products = productModels.map((model) => model.toEntity()).toList();
       return Right(products);
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Gagal mencari produk'));
+      return Left(ServerFailure(e.message ?? 'Produknya nggak ketemu, coba kata kunci lain ya.'));
     } catch (e) {
-      return Left(ServerFailure('Kesalahan sistem: $e'));
+      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
     }
   }
 
@@ -81,7 +81,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final token = await localDataSource.getToken();
       if (token == null) {
         return const Left(
-          ServerFailure('Sesi telah berakhir. Silakan login kembali.'),
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
         );
       }
       final productDetailModel = await remoteDataSource.getProductDetail(
@@ -90,9 +90,9 @@ class ProductRepositoryImpl implements ProductRepository {
       );
       return Right(productDetailModel.toEntity());
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Gagal mengambil detail produk'));
+      return Left(ServerFailure(e.message ?? 'Detail produknya ngumpet nih, coba di-refresh.'));
     } catch (e) {
-      return Left(ServerFailure('Kesalahan sistem: $e'));
+      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
     }
   }
 
@@ -102,7 +102,7 @@ class ProductRepositoryImpl implements ProductRepository {
       final token = await localDataSource.getToken();
       if (token == null) {
         return const Left(
-          ServerFailure('Sesi telah berakhir. Silakan login kembali.'),
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
         );
       }
       // Get remote data
@@ -113,11 +113,11 @@ class ProductRepositoryImpl implements ProductRepository {
       
       return const Right(true);
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Gagal sinkronisasi data dari server'));
+      return Left(ServerFailure(e.message ?? 'Lagi susah nyambung ke server nih, sabar ya.'));
     } catch (e, stacktrace) {
       debugPrint('🔥 [SYNC ERROR]: $e');
       debugPrint('🔥 [STACKTRACE]: $stacktrace');
-      return Left(ServerFailure('Gagal sinkronisasi produk: $e'));
+      return Left(ServerFailure('Gagal memuat produk terbaru dari server.'));
     }
   }
 }

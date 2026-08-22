@@ -48,7 +48,7 @@ class DiscountRemoteDataSourceImpl implements DiscountRemoteDataSource {
         ).discountList;
       } else {
         throw ServerException(
-          response.statusMessage ?? 'Gagal memuat data diskon',
+          response.statusMessage ?? 'Data diskon belum bisa dimuat nih.',
         );
       }
     } on DioException catch (e) {

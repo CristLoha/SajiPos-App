@@ -19,7 +19,7 @@ class CostSettingLocalDataSourceImpl implements CostSettingLocalDataSource {
       final jsonString = json.encode(taxModel.toJson());
       await sharedPreferences.setString('CACHED_TAX', jsonString);
     } catch (e) {
-      throw const DatabaseException('Gagal menyimpan cache pajak');
+      throw const DatabaseException('Pajaknya gagal disimpan di perangkat.');
     }
   }
 
@@ -39,7 +39,7 @@ class CostSettingLocalDataSourceImpl implements CostSettingLocalDataSource {
         );
       }
     } catch (e) {
-      throw const DatabaseException('Gagal memuat cache pajak');
+      throw const DatabaseException('Pajaknya gagal dimuat nih.');
     }
   }
 }

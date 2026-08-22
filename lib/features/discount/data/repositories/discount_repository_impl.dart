@@ -45,7 +45,7 @@ class DiscountRepositoryImpl implements DiscountRepository {
 
       return Right(filtered);
     } catch (e) {
-      return Left(ServerFailure('Gagal mengambil data diskon lokal: $e'));
+      return Left(ServerFailure('Data diskon belum bisa dimuat.'));
     }
   }
 
@@ -55,16 +55,16 @@ class DiscountRepositoryImpl implements DiscountRepository {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
         return const Left(
-          ServerFailure('Sesi telah berakhir. Silakan login kembali.'),
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
         );
       }
 
       final remoteModel = await remoteDataSource.checkDiscountCode(token, code);
       return Right(remoteModel.toEntity());
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Gagal memvalidasi kode diskon'));
+      return Left(ServerFailure(e.message ?? 'Kode diskonnya gagal dicek, jangan-jangan typo?'));
     } catch (e) {
-      return Left(ServerFailure('Kesalahan sistem: $e'));
+      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
     }
   }
 
@@ -73,16 +73,16 @@ class DiscountRepositoryImpl implements DiscountRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi telah berakhir. Silakan login kembali.'));
+        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
       }
       final remoteModels = await remoteDataSource.getDiscounts(token);
       final discounts = remoteModels.map((m) => m.toEntity()).toList();
       await localDataSource.cacheDiscounts(discounts);
       return const Right(true);
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Gagal sinkronisasi diskon dari server'));
+      return Left(ServerFailure(e.message ?? 'Data diskon terbaru belum bisa ditarik nih.'));
     } catch (e) {
-      return Left(ServerFailure('Gagal sinkronisasi diskon: $e'));
+      return Left(ServerFailure('Gagal memuat diskon terbaru dari server.'));
     }
   }
 
@@ -99,7 +99,7 @@ class DiscountRepositoryImpl implements DiscountRepository {
         },
       );
     } catch (e) {
-      return Left(ServerFailure('Kesalahan sistem: $e'));
+      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
     }
   }
 
@@ -116,7 +116,7 @@ class DiscountRepositoryImpl implements DiscountRepository {
         },
       );
     } catch (e) {
-      return Left(ServerFailure('Kesalahan sistem: $e'));
+      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
     }
   }
 }

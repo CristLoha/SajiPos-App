@@ -74,7 +74,7 @@ class OrderRepositoryImpl implements OrderRepository {
         return Right(offlineOrder);
       }
     } catch (e) {
-      return Left(ServerFailure('Gagal menyimpan transaksi ke database lokal: $e'));
+      return Left(ServerFailure('Wah, pesanan gagal disimpan di perangkat nih. Coba lagi ya.'));
     }
   }
   @override
@@ -84,7 +84,7 @@ class OrderRepositoryImpl implements OrderRepository {
 
       if (token == null) {
         return const Left(
-          ServerFailure('Sesi telah berakhir. Silahkan login kembali.'),
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
         );
       }
 
@@ -92,10 +92,10 @@ class OrderRepositoryImpl implements OrderRepository {
       return Right(result.toEntity());
     } on ServerException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'Gagal mengecek status pesanan'),
+        ServerFailure(e.message ?? 'Cek status pesanan lagi gagal nih, coba bentar lagi ya.'),
       );
     } catch (e) {
-      return Left(ServerFailure('Terjadi kesalahan yang tidak terduga: $e'));
+      return Left(ServerFailure('Aduh, ada sedikit kendala. Coba ulangi beberapa saat lagi ya.'));
     }
   }
 
@@ -104,7 +104,7 @@ class OrderRepositoryImpl implements OrderRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi telah berakhir. Silahkan login kembali.'));
+        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
       }
 
       final unsyncedOrders = await localDataSource.getUnsyncedOrders();
@@ -149,7 +149,7 @@ class OrderRepositoryImpl implements OrderRepository {
 
       return Right(syncedCount);
     } catch (e) {
-      return Left(ServerFailure('Gagal melakukan sinkronisasi pesanan offline: $e'));
+      return Left(ServerFailure('Koneksi belum stabil nih, data pesanan offline belum bisa disinkronisasi.'));
     }
   }
 }

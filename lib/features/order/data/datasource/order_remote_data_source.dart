@@ -42,12 +42,12 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
         return OrderModel.fromJson(orderData);
       } else {
-        throw const ServerException('Gagal memproses pesanan');
+        throw const ServerException('Pesanan gagal diproses nih, coba cek koneksi ya.');
       }
     } on DioException catch (e) {
       if (e.response != null && e.response?.data != null) {
         final message =
-            e.response?.data['message'] ?? 'Gagal memproses pesanan';
+            e.response?.data['message'] ?? 'Pesanan gagal diproses nih, coba cek koneksi ya.';
         throw ServerException(message);
       }
       throw ServerException('Masalah koneksi internet atau server: $e');
@@ -73,12 +73,12 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       if (response.statusCode == 200) {
         return OrderModel.fromJson(response.data['data']);
       } else {
-        throw const ServerException('Gagal mengecek status pesanan');
+        throw const ServerException('Cek status pesanan lagi gagal nih, coba bentar lagi ya.');
       }
     } on DioException catch (e) {
       if (e.response != null && e.response?.data != null) {
         final message =
-            e.response?.data['message'] ?? 'Gagal mengecek status pesanan';
+            e.response?.data['message'] ?? 'Cek status pesanan lagi gagal nih, coba bentar lagi ya.';
         throw ServerException(message);
       }
       throw ServerException('Masalah koneksi internet atau server: $e');

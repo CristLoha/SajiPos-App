@@ -30,7 +30,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
         return CategoryResponse.fromJson(response.data as Map<String, dynamic>).categoryList;
       } else {
         throw ServerException(
-          'Gagal mengambil data kategori: ${response.statusMessage}',
+          'Data kategori belum bisa ditarik: ${response.statusMessage}',
         );
       }
     } on DioException catch (e) {

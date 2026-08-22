@@ -54,7 +54,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       debugPrint('Response data: ${e.response?.data}');
       debugPrint('Error detail: ${e.error}');
 
-      String userFriendlyMessage = 'Gagal masuk ke sistem. Silakan coba beberapa saat lagi.';
+      String userFriendlyMessage = 'Yah login gagal nih. Silakan coba lagi nanti ya.';
 
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
@@ -97,18 +97,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw const ServerException('Gagal keluar dari aplikasi.');
+        throw const ServerException('Belum bisa logout nih, koneksinya aman gak?');
       }
     } on DioException catch (e) {
-      String userFriendlyMessage = 'Gagal memproses keluar sistem.';
+      String userFriendlyMessage = 'Logout tertunda nih.';
       
       if (e.type == DioExceptionType.connectionError) {
-        userFriendlyMessage = 'Gagal logout karena tidak ada jaringan internet.';
+        userFriendlyMessage = 'Gagal logout, pastikan hp kamu ada internet ya.';
       }
       
       throw ServerException(userFriendlyMessage);
     } catch (e) {
-      throw const ServerException('Gagal memproses keluar sistem.');
+      throw const ServerException('Logout tertunda nih.');
     }
   }
 }

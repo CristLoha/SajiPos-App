@@ -24,13 +24,13 @@ class CostSettingRepositoryImpl implements CostSettingRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi telah berakhir'));
+        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
       }
       final model = await remoteDataSource.getCostSetting(token);
       await localDataSource.cacheCostSetting(model);
       return Right(model.toEntity());
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure('Ada kendala nih, yuk coba refresh lagi.'));
     }
   }
 
@@ -39,14 +39,14 @@ class CostSettingRepositoryImpl implements CostSettingRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi telah berakhir'));
+        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
       }
       final model = CostSettingModel.fromEntity(costSetting);
       final updatedModel = await remoteDataSource.updateCostSetting(token, model);
       await localDataSource.cacheCostSetting(updatedModel);
       return Right(updatedModel.toEntity());
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure('Ada kendala nih, yuk coba refresh lagi.'));
     }
   }
 
@@ -56,7 +56,7 @@ class CostSettingRepositoryImpl implements CostSettingRepository {
       final model = await localDataSource.getCachedCostSetting();
       return Right(model.toEntity());
     } catch (e) {
-      return const Left(CacheFailure('Gagal mengambil data pajak dari penyimpanan lokal.'));
+      return const Left(CacheFailure('Data pajak di perangkat belum bisa diambil.'));
     }
   }
 }

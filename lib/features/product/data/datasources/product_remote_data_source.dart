@@ -57,7 +57,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       } else {
         debugPrint('🔥 [API ERROR] Gagal ambil produk: ${response.statusCode} - ${response.statusMessage}');
         throw ServerException(
-          'Gagal mengambil data: ${response.statusMessage}',
+          'Wah gagal narik data nih: ${response.statusMessage}',
         );
       }
     } on DioException catch (e) {
@@ -89,7 +89,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         ).data;
       } else {
         throw ServerException(
-          response.statusMessage ?? 'Gagal mengambil detail produk',
+          response.statusMessage ?? 'Detail produknya belum mau muncul nih.',
         );
       }
     } on DioException catch (e) {

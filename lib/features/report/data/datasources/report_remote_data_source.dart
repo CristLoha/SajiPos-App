@@ -37,7 +37,7 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
         final reportResponse = ReportSummaryResponse.fromJson(response.data as Map<String, dynamic>);
         return ReportSummaryModel.fromOrders(reportResponse.orderList);
       } else {
-        throw ServerException(response.statusMessage ?? 'Gagal mengambil data laporan hari ini');
+        throw ServerException(response.statusMessage ?? 'Data laporan hari ini belum bisa dimuat nih.');
       }
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Terjadi kesalahan jaringan');

@@ -373,7 +373,7 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
                                 } else {
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Gagal membuka URL struk')),
+                                    const SnackBar(content: Text('Link struknya gak bisa dibuka nih.')),
                                   );
                                 }
                               },
@@ -520,7 +520,7 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menyimpan struk: $e'),
+            content: Text('Struk gagal disimpan nih: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),

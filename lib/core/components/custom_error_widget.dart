@@ -9,7 +9,7 @@ class CustomErrorWidget extends StatelessWidget {
 
   const CustomErrorWidget({
     super.key,
-    this.title = 'Oops! Gagal Memuat Data',
+    this.title = 'Oops! Data Belum Bisa Tampil',
     this.message = 'Sepertinya server sedang bermasalah atau koneksimu terputus. Yuk coba lagi!',
     required this.onRetry,
     this.icon = Icons.cloud_off_rounded,

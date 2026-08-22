@@ -35,7 +35,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
       final categories = cachedCategories.map((model) => model.toEntity()).toList();
       return Right(categories);
     } catch (e) {
-      return Left(ServerFailure('Gagal mengambil data kategori lokal: $e'));
+      return Left(ServerFailure('Kategori produk belum bisa dimuat nih.'));
     }
   }
 
@@ -44,15 +44,15 @@ class CategoryRepositoryImpl implements CategoryRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi telah berakhir. Silakan login kembali.'));
+        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
       }
       final categoryModels = await remoteDataSource.getCategories(token);
       await localDataSource.cacheCategories(categoryModels);
       return const Right(true);
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Gagal sinkronisasi kategori dari server'));
+      return Left(ServerFailure(e.message ?? 'Update kategori lagi gangguan, ditunggu ya.'));
     } catch (e) {
-      return Left(ServerFailure('Gagal sinkronisasi kategori: $e'));
+      return Left(ServerFailure('Gagal memuat kategori terbaru dari server.'));
     }
   }
 }
