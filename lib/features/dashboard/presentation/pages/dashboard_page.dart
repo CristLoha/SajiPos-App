@@ -40,7 +40,9 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SyncCubit>().syncData();
+      if (context.read<AuthBloc>().state is AuthAuthenticated) {
+        context.read<SyncCubit>().syncData();
+      }
     });
   }
 
@@ -52,6 +54,8 @@ class _DashboardPageState extends State<DashboardPage> {
           listener: (context, state) {
             if (state is AuthUnauthenticated) {
               context.go('/login');
+            } else if (state is AuthAuthenticated) {
+              context.read<SyncCubit>().syncData();
             }
           },
         ),
