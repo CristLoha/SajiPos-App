@@ -30,7 +30,7 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.cardBackground,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(20),
       elevation: 0,
       child: InkWell(
@@ -39,14 +39,16 @@ class ProductCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: quantity > 0 ? AppColors.accent : AppColors.border,
-              width: quantity > 0 ? 2 : 1,
-            ),
+            border: quantity > 0
+                ? Border.all(color: AppColors.accent, width: 2)
+                : Border.all(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.transparent
+                        : AppColors.border,
+                  ),
           ),
           child: Stack(
             children: [
-
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -57,7 +59,9 @@ class ProductCard extends StatelessWidget {
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: AppColors.accentLight,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF2A2D4B)
+                              : AppColors.accentLight,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: ClipRRect(
@@ -127,10 +131,10 @@ class ProductCard extends StatelessWidget {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                         height: 1.3,
                       ),
                     ),
@@ -138,49 +142,45 @@ class ProductCard extends StatelessWidget {
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Flexible(
-                          child: Column(
-                            children: [
-                              Text(
-                                category,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.accent,
-                                ),
-                              ),
-                            ],
+                        Expanded(
+                          child: Text(
+                            category,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).brightness == Brightness.dark 
+                                  ? Colors.white54 
+                                  : AppColors.textSecondary,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 4),
-                        Flexible(
-                          child: Column(
-                            children: [
-                              if (discountPrice != null)
-                                Text(
-                                  price,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    decoration: TextDecoration.lineThrough,
-                                    color: Colors.grey,
-                                  ),
-                                ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            if (discountPrice != null)
                               Text(
-                                discountPrice ?? price,
+                                price,
                                 maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.accent,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  decoration: TextDecoration.lineThrough,
+                                  color: Colors.grey,
                                 ),
                               ),
-                            ],
-                          ),
+                            Text(
+                              discountPrice ?? price,
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).textTheme.bodyLarge?.color,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -265,7 +265,7 @@ class ProductCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
-                      'PROMO',
+                      'DISKON',
                       style: TextStyle(
                         color: AppColors.white,
                         fontWeight: FontWeight.bold,

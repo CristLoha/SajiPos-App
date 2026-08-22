@@ -1,11 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/features/order/domain/entities/order_item_request.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
-import 'package:saji_pos_app/features/order/domain/entities/order_item_request.dart';
 import 'package:saji_pos_app/features/order/domain/entities/order_request.dart';
 import 'package:saji_pos_app/features/order/presentation/bloc/order_bloc.dart';
+import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class PaymentView extends StatefulWidget {
@@ -70,15 +72,27 @@ class _PaymentViewState extends State<PaymentView> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildTabButton(0, 'Cash', Icons.payments_outlined),
+                      child: _buildTabButton(
+                        0,
+                        'Cash',
+                        Icons.payments_outlined,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildTabButton(1, 'QRIS', Icons.qr_code_2_rounded),
+                      child: _buildTabButton(
+                        1,
+                        'QRIS',
+                        Icons.qr_code_2_rounded,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildTabButton(2, 'Transfer', Icons.account_balance_rounded),
+                      child: _buildTabButton(
+                        2,
+                        'Transfer',
+                        Icons.account_balance_rounded,
+                      ),
                     ),
                   ],
                 ),
@@ -130,10 +144,16 @@ class _PaymentViewState extends State<PaymentView> {
                         _currentOrderId = state.order.id;
 
                         if (snapUrl != null && snapUrl.isNotEmpty) {
-                          print('\n=============================================');
-                          print('🔗 LINK MIDTRANS (KLIK & BUKA DI LAPTOP):');
-                          print(snapUrl);
-                          print('=============================================\n');
+                          debugPrint(
+                            '\n=============================================',
+                          );
+                          debugPrint(
+                            '🔗 LINK MIDTRANS (KLIK & BUKA DI LAPTOP):',
+                          );
+                          debugPrint(snapUrl);
+                          debugPrint(
+                            '=============================================\n',
+                          );
                           setState(() {
                             _snapRedirectUrl = snapUrl;
                           });
@@ -166,7 +186,7 @@ class _PaymentViewState extends State<PaymentView> {
                           );
                         }
                       } else if (state is OrderError) {
-                        print("🔥 ERROR SAAT CHECKOUT: ${state.message}");
+                        debugPrint("🔥 ERROR SAAT CHECKOUT: ${state.message}");
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(state.message),
@@ -181,8 +201,10 @@ class _PaymentViewState extends State<PaymentView> {
                         onPressed: isLoading
                             ? null
                             : () async {
-                                if (_selectedTabIndex == 1 || _selectedTabIndex == 2) {
-                                  if (_snapRedirectUrl != null && _currentOrderId != null) {
+                                if (_selectedTabIndex == 1 ||
+                                    _selectedTabIndex == 2) {
+                                  if (_snapRedirectUrl != null &&
+                                      _currentOrderId != null) {
                                     context.read<OrderBloc>().add(
                                       CheckOrderStatusEvent(_currentOrderId!),
                                     );
@@ -194,7 +216,10 @@ class _PaymentViewState extends State<PaymentView> {
                                 }
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: (_snapRedirectUrl != null && (_selectedTabIndex == 1 || _selectedTabIndex == 2))
+                          backgroundColor:
+                              (_snapRedirectUrl != null &&
+                                  (_selectedTabIndex == 1 ||
+                                      _selectedTabIndex == 2))
                               ? Colors.green
                               : AppColors.accent,
                           shape: RoundedRectangleBorder(
@@ -212,10 +237,11 @@ class _PaymentViewState extends State<PaymentView> {
                                 ),
                               )
                             : Text(
-                                (_selectedTabIndex == 1 || _selectedTabIndex == 2)
+                                (_selectedTabIndex == 1 ||
+                                        _selectedTabIndex == 2)
                                     ? (_snapRedirectUrl != null
-                                        ? 'Cek Status Pembayaran'
-                                        : 'Konfirmasi')
+                                          ? 'Cek Status Pembayaran'
+                                          : 'Konfirmasi')
                                     : 'Konfirmasi',
                                 style: const TextStyle(
                                   fontSize: 16,
@@ -293,15 +319,24 @@ class _PaymentViewState extends State<PaymentView> {
                 ? () async {
                     final uri = Uri.parse(_snapRedirectUrl!);
                     try {
-                      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      final launched = await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
                       if (!launched) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Gagal membuka browser di perangkat ini')),
+                          const SnackBar(
+                            content: Text(
+                              'Gagal membuka browser di perangkat ini',
+                            ),
+                          ),
                         );
                       }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: Tidak dapat membuka link')),
+                        SnackBar(
+                          content: Text('Error: Tidak dapat membuka link'),
+                        ),
                       );
                     }
                   }
@@ -315,7 +350,9 @@ class _PaymentViewState extends State<PaymentView> {
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: _snapRedirectUrl != null ? AppColors.accent : AppColors.border,
+                  color: _snapRedirectUrl != null
+                      ? AppColors.accent
+                      : AppColors.border,
                   width: _snapRedirectUrl != null ? 2 : 1,
                 ),
               ),
@@ -372,15 +409,24 @@ class _PaymentViewState extends State<PaymentView> {
                 ? () async {
                     final uri = Uri.parse(_snapRedirectUrl!);
                     try {
-                      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      final launched = await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
                       if (!launched) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Gagal membuka browser di perangkat ini')),
+                          const SnackBar(
+                            content: Text(
+                              'Gagal membuka browser di perangkat ini',
+                            ),
+                          ),
                         );
                       }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: Tidak dapat membuka link')),
+                        SnackBar(
+                          content: Text('Error: Tidak dapat membuka link'),
+                        ),
                       );
                     }
                   }
@@ -394,7 +440,9 @@ class _PaymentViewState extends State<PaymentView> {
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: _snapRedirectUrl != null ? AppColors.accent : AppColors.border,
+                  color: _snapRedirectUrl != null
+                      ? AppColors.accent
+                      : AppColors.border,
                   width: _snapRedirectUrl != null ? 2 : 1,
                 ),
               ),
@@ -524,14 +572,29 @@ class _PaymentViewState extends State<PaymentView> {
       );
     }).toList();
 
+    int cashierId = 1;
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      if (authState.authData.user.id != 0) {
+        cashierId = authState.authData.user.id;
+      }
+    }
+
     final request = OrderRequest(
-      cashierId: 1,
+      cashierId: cashierId,
       transactionTime: DateTime.now().toIso8601String(),
       subTotal: cartState.subTotal,
-      serviceCharge: 0.0,
-      tax: 0.0,
-      total: cartState.subTotal,
-      paymentMethod: _selectedTabIndex == 0 ? 'CASH' : _selectedTabIndex == 1 ? 'QRIS' : 'transfer',
+      discountId: cartState.activeDiscount?.id,
+      discountAmount: cartState.diskon,
+      shippingCost: cartState.shippingFeeAmount,
+      serviceCharge: cartState.serviceFeeAmount,
+      tax: cartState.pajak,
+      total: cartState.total, // Ensure we send the correct total after discount
+      paymentMethod: _selectedTabIndex == 0
+          ? 'CASH'
+          : _selectedTabIndex == 1
+          ? 'QRIS'
+          : 'transfer',
       orderItems: orderItems,
     );
     context.read<OrderBloc>().add(SubmitOrderEvent(request));

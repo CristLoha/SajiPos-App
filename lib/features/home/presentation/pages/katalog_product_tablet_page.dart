@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saji_pos_app/features/settings/presentation/cubit/sync_cubit.dart';
 import 'package:intl/intl.dart';
 import 'package:saji_pos_app/core/constants/app_colors.dart';
 import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
@@ -54,7 +55,11 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                 return Skeletonizer(
                   enabled: true,
                   child: GridView.builder(
-                    padding: const EdgeInsets.only(bottom: 24),
+                    padding: const EdgeInsets.only(
+                      bottom: 100,
+                      left: 24,
+                      right: 24,
+                    ),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
@@ -116,40 +121,52 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
 
                 return BlocBuilder<CartCubit, CartState>(
                   builder: (context, cartState) {
-                    return GridView.builder(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.75,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
-                      itemCount: products.length,
-                      itemBuilder: (context, index) {
-                        final product = products[index];
-                        final cartItem = cartState.items
-                            .where((item) => item.product.id == product.id)
-                            .toList();
-                        final qty = cartItem.isNotEmpty
-                            ? cartItem.first.quantity
-                            : 0;
-
-                        return ProductCard(
-                          title: product.name,
-                          category: product.category,
-                          price: formatCurrency.format(product.price),
-                          quantity: qty,
-                          stock: product.stock,
-                          imageUrl: product.fullImageUrl,
-                          discountPrice: product.discountPrice != null
-                              ? formatCurrency.format(product.discountPrice)
-                              : null,
-                          onTap: () {
-                            context.read<CartCubit>().addToCart(product);
-                          },
-                        );
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<SyncCubit>().syncData();
+                        await Future.delayed(const Duration(seconds: 1));
                       },
+                      color: AppColors.accent,
+                      child: GridView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(
+                          bottom: 100,
+                          left: 24,
+                          right: 24,
+                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              childAspectRatio: 0.75,
+                              crossAxisSpacing: 24,
+                              mainAxisSpacing: 24,
+                            ),
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          final product = products[index];
+                          final cartItem = cartState.items
+                              .where((item) => item.product.id == product.id)
+                              .toList();
+                          final qty = cartItem.isNotEmpty
+                              ? cartItem.first.quantity
+                              : 0;
+
+                          return ProductCard(
+                            title: product.name,
+                            category: product.category,
+                            price: formatCurrency.format(product.price),
+                            quantity: qty,
+                            stock: product.stock,
+                            imageUrl: product.fullImageUrl,
+                            discountPrice: product.discountPrice != null
+                                ? formatCurrency.format(product.discountPrice)
+                                : null,
+                            onTap: () {
+                              context.read<CartCubit>().addToCart(product);
+                            },
+                          );
+                        },
+                      ),
                     );
                   },
                 );

@@ -4,7 +4,7 @@ import '../../widgets/order_confirmation_view.dart';
 import 'mobile_payment_page.dart';
 
 class MobileOrderConfirmationPage extends StatelessWidget {
-  const MobileOrderConfirmationPage({Key? key}) : super(key: key);
+  const MobileOrderConfirmationPage({super.key});
 
   @override
   Widget build(BuildContext context) {

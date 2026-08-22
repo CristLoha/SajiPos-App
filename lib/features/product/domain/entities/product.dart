@@ -52,4 +52,38 @@ class Product extends Equatable {
     createdAt,
     updatedAt,
   ];
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'] as int,
+      categoryId: json['categoryId'] as int,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      price: json['price'] as int,
+      discountPrice: json['discountPrice'] as int?,
+      isCampaignActive: json['isCampaignActive'] as bool? ?? false,
+      stock: json['stock'] as int,
+      image: json['image'] as String,
+      status: json['status'] as int,
+      createdAt: json['createdAt'] as String,
+      updatedAt: json['updatedAt'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'categoryId': categoryId,
+      'name': name,
+      'description': description,
+      'price': price,
+      'discountPrice': discountPrice,
+      'isCampaignActive': isCampaignActive,
+      'stock': stock,
+      'image': image,
+      'status': status,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+    };
+  }
 }

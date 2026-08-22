@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:saji_pos_app/features/discount/presentation/pages/promo_page.dart';
-import '../../../../core/constants/app_colors.dart';
+import 'package:saji_pos_app/features/discount/presentation/pages/discount_page.dart';
+
 import '../../../../core/components/custom_sidebar.dart';
 import 'package:saji_pos_app/features/home/presentation/widgets/order_panel.dart';
 import 'package:saji_pos_app/features/home/presentation/pages/katalog_product_tablet_page.dart';
 import '../../../report/presentation/pages/report_page.dart';
-import 'package:saji_pos_app/features/home/presentation/pages/settings_page.dart';
+import 'package:saji_pos_app/features/settings/presentation/pages/settings_page.dart';
 
 class DashboardTabletLayout extends StatelessWidget {
   final int selectedIndex;
@@ -22,7 +22,7 @@ class DashboardTabletLayout extends StatelessWidget {
       case 0:
         return const KatalogProductTabletPage();
       case 1:
-        return const PromoPage();
+        return const DiscountPage();
       case 2:
         return const ReportPage();
       case 3:
@@ -35,7 +35,7 @@ class DashboardTabletLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Row(
           children: [
@@ -55,7 +55,7 @@ class DashboardTabletLayout extends StatelessWidget {
                 width: 360,
                 margin: const EdgeInsets.only(top: 16, right: 16, bottom: 16),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(

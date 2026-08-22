@@ -69,8 +69,8 @@ class DiscountModel extends Equatable {
       value: value != null ? double.tryParse(value!) : null,
       minTransaction: minTransaction != null ? double.tryParse(minTransaction.toString()) : null,
       maxDiscount: maxDiscount != null ? double.tryParse(maxDiscount.toString()) : null,
-      startDate: DateTime.parse(startDate),
-      expiredDate: DateTime.parse(expiredDate),
+      startDate: DateTime.tryParse(startDate) ?? DateTime.now(),
+      expiredDate: DateTime.tryParse(expiredDate) ?? DateTime.now(),
       status: status,
     );
   }

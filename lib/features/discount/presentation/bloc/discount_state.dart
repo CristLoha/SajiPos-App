@@ -13,11 +13,12 @@ class DiscountLoading extends DiscountState {}
 
 class DiscountLoaded extends DiscountState {
   final List<Discount> discounts;
+  final int unseenCount;
 
-  const DiscountLoaded(this.discounts);
+  const DiscountLoaded(this.discounts, {this.unseenCount = 0});
 
   @override
-  List<Object> get props => [discounts];
+  List<Object> get props => [discounts, unseenCount];
 }
 
 class DiscountError extends DiscountState {

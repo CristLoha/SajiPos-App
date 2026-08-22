@@ -77,12 +77,12 @@ class DiscountRemoteDataSourceImpl implements DiscountRemoteDataSource {
         return DiscountModel.fromJson(response.data['data'] as Map<String, dynamic>);
       } else {
         throw ServerException(
-          response.statusMessage ?? 'Kode promo tidak valid',
+          response.statusMessage ?? 'Kode diskon tidak valid',
         );
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        throw ServerException('Kode promo tidak valid atau sudah kedaluwarsa');
+        throw ServerException('Kode diskon tidak valid atau sudah kedaluwarsa');
       }
       throw ServerException(e.message ?? 'Terjadi kesalahan jaringan');
     } catch (e) {

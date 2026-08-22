@@ -141,29 +141,31 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildMainResponsiveLayout() {
     return Center(
-      child: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) async {
-          if (state is AuthAuthenticated) {
-            await _saveCredentials();
-            if (!context.mounted) return;
-            CustomSnackBar.showSuccess(
-              context,
-              'Selamat datang, login berhasil!',
-            );
-            context.go('/');
-          }
+      child: SingleChildScrollView(
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) async {
+            if (state is AuthAuthenticated) {
+              await _saveCredentials();
+              if (!context.mounted) return;
+              CustomSnackBar.showSuccess(
+                context,
+                'Selamat datang, login berhasil!',
+              );
+              context.go('/');
+            }
 
-          if (state is AuthFailure) {
-            if (!context.mounted) return;
-            CustomSnackBar.showErr(context, state.errorMessage);
-          }
-        },
-        builder: (context, state) {
-          return ResponsiveLayout(
-            mobile: _buildMobileLayout(state),
-            tablet: _buildTabletLayout(state),
-          );
-        },
+            if (state is AuthFailure) {
+              if (!context.mounted) return;
+              CustomSnackBar.showErr(context, state.errorMessage);
+            }
+          },
+          builder: (context, state) {
+            return ResponsiveLayout(
+              mobile: _buildMobileLayout(state),
+              tablet: _buildTabletLayout(state),
+            );
+          },
+        ),
       ),
     );
   }

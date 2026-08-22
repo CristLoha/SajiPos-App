@@ -6,6 +6,7 @@
         required this.cashierId,                                                                                                                             
         required this.transactionTime,                                                                                                                       
         required this.subTotal,                                                                                                                              
+        this.discountId,
         this.discountAmount = 0.0,                                                                                                                           
         this.shippingCost = 0.0,                                                                                                                             
         required this.serviceCharge,                                                                                                                         
@@ -18,6 +19,7 @@
       final int cashierId;                                                                                                                                   
       final String transactionTime;                                                                                                                          
       final double subTotal;                                                                                                                                 
+      final int? discountId;
       final double discountAmount;                                                                                                                           
       final double shippingCost;                                                                                                                             
       final double serviceCharge;                                                                                                                            
@@ -31,6 +33,7 @@
             cashierId,                                                                                                                                       
             transactionTime,                                                                                                                                 
             subTotal,                                                                                                                                        
+            discountId,
             discountAmount,                                                                                                                                  
             shippingCost,                                                                                                                                    
             serviceCharge,                                                                                                                                   

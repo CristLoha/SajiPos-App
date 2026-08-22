@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
+import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
 
   const CustomBottomNav({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.onItemSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,15 @@ class CustomBottomNav extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildNavItem(0, Icons.home_rounded, 'Beranda'),
-            _buildNavItem(1, Icons.discount_rounded, 'Promo', badgeCount: 2), // Hardcoded dummy badge count
+            BlocBuilder<DiscountBloc, DiscountState>(
+              builder: (context, state) {
+                int count = 0;
+                if (state is DiscountLoaded) {
+                  count = state.unseenCount;
+                }
+                return _buildNavItem(1, Icons.discount_rounded, 'Diskon', badgeCount: count);
+              },
+            ),
             _buildNavItem(2, Icons.analytics_rounded, 'Report'),
             _buildNavItem(3, Icons.settings_rounded, 'Settings'),
             _buildNavItem(4, Icons.logout_rounded, 'Keluar'),

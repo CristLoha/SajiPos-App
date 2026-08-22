@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:saji_pos_app/features/home/presentation/pages/katalog_product_mobile_page.dart';
-import 'package:saji_pos_app/features/discount/presentation/pages/promo_page.dart';
+import 'package:saji_pos_app/features/discount/presentation/pages/discount_page.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/components/custom_bottom_nav.dart';
 import 'package:saji_pos_app/features/home/presentation/pages/checkout/mobile_order_confirmation_page.dart';
 import 'package:saji_pos_app/features/report/presentation/pages/report_page.dart';
-import 'package:saji_pos_app/features/home/presentation/pages/settings_page.dart';
+import 'package:saji_pos_app/features/settings/presentation/pages/settings_page.dart';
 
 class DashboardMobileLayout extends StatelessWidget {
   final int selectedIndex;
@@ -31,7 +31,7 @@ class DashboardMobileLayout extends StatelessWidget {
       case 0:
         return const KatalogProductMobilePage();
       case 1:
-        return const PromoPage();
+        return const DiscountPage();
       case 2:
         return const ReportPage();
       case 3:
@@ -44,7 +44,7 @@ class DashboardMobileLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),

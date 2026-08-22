@@ -1,11 +1,94 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:saji_pos_app/features/product/domain/entities/product.dart';
 import 'package:saji_pos_app/features/discount/domain/entities/discount.dart';
 import '../../domain/entities/cart_item.dart';
 import 'cart_state.dart';
 
 class CartCubit extends Cubit<CartState> {
-  CartCubit() : super(const CartState());
+  final SharedPreferences sharedPreferences;
+  static const String _cartKey = 'cart_state_v1';
+
+  CartCubit({required this.sharedPreferences}) : super(const CartState()) {
+    _loadCart();
+  }
+
+  void _loadCart() {
+    final String? cartStr = sharedPreferences.getString(_cartKey);
+    if (cartStr != null) {
+      try {
+        final Map<String, dynamic> json = jsonDecode(cartStr);
+        final loadedState = CartState.fromJson(json);
+        emit(loadedState);
+        _emitWithRecalculatedDiscount(loadedState.items);
+      } catch (e) {
+        debugPrint('Failed to load cart: $e');
+      }
+    }
+  }
+
+  void _saveCart(CartState stateToSave) {
+    try {
+      final String cartStr = jsonEncode(stateToSave.toJson());
+      sharedPreferences.setString(_cartKey, cartStr);
+    } catch (e) {
+      debugPrint('Failed to save cart: $e');
+    }
+  }
+
+  void _emitWithRecalculatedDiscount(List<CartItem> currentItems) {
+    double subTotal = currentItems.fold(0, (sum, item) => sum + item.totalPrice);
+    
+    if (state.activeDiscount == null) {
+      final newState = state.copyWith(items: currentItems);
+      emit(newState);
+      _saveCart(newState);
+      return;
+    }
+
+    // EXPIRED CHECK: Jika waktu saat ini sudah melewati expiredDate
+    if (DateTime.now().isAfter(state.activeDiscount!.expiredDate)) {
+      debugPrint('Discount expired: ${state.activeDiscount!.name}');
+      final newState = state.copyWith(
+        items: currentItems, 
+        diskon: 0.0, 
+        clearDiscount: true, 
+        selectedDiscountIds: {}
+      );
+      emit(newState);
+      _saveCart(newState);
+      return;
+    }
+    
+    if (state.activeDiscount!.minTransaction != null &&
+        subTotal < state.activeDiscount!.minTransaction!) {
+      // Syarat diskon tidak terpenuhi, diskon dinolkan tapi status tetap standby
+      final newState = state.copyWith(items: currentItems, diskon: 0.0);
+      emit(newState);
+      _saveCart(newState);
+      return;
+    }
+
+    double discountAmount = 0.0;
+    double discountValue = state.activeDiscount!.value ?? 0.0;
+    String discountType = state.activeDiscount!.type.trim().toLowerCase();
+
+    if (discountType == 'percent' || discountType == 'percentage' || discountType == 'persen' || discountType == 'persentase') {
+      discountAmount = subTotal * (discountValue / 100);
+      if (state.activeDiscount!.maxDiscount != null &&
+          discountAmount > state.activeDiscount!.maxDiscount!) {
+        discountAmount = state.activeDiscount!.maxDiscount!;
+      }
+    } else {
+      discountAmount = discountValue;
+    }
+
+    final newState = state.copyWith(items: currentItems, diskon: discountAmount);
+    emit(newState);
+    _saveCart(newState);
+  }
 
   void addToCart(Product product) {
     final currentItems = List<CartItem>.from(state.items);
@@ -20,7 +103,7 @@ class CartCubit extends Cubit<CartState> {
     } else {
       currentItems.add(CartItem(product: product));
     }
-    emit(state.copyWith(items: currentItems));
+    _emitWithRecalculatedDiscount(currentItems);
   }
 
   void updateQuantity(Product product, int newQty) {
@@ -35,7 +118,7 @@ class CartCubit extends Cubit<CartState> {
       } else {
         currentItems[index] = currentItems[index].copyWith(quantity: newQty);
       }
-      emit(state.copyWith(items: currentItems));
+      _emitWithRecalculatedDiscount(currentItems);
     }
   }
 
@@ -47,7 +130,7 @@ class CartCubit extends Cubit<CartState> {
 
     if (index >= 0) {
       currentItems[index] = currentItems[index].copyWith(note: note);
-      emit(state.copyWith(items: currentItems));
+      _emitWithRecalculatedDiscount(currentItems);
     }
   }
 
@@ -65,41 +148,46 @@ class CartCubit extends Cubit<CartState> {
       } else {
         currentItems.removeAt(index);
       }
-      emit(state.copyWith(items: currentItems));
+      _emitWithRecalculatedDiscount(currentItems);
     }
   }
 
-  void setDiskon(double amount, {Set<int>? selectedIds}) {
-    emit(
-      state.copyWith(
-        diskon: amount,
-        selectedDiscountIds: selectedIds ?? state.selectedDiscountIds,
-      ),
+  void applyVoucherDiscount(Discount discount) {
+    final newState = state.copyWith(
+      activeDiscount: discount,
+      selectedDiscountIds: {discount.id},
     );
+    emit(newState);
+    _emitWithRecalculatedDiscount(newState.items);
   }
 
-  void calculateVoucherDiscount(Discount discount, double cartSubTotal) {
-    if (discount.minTransaction != null &&
-        cartSubTotal < discount.minTransaction!) {
-      print("Failed: Minimum transaction is Rp ${discount.minTransaction}");
-      return;
-    }
-    double discountAmount = 0.0;
-    double discountValue = discount.value ?? 0.0;
-    if (discount.type == 'percentage') {
-      discountAmount = cartSubTotal * (discountValue / 100);
-      if (discount.maxDiscount != null &&
-          discountAmount > discount.maxDiscount!) {
-        discountAmount = discount.maxDiscount!;
-      } else {
-        discountAmount = discountValue;
-      }
-      double grandTotal = cartSubTotal - discountAmount;
-      if (grandTotal < 0) grandTotal = 0;
-    }
+  void removeVoucherDiscount() {
+    final newState = state.copyWith(clearDiscount: true, diskon: 0.0, selectedDiscountIds: {});
+    emit(newState);
+    _saveCart(newState);
   }
 
   void clearCart() {
-    emit(const CartState(items: []));
+    final newState = const CartState(items: [], diskon: 0.0, selectedDiscountIds: {});
+    emit(newState);
+    _saveCart(newState);
+  }
+
+  void updateCosts({
+    double? taxPercentage,
+    double? shippingFeeAmount,
+    double? serviceFeeAmount,
+    bool? includeShippingInTax,
+    bool? includeServiceFeeInTax,
+  }) {
+    final newState = state.copyWith(
+      taxPercentage: taxPercentage,
+      shippingFeeAmount: shippingFeeAmount,
+      serviceFeeAmount: serviceFeeAmount,
+      includeShippingInTax: includeShippingInTax,
+      includeServiceFeeInTax: includeServiceFeeInTax,
+    );
+    emit(newState);
+    _saveCart(newState);
   }
 }

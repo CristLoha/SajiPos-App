@@ -5,10 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
 import 'package:saji_pos_app/features/cart/domain/entities/cart_item.dart';
-import 'pajak_dialog.dart';
-import 'layanan_dialog.dart';
 import 'diskon_dialog.dart';
+import 'biaya_tambahan_dialog.dart';
 import 'ongkir_dialog.dart';
+import 'layanan_dialog.dart';
 
 class OrderConfirmationView extends StatelessWidget {
   final VoidCallback onProceedToPayment;
@@ -22,8 +22,11 @@ class OrderConfirmationView extends StatelessWidget {
       symbol: 'Rp ',
       decimalDigits: 0,
     );
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return Container(
-      color: AppColors.white,
+      color: theme.cardColor,
       child: BlocBuilder<CartCubit, CartState>(
         builder: (context, cartState) {
           return Column(
@@ -38,12 +41,12 @@ class OrderConfirmationView extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Konfirmasi',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
+                            color: theme.textTheme.bodyLarge?.color,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -113,76 +116,109 @@ class OrderConfirmationView extends StatelessWidget {
                           ),
                         ),
                       ),
-                    const SizedBox(height: 24),
-                    _buildActionButtons(context),
                   ],
                 ),
               ),
-              // Summary
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border(top: BorderSide(color: AppColors.border)),
+              if (cartState.items.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: _buildActionButtons(context),
                 ),
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSummaryRow('Ongkir', 'Rp 0'),
-                    const SizedBox(height: 10),
-                    _buildSummaryRow('Pajak', '0%'),
-                    const SizedBox(height: 10),
-                    _buildSummaryRow(
-                      'Diskon',
-                      '- ${formatCurrency.format(cartState.diskon)} %',
-                    ),
-                    const SizedBox(height: 14),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
+                // Summary
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    border: Border(top: BorderSide(color: isDark ? Colors.grey[850]! : AppColors.border)),
+                  ),
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Subtotal
+                      _buildSummaryRow(
+                        context,
+                        'Subtotal',
+                        formatCurrency.format(cartState.subTotal),
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.accentLight,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: _buildSummaryRow(
-                        'Total Bayar',
-                        formatCurrency.format(cartState.total),
-                        isBold: true,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: ElevatedButton(
-                        onPressed: cartState.items.isEmpty
-                            ? null
-                            : onProceedToPayment,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accent,
-                          disabledBackgroundColor: AppColors.accent.withValues(
-                            alpha: 0.3,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          elevation: 0,
+                      if (cartState.shippingFeeAmount > 0) ...[
+                        const SizedBox(height: 10),
+                        _buildSummaryRow(
+                          context,
+                          'Ongkos Kirim',
+                          '+ ${formatCurrency.format(cartState.shippingFeeAmount)}',
                         ),
-                        child: const Text(
-                          'Lanjutkan Pembayaran',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white,
+                      ],
+                      if (cartState.serviceFeeAmount > 0) ...[
+                        const SizedBox(height: 10),
+                        _buildSummaryRow(
+                          context,
+                          'Biaya Layanan',
+                          '+ ${formatCurrency.format(cartState.serviceFeeAmount)}',
+                        ),
+                      ],
+                      if (cartState.taxPercentage > 0) ...[
+                        const SizedBox(height: 10),
+                        _buildSummaryRow(
+                          context,
+                          'Pajak (${cartState.taxPercentage.toStringAsFixed(cartState.taxPercentage.truncateToDouble() == cartState.taxPercentage ? 0 : 1)}%)', 
+                          '+ ${formatCurrency.format(cartState.pajak)}',
+                        ),
+                      ],
+                      if (cartState.diskon > 0) ...[
+                        const SizedBox(height: 10),
+                        _buildSummaryRow(
+                          context,
+                          'Diskon',
+                          '- ${formatCurrency.format(cartState.diskon)}',
+                        ),
+                      ],
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.accent.withValues(alpha: 0.15) : AppColors.accentLight,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: _buildSummaryRow(
+                          context,
+                          'Total Bayar',
+                          formatCurrency.format(cartState.total),
+                          isBold: true,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 54,
+                        child: ElevatedButton(
+                          onPressed: onProceedToPayment,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accent,
+                            disabledBackgroundColor: AppColors.accent.withValues(
+                              alpha: 0.3,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Lanjutkan Pembayaran',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ],
           );
         },
@@ -222,9 +258,9 @@ class OrderConfirmationView extends StatelessWidget {
                     item.product.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                       fontSize: 14,
                     ),
                   ),
@@ -245,8 +281,8 @@ class OrderConfirmationView extends StatelessWidget {
               children: [
                 Text(
                   formatCurrency.format(item.totalPrice),
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                   ),
@@ -284,9 +320,10 @@ class OrderConfirmationView extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           '${item.quantity}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                           ),
                         ),
                       ),
@@ -323,7 +360,9 @@ class OrderConfirmationView extends StatelessWidget {
                 height: 44,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: Theme.of(context).brightness == Brightness.dark 
+                      ? Colors.grey[850] 
+                      : AppColors.background,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.centerLeft,
@@ -338,9 +377,9 @@ class OrderConfirmationView extends StatelessWidget {
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                   onChanged: (val) {
                     context.read<CartCubit>().updateNote(item.product, val);
@@ -377,25 +416,25 @@ class OrderConfirmationView extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildActionButton(Icons.local_shipping_outlined, 'Ongkir', () {
+        _buildActionButton(context, Icons.local_shipping_outlined, 'Ongkir', () {
           showDialog(
             context: context,
             builder: (context) => const OngkirDialog(),
           );
         }),
-        _buildActionButton(Icons.discount_outlined, 'Diskon', () {
+        _buildActionButton(context, Icons.discount_outlined, 'Diskon', () {
           showDialog(
             context: context,
             builder: (context) => const DiskonDialog(),
           );
         }),
-        _buildActionButton(Icons.receipt_long_outlined, 'Pajak', () {
+        _buildActionButton(context, Icons.receipt_long_outlined, 'Pajak', () {
           showDialog(
             context: context,
-            builder: (context) => const PajakDialog(),
+            builder: (context) => const BiayaTambahanDialog(),
           );
         }),
-        _buildActionButton(Icons.storefront_outlined, 'Layanan', () {
+        _buildActionButton(context, Icons.storefront_outlined, 'Layanan', () {
           showDialog(
             context: context,
             builder: (context) => const LayananDialog(),
@@ -405,7 +444,8 @@ class OrderConfirmationView extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, VoidCallback onTap) {
+  Widget _buildActionButton(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -414,7 +454,7 @@ class OrderConfirmationView extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: AppColors.accentLight,
+              color: isDark ? AppColors.accent.withValues(alpha: 0.15) : AppColors.accentLight,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(icon, color: AppColors.accent, size: 24),
@@ -433,14 +473,15 @@ class OrderConfirmationView extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
+  Widget _buildSummaryRow(BuildContext context, String label, String value, {bool isBold = false}) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: TextStyle(
-            color: isBold ? AppColors.textPrimary : AppColors.textSecondary,
+            color: isBold ? theme.textTheme.bodyLarge?.color : AppColors.textSecondary,
             fontSize: isBold ? 16 : 14,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
           ),
@@ -449,7 +490,7 @@ class OrderConfirmationView extends StatelessWidget {
           value,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-            color: isBold ? AppColors.accent : AppColors.textPrimary,
+            color: isBold ? AppColors.accent : theme.textTheme.bodyLarge?.color,
             fontSize: isBold ? 18 : 14,
           ),
         ),

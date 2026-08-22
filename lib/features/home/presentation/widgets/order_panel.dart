@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'order_confirmation_view.dart';
@@ -9,7 +9,7 @@ import 'payment_success_view.dart';
 enum OrderFlowState { confirmation, payment, success }
 
 class OrderPanel extends StatefulWidget {
-  const OrderPanel({Key? key}) : super(key: key);
+  const OrderPanel({super.key});
 
   @override
   State<OrderPanel> createState() => _OrderPanelState();
@@ -46,7 +46,7 @@ class _OrderPanelState extends State<OrderPanel> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.white,
+      color: Theme.of(context).cardColor,
       child: _buildCurrentView(),
     );
   }

@@ -1,93 +1,88 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../features/cart/presentation/cubit/cart_cubit.dart';
+import '../../domain/entities/discount.dart';
+import '../bloc/discount_bloc.dart';
 
-class PromoMobilePage extends StatefulWidget {
-  const PromoMobilePage({super.key});
+class DiscountMobilePage extends StatefulWidget {
+  const DiscountMobilePage({super.key});
 
   @override
-  State<PromoMobilePage> createState() => _PromoMobilePageState();
+  State<DiscountMobilePage> createState() => _DiscountMobilePageState();
 }
 
-class _PromoMobilePageState extends State<PromoMobilePage> {
+class _DiscountMobilePageState extends State<DiscountMobilePage> {
   int _selectedTabIndex = 0;
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
-  // Dummy data
-  final List<Map<String, dynamic>> _dummyPromos = [
-    {
-      'name': 'Diskon Akhir Pekan',
-      'code': 'WEEKEND20',
-      'type': 'percent',
-      'value': 20,
-      'status': 'active', // active, upcoming, expired, expiring_soon
-      'start_date': '2026-07-16',
-      'end_date': '2026-07-18',
-      'terms': 'Min. transaksi Rp 100.000',
-    },
-    {
-      'name': 'HUT SajiPOS',
-      'code': 'SAJI10',
-      'type': 'percent',
-      'value': 10,
-      'status': 'active', // changed from upcoming since we remove Akan Datang
-      'start_date': '2026-08-01',
-      'end_date': '2026-08-05',
-      'terms': 'Semua menu',
-    },
-    {
-      'name': 'Lebaran Sale',
-      'code': 'LEBARAN',
-      'type': 'nominal',
-      'value': 20000,
-      'status': 'expired',
-      'start_date': '2026-04-01',
-      'end_date': '2026-04-10',
-      'terms': 'Tanpa min. transaksi',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchDiscounts();
+  }
 
-  List<Map<String, dynamic>> get _filteredPromos {
-    String search = _searchController.text.toLowerCase();
-    return _dummyPromos.where((promo) {
-      bool matchesSearch =
-          promo['name'].toLowerCase().contains(search) ||
-          promo['code'].toLowerCase().contains(search);
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
 
-      bool matchesTab = false;
-      if (_selectedTabIndex == 0) {
-        matchesTab =
-            promo['status'] == 'active' || promo['status'] == 'expiring_soon';
-      } else if (_selectedTabIndex == 1) {
-        matchesTab = promo['status'] == 'expired';
-      }
+  void _fetchDiscounts() {
+    String status = 'active';
+    if (_selectedTabIndex == 1) {
+      status = 'upcoming';
+    } else if (_selectedTabIndex == 2) {
+      status = 'expired';
+    }
 
-      return matchesSearch && matchesTab;
-    }).toList();
+    context.read<DiscountBloc>().add(
+          FetchActiveDiscounts(
+            search: _searchController.text.isNotEmpty ? _searchController.text : null,
+            status: status,
+          ),
+        );
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _fetchDiscounts();
+    });
+  }
+
+  void _onTabChanged(int index) {
+    setState(() {
+      _selectedTabIndex = index;
+    });
+    _fetchDiscounts();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Promo & Diskon'),
-        backgroundColor: AppColors.white,
+        title: const Text('Diskon'),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              // TODO: Tampilkan filter bottom sheet
-            },
+            onPressed: () {},
           ),
         ],
       ),
       body: Column(
         children: [
-          // Header Section (Search & Tabs) blended with AppBar
+          // Header Section
           Container(
-            color: AppColors.white,
+            color: Theme.of(context).colorScheme.surface,
             padding: const EdgeInsets.only(bottom: 16),
             child: Column(
               children: [
@@ -98,15 +93,15 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
                     height: 48,
                     child: TextField(
                       controller: _searchController,
-                      onChanged: (value) => setState(() {}),
+                      onChanged: _onSearchChanged,
                       decoration: InputDecoration(
-                        hintText: 'Cari nama atau kode promo...',
+                        hintText: 'Cari nama atau kode diskon...',
                         prefixIcon: const Icon(
                           Icons.search,
                           color: AppColors.textSecondary,
                         ),
                         filled: true,
-                        fillColor: AppColors.background,
+                        fillColor: Theme.of(context).scaffoldBackgroundColor,
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 0,
                           horizontal: 16,
@@ -120,20 +115,25 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
                   ),
                 ),
 
-                // Segmented Control / Tabs
+                // Tabs
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Row(
-                      children: [
-                        _buildTab(0, 'Berlaku Sekarang'),
-                        _buildTab(1, 'Kedaluwarsa'),
-                      ],
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildTab(0, 'Berlaku Sekarang'),
+                          _buildTab(1, 'Akan Datang'),
+                          _buildTab(2, 'Kedaluwarsa'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -141,21 +141,38 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
             ),
           ),
 
-          // Promo List
+          // Discount List based on state
           Expanded(
-            child: _filteredPromos.isEmpty
-                ? _buildEmptyState()
-                : ListView.separated(
+            child: BlocBuilder<DiscountBloc, DiscountState>(
+              builder: (context, state) {
+                if (state is DiscountLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is DiscountError) {
+                  return Center(
+                    child: Text(
+                      state.message,
+                      style: const TextStyle(color: AppColors.danger),
+                    ),
+                  );
+                } else if (state is DiscountEmpty) {
+                  return _buildEmptyState();
+                } else if (state is DiscountLoaded) {
+                  final discounts = state.discounts;
+                  return ListView.separated(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 16,
                     ),
-                    itemCount: _filteredPromos.length,
+                    itemCount: discounts.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
-                      return _buildPromoCard(_filteredPromos[index]);
+                      return _buildDiscountCard(discounts[index]);
                     },
-                  ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ),
         ],
       ),
@@ -164,49 +181,43 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
 
   Widget _buildTab(int index, String title) {
     bool isSelected = _selectedTabIndex == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedTabIndex = index),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            title,
-            style: TextStyle(
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              fontSize: 13,
-            ),
+    return GestureDetector(
+      onTap: () => _onTabChanged(index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 13,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPromoCard(Map<String, dynamic> promo) {
+  Widget _buildDiscountCard(Discount discount) {
     Color statusColor;
     String statusText;
-    switch (promo['status']) {
+    switch (discount.status) {
       case 'active':
         statusColor = AppColors.success;
         statusText = 'Aktif';
-        break;
-      case 'expiring_soon':
-        statusColor = Colors.orange;
-        statusText = 'Segera Berakhir';
         break;
       case 'upcoming':
         statusColor = AppColors.grey;
@@ -219,13 +230,23 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
         break;
     }
 
-    String discountValueText = promo['type'] == 'percent'
-        ? '${promo['value']}%'
-        : 'Rp ${promo['value'].toString()}';
+    String discountType = discount.type.toLowerCase();
+    String discountValueText = (discountType == 'percent' || discountType == 'percentage' || discountType == 'persen' || discountType == 'persentase')
+        ? '${discount.value?.toInt() ?? 0}%'
+        : NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+            .format(discount.value ?? 0);
+
+    String terms = discount.description ??
+        (discount.minTransaction != null
+            ? 'Min. transaksi ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(discount.minTransaction)}'
+            : 'Tanpa min. transaksi');
+
+    String startDate = DateFormat('dd MMM yyyy', 'id_ID').format(discount.startDate);
+    String endDate = DateFormat('dd MMM yyyy', 'id_ID').format(discount.expiredDate);
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -245,11 +266,11 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
             children: [
               Expanded(
                 child: Text(
-                  promo['name'],
-                  style: const TextStyle(
+                  discount.name,
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -275,15 +296,15 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
           // Code
           GestureDetector(
             onTap: () {
-              Clipboard.setData(ClipboardData(text: promo['code']));
+              Clipboard.setData(ClipboardData(text: discount.code));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Kode promo disalin!')),
+                const SnackBar(content: Text('Kode diskon disalin!')),
               );
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   style: BorderStyle.solid,
@@ -294,7 +315,7 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    promo['code'],
+                    discount.code,
                     style: const TextStyle(
                       fontFamily: 'monospace',
                       fontWeight: FontWeight.bold,
@@ -345,7 +366,7 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  promo['terms'],
+                  terms,
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -366,7 +387,7 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Berlaku: ${promo['start_date']} s.d ${promo['end_date']}',
+                  'Berlaku: $startDate s.d $endDate',
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -382,11 +403,25 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Promo diterapkan ke pesanan'),
-                    ),
-                  );
+                  final cartCubit = context.read<CartCubit>();
+                  cartCubit.applyVoucherDiscount(discount);
+                  
+                  final cartSubTotal = cartCubit.state.subTotal;
+                  if (cartSubTotal == 0 || (discount.minTransaction != null && cartSubTotal < discount.minTransaction!)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Diskon diaktifkan. Silakan tambahkan pesanan minimal Rp ${NumberFormat.currency(locale: 'id_ID', symbol: '', decimalDigits: 0).format(discount.minTransaction ?? 0)}.'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Diskon berhasil diterapkan ke pesanan!'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -411,7 +446,7 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Belum ada Promo',
+            'Belum ada Diskon',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -421,7 +456,7 @@ class _PromoMobilePageState extends State<PromoMobilePage> {
           const SizedBox(height: 8),
           if (_selectedTabIndex == 0)
             const Text(
-              'Tidak ada promo aktif saat ini.',
+              'Tidak ada diskon aktif saat ini.',
               style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
             ),
         ],

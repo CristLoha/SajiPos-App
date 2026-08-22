@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/error/exception.dart';
@@ -54,17 +55,17 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           response.data as Map<String, dynamic>,
         ).productList;
       } else {
-        print('🔥 [API ERROR] Gagal ambil produk: ${response.statusCode} - ${response.statusMessage}');
+        debugPrint('🔥 [API ERROR] Gagal ambil produk: ${response.statusCode} - ${response.statusMessage}');
         throw ServerException(
           'Gagal mengambil data: ${response.statusMessage}',
         );
       }
     } on DioException catch (e) {
-      print('🔥 [DIO EXCEPTION] getProducts: ${e.response?.statusCode} - ${e.message}');
-      print('🔥 [DIO RESPONSE DATA]: ${e.response?.data}');
+      debugPrint('🔥 [DIO EXCEPTION] getProducts: ${e.response?.statusCode} - ${e.message}');
+      debugPrint('🔥 [DIO RESPONSE DATA]: ${e.response?.data}');
       throw ServerException(e.message ?? 'Terjadi kesalahan koneksi');
     } catch (e) {
-      print('🔥 [UNKNOWN ERROR] getProducts: $e');
+      debugPrint('🔥 [UNKNOWN ERROR] getProducts: $e');
       throw ServerException('Masalah koneksi internet atau server: $e');
     }
   }

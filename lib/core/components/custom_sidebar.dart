@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
+import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
 
 class CustomSidebar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
 
   const CustomSidebar({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.onItemSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,15 @@ class CustomSidebar extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 _buildNavItem(0, Icons.home_rounded, 'Beranda'),
-                _buildNavItem(1, Icons.discount_rounded, 'Promo'),
+                BlocBuilder<DiscountBloc, DiscountState>(
+                  builder: (context, state) {
+                    int count = 0;
+                    if (state is DiscountLoaded) {
+                      count = state.unseenCount;
+                    }
+                    return _buildNavItem(1, Icons.discount_rounded, 'Diskon', badgeCount: count);
+                  },
+                ),
                 _buildNavItem(2, Icons.analytics_rounded, 'Report'),
                 _buildNavItem(3, Icons.settings_rounded, 'Settings'),
               ],
@@ -66,7 +76,7 @@ class CustomSidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
       onTap: () => onItemSelected(index),
@@ -80,10 +90,35 @@ class CustomSidebar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.white : AppColors.white.withValues(alpha: 0.45),
-              size: 24,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? AppColors.white : AppColors.white.withValues(alpha: 0.45),
+                  size: 24,
+                ),
+                if (badgeCount > 0)
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.danger,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        badgeCount.toString(),
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 4),
             Text(

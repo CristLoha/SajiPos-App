@@ -7,6 +7,7 @@ class OrderRequestModel extends Equatable {
     required this.cashierId,
     required this.transactionTime,
     required this.subTotal,
+    this.discountId,
     required this.discountAmount,
     required this.shippingCost,
     required this.serviceCharge,
@@ -19,6 +20,7 @@ class OrderRequestModel extends Equatable {
   final int cashierId;
   final String transactionTime;
   final double subTotal;
+  final int? discountId;
   final double discountAmount;
   final double shippingCost;
   final double serviceCharge;
@@ -32,6 +34,7 @@ class OrderRequestModel extends Equatable {
       cashierId: entity.cashierId,
       transactionTime: entity.transactionTime,
       subTotal: entity.subTotal,
+      discountId: entity.discountId,
       discountAmount: entity.discountAmount,
       shippingCost: entity.shippingCost,
       serviceCharge: entity.serviceCharge,
@@ -45,7 +48,7 @@ class OrderRequestModel extends Equatable {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> map = {
       'cashier_id': cashierId,
       'transaction_time': transactionTime,
       'sub_total': subTotal.toInt(),
@@ -57,6 +60,10 @@ class OrderRequestModel extends Equatable {
       'payment_method': paymentMethod,
       'order_items': orderItems.map((e) => e.toJson()).toList(),
     };
+    if (discountId != null) {
+      map['discount_id'] = discountId;
+    }
+    return map;
   }
 
   @override
@@ -64,6 +71,7 @@ class OrderRequestModel extends Equatable {
         cashierId,
         transactionTime,
         subTotal,
+        discountId,
         discountAmount,
         shippingCost,
         serviceCharge,

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_state.dart';
 import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class DiskonDialog extends StatelessWidget {
@@ -87,38 +88,34 @@ class DiskonDialog extends StatelessWidget {
 
                           final isSelected = selectedIds.contains(discount.id);
 
+                          String discountType = discount.type.trim().toLowerCase();
+                          String subtitle;
+                          if (discountType == 'percent' ||
+                              discountType == 'percentage' ||
+                              discountType == 'persen' ||
+                              discountType == 'persentase') {
+                            subtitle =
+                                'Diskon: ${discount.value?.toInt() ?? 0}%';
+                          } else {
+                            subtitle =
+                                'Potongan: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(discount.value ?? 0)}';
+                          }
+
                           return _buildDiscountOption(
                             title: discount.name,
-                            subtitle: discount.type == 'percentage'
-                                ? 'Diskon: ${discount.value}%'
-                                : 'Potongan: Rp ${discount.value}',
+                            subtitle: subtitle,
                             isSelected: isSelected,
                             onChanged: (val) {
-                              final newSelectedIds = Set<int>.from(selectedIds);
                               if (val == true) {
-                                newSelectedIds.add(discount.id);
+                                // Menggunakan fungsi baru yang otomatis hitung dan masuk ke state standby
+                                context.read<CartCubit>().applyVoucherDiscount(
+                                  discount,
+                                );
                               } else {
-                                newSelectedIds.remove(discount.id);
+                                context
+                                    .read<CartCubit>()
+                                    .removeVoucherDiscount();
                               }
-
-                              double subTotal = cartState.subTotal;
-                              double totalDiskonRp = 0;
-
-                              for (var d in discounts) {
-                                if (newSelectedIds.contains(d.id)) {
-                                  double angkaDiskon = d.value ?? 0.0;
-                                  if (d.type == 'percentage') {
-                                    totalDiskonRp +=
-                                        (subTotal * angkaDiskon / 100);
-                                  } else {
-                                    totalDiskonRp += angkaDiskon;
-                                  }
-                                }
-                              }
-                              context.read<CartCubit>().setDiskon(
-                                totalDiskonRp,
-                                selectedIds: newSelectedIds,
-                              );
                             },
                           );
                         },

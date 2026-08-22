@@ -8,4 +8,7 @@ abstract class DiscountRepository {
     String? search,
   });
   Future<Either<Failure, Discount>> checkDiscountCode(String code);
+  Future<Either<Failure, bool>> syncDiscounts();
+  Future<Either<Failure, int>> getUnseenDiscountCount();
+  Future<Either<Failure, void>> markDiscountsAsSeen();
 }

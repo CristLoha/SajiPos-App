@@ -13,3 +13,5 @@ class FetchActiveDiscounts extends DiscountEvent {
 
   const FetchActiveDiscounts({this.status, this.search});
 }
+
+class MarkDiscountsAsSeenEvent extends DiscountEvent {}

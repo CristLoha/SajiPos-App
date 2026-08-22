@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:saji_pos_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
+import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
+import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
+import 'package:saji_pos_app/features/report/presentation/bloc/report_bloc.dart';
+import 'package:saji_pos_app/features/report/presentation/bloc/report_event.dart';
+import 'package:saji_pos_app/features/cost_setting/presentation/bloc/cost_setting_bloc.dart';
+import 'package:saji_pos_app/features/settings/presentation/cubit/sync_cubit.dart';
+import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
 import '../../../../../core/utils/responsive_layout.dart';
 import '../widgets/dashboard_mobile_layout.dart';
 import '../widgets/dashboard_tablet_layout.dart';
@@ -20,19 +28,62 @@ class _DashboardPageState extends State<DashboardPage> {
     if (index == 4) {
       _showLogoutDialog();
     }
+    if (index == 1) {
+      context.read<DiscountBloc>().add(MarkDiscountsAsSeenEvent());
+    }
     setState(() {
       _selectedIndex = index;
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Auto-sync on startup (Second Striker pattern)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SyncCubit>().syncData();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthUnauthenticated) {
-          context.go('login');
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthUnauthenticated) {
+              context.go('/login');
+            }
+          },
+        ),
+        BlocListener<SyncCubit, SyncState>(
+          listener: (context, state) {
+            if (state.isSuccess && !state.isLoading) {
+              // Jika sync sukses, refresh data di memory (BLoC)
+              context.read<ProductBloc>().add(GetProductsEvent());
+              context.read<CategoryBloc>().add(GetCategoriesEvent());
+              context.read<DiscountBloc>().add(
+                const FetchActiveDiscounts(status: 'active'),
+              );
+              context.read<ReportBloc>().add(FetchTodaySummary());
+              context.read<CostSettingBloc>().add(LoadCostSetting());
+            }
+          },
+        ),
+        BlocListener<CostSettingBloc, CostSettingState>(
+          listener: (context, state) {
+            if (state is CostSettingLoaded) {
+              context.read<CartCubit>().updateCosts(
+                taxPercentage: state.costSetting.taxPercentage,
+                shippingFeeAmount: state.costSetting.shippingFee,
+                serviceFeeAmount: state.costSetting.serviceFee,
+                includeShippingInTax: state.costSetting.includeShippingInTax,
+                includeServiceFeeInTax: state.costSetting.includeServiceFeeInTax,
+              );
+            }
+          },
+        ),
+      ],
       child: ResponsiveLayout(
         mobile: DashboardMobileLayout(
           selectedIndex: _selectedIndex,

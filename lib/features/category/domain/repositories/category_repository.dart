@@ -4,4 +4,5 @@ import '../entities/category.dart';
 
 abstract class CategoryRepository {
   Future<Either<Failure, List<Category>>> getCategories();
+  Future<Either<Failure, bool>> syncCategories();
 }

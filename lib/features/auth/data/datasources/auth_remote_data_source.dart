@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/error/exception.dart';
@@ -20,9 +21,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String password,
   }) async {
     try {
-      print('=== DEBUG LOGIN ===');
-      print('URL: ${ApiConstants.loginEndpoint}');
-      print('Payload: {"email": "$email", "password": "$password"}');
+      debugPrint('=== DEBUG LOGIN ===');
+      debugPrint('URL: ${ApiConstants.loginEndpoint}');
+      debugPrint('Payload: {"email": "$email", "password": "$password"}');
       
       final response = await dio.post(
         ApiConstants.loginEndpoint,
@@ -35,8 +36,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ),
       );
 
-      print('Response Status: ${response.statusCode}');
-      print('Response Data: ${response.data}');
+      debugPrint('Response Status: ${response.statusCode}');
+      debugPrint('Response Data: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AuthModel.fromJson(response.data as Map<String, dynamic>);
@@ -46,12 +47,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         );
       }
     } on DioException catch (e) {
-      print('=== DEBUG DIO EXCEPTION ===');
-      print('Type: ${e.type}');
-      print('Error message: ${e.message}');
-      print('Response status code: ${e.response?.statusCode}');
-      print('Response data: ${e.response?.data}');
-      print('Error detail: ${e.error}');
+      debugPrint('=== DEBUG DIO EXCEPTION ===');
+      debugPrint('Type: ${e.type}');
+      debugPrint('Error message: ${e.message}');
+      debugPrint('Response status code: ${e.response?.statusCode}');
+      debugPrint('Response data: ${e.response?.data}');
+      debugPrint('Error detail: ${e.error}');
 
       String userFriendlyMessage = 'Gagal masuk ke sistem. Silakan coba beberapa saat lagi.';
 
@@ -74,8 +75,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       throw ServerException(userFriendlyMessage);
     } catch (e) {
-      print('=== DEBUG SYSTEM EXCEPTION ===');
-      print('Error: $e');
+      debugPrint('=== DEBUG SYSTEM EXCEPTION ===');
+      debugPrint('Error: $e');
       throw const ServerException('Terjadi kesalahan tidak terduga. Silakan buka ulang aplikasi.');
     }
   }

@@ -10,4 +10,5 @@ abstract class ProductRepository {
   });
   Future<Either<Failure, List<Product>>> searchProducts(String query);
   Future<Either<Failure, ProductDetail>> getProductDetail(int id);
+  Future<Either<Failure, bool>> syncProducts();
 }

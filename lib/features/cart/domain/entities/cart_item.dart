@@ -16,4 +16,20 @@ class CartItem {
   }
 
   int get totalPrice => product.actualPrice * quantity;
+
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      product: Product.fromJson(json['product'] as Map<String, dynamic>),
+      quantity: json['quantity'] as int,
+      note: json['note'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'product': product.toJson(),
+      'quantity': quantity,
+      'note': note,
+    };
+  }
 }

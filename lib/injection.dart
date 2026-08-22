@@ -4,13 +4,34 @@ import 'package:saji_pos_app/features/discount/data/datasources/discount_remote_
 import 'package:saji_pos_app/features/discount/data/repositories/discount_repository_impl.dart';
 import 'package:saji_pos_app/features/discount/domain/repositories/discount_repository.dart';
 import 'package:saji_pos_app/features/discount/domain/usecases/get_active_discount.dart';
+import 'package:saji_pos_app/features/discount/domain/usecases/get_unseen_discount_count.dart';
+import 'package:saji_pos_app/features/discount/domain/usecases/mark_discounts_as_seen.dart';
 import 'package:saji_pos_app/features/discount/presentation/bloc/discount_bloc.dart';
 import 'package:saji_pos_app/features/order/data/datasource/order_remote_data_source.dart';
+import 'package:saji_pos_app/features/order/data/datasource/order_local_data_source.dart';
 import 'package:saji_pos_app/features/order/data/repositories/order_repository_impl.dart';
 import 'package:saji_pos_app/features/order/domain/repositories/order_repository.dart';
 import 'package:saji_pos_app/features/order/domain/usecases/submit_order.dart';
 import 'package:saji_pos_app/features/order/domain/usecases/get_order_status.dart';
+import 'package:saji_pos_app/features/order/domain/usecases/sync_pending_orders.dart';
 import 'package:saji_pos_app/features/order/presentation/bloc/order_bloc.dart';
+import 'package:saji_pos_app/core/theme/theme_cubit.dart';
+import 'package:saji_pos_app/features/cost_setting/data/datasources/cost_setting_remote_data_source.dart';
+import 'package:saji_pos_app/features/cost_setting/data/datasources/cost_setting_local_data_source.dart';
+import 'package:saji_pos_app/features/cost_setting/data/repositories/cost_setting_repository_impl.dart';
+import 'package:saji_pos_app/features/cost_setting/domain/repositories/cost_setting_repository.dart';
+import 'package:saji_pos_app/features/cost_setting/domain/usecases/cost_setting_usecases.dart';
+import 'package:saji_pos_app/features/cost_setting/presentation/bloc/cost_setting_bloc.dart';
+import 'package:saji_pos_app/features/report/data/datasources/report_remote_data_source.dart';
+import 'package:saji_pos_app/features/report/data/repositories/report_repository_impl.dart';
+import 'package:saji_pos_app/features/report/domain/repositories/report_repository.dart';
+import 'package:saji_pos_app/features/report/domain/usecases/get_today_summary.dart';
+import 'package:saji_pos_app/features/report/presentation/bloc/report_bloc.dart';
+import 'package:saji_pos_app/features/store_profile/data/datasources/store_profile_remote_data_source.dart';
+import 'package:saji_pos_app/features/store_profile/data/repositories/store_profile_repository_impl.dart';
+import 'package:saji_pos_app/features/store_profile/domain/repositories/store_profile_repository.dart';
+import 'package:saji_pos_app/features/store_profile/domain/usecases/get_store_profile.dart';
+import 'package:saji_pos_app/features/store_profile/presentation/bloc/store_profile_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
@@ -34,6 +55,12 @@ import 'package:saji_pos_app/features/product/domain/repositories/product_detail
 import 'package:saji_pos_app/features/product/domain/usecases/get_product.dart';
 import 'package:saji_pos_app/features/product/domain/usecases/get_product_detail.dart';
 import 'package:saji_pos_app/features/product/presentation/bloc/product_bloc.dart';
+import 'package:saji_pos_app/core/data/database_helper.dart';
+import 'package:saji_pos_app/features/product/data/datasources/product_local_data_source.dart';
+import 'package:saji_pos_app/features/category/data/datasources/category_local_data_source.dart';
+import 'package:saji_pos_app/features/discount/data/datasources/discount_local_data_source.dart';
+import 'package:saji_pos_app/features/product/domain/usecases/sync_products.dart';
+import 'package:saji_pos_app/features/settings/presentation/cubit/sync_cubit.dart';
 
 final locator = GetIt.instance;
 
@@ -41,6 +68,7 @@ Future<void> init() async {
   // External
   final sharedPreferences = await SharedPreferences.getInstance();
   locator.registerLazySingleton(() => sharedPreferences);
+  locator.registerLazySingleton(() => DatabaseHelper.instance);
   locator.registerLazySingleton(
     () => Dio(
       BaseOptions(
@@ -52,6 +80,18 @@ Future<void> init() async {
   );
 
   // Data sources
+  locator.registerLazySingleton<ProductLocalDataSource>(
+    () => ProductLocalDataSourceImpl(dbHelper: locator()),
+  );
+  locator.registerLazySingleton<CategoryLocalDataSource>(
+    () => CategoryLocalDataSourceImpl(dbHelper: locator()),
+  );
+  locator.registerLazySingleton<DiscountLocalDataSource>(
+    () => DiscountLocalDataSourceImpl(dbHelper: locator(), sharedPreferences: locator()),
+  );
+  locator.registerLazySingleton<OrderLocalDataSource>(
+    () => OrderLocalDataSourceImpl(dbHelper: locator()),
+  );
   locator.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(sharedPreferences: locator()),
   );
@@ -73,6 +113,13 @@ Future<void> init() async {
     () => DiscountRemoteDataSourceImpl(dio: locator()),
   );
 
+  locator.registerLazySingleton<ReportRemoteDataSource>(
+    () => ReportRemoteDataSourceImpl(dio: locator()),
+  );
+  locator.registerLazySingleton<StoreProfileRemoteDataSource>(
+    () => StoreProfileRemoteDataSourceImpl(dio: locator()),
+  );
+
   // Repositories
   locator.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -83,6 +130,7 @@ Future<void> init() async {
   locator.registerLazySingleton<ProductRepository>(
     () => ProductRepositoryImpl(
       remoteDataSource: locator(),
+      productLocalDataSource: locator(),
       localDataSource: locator(),
     ),
   );
@@ -96,12 +144,14 @@ Future<void> init() async {
     () => CategoryRepositoryImpl(
       remoteDataSource: locator(),
       localDataSource: locator(),
+      authLocalDataSource: locator(),
     ),
   );
 
   locator.registerLazySingleton<OrderRepository>(
     () => OrderRepositoryImpl(
       remoteDataSource: locator(),
+      authLocalDataSource: locator(),
       localDataSource: locator(),
     ),
   );
@@ -110,6 +160,20 @@ Future<void> init() async {
     () => DiscountRepositoryImpl(
       remoteDataSource: locator(),
       localDataSource: locator(),
+      authLocalDataSource: locator(),
+    ),
+  );
+
+  locator.registerLazySingleton<ReportRepository>(
+    () => ReportRepositoryImpl(
+      remoteDataSource: locator(),
+      localDataSource: locator(),
+    ),
+  );
+  locator.registerLazySingleton<StoreProfileRepository>(
+    () => StoreProfileRepositoryImpl(
+      remoteDataSource: locator(),
+      authLocalDataSource: locator(),
     ),
   );
 
@@ -123,6 +187,11 @@ Future<void> init() async {
   locator.registerLazySingleton(() => SubmitOrder(locator()));
   locator.registerLazySingleton(() => GetOrderStatus(locator()));
   locator.registerLazySingleton(() => GetActiveDiscount(locator()));
+  locator.registerLazySingleton(() => GetUnseenDiscountCount(locator()));
+  locator.registerLazySingleton(() => MarkDiscountsAsSeen(locator()));
+  locator.registerLazySingleton(() => GetTodaySummary(locator()));
+  locator.registerLazySingleton(() => SyncProducts(locator(), locator(), locator()));
+  locator.registerLazySingleton(() => GetStoreProfile(locator()));
 
   // Bloc
   locator.registerFactory(
@@ -133,12 +202,51 @@ Future<void> init() async {
     ),
   );
   locator.registerFactory(() => ProductBloc(locator()));
-  locator.registerFactory(() => CartCubit());
+  locator.registerFactory(() => CartCubit(sharedPreferences: locator()));
 
   locator.registerFactory(() => CategoryBloc(locator()));
   locator.registerFactory(
     () => OrderBloc(submitOrder: locator(), getOrderStatus: locator()),
   );
 
-  locator.registerFactory(() => DiscountBloc(getActiveDiscount: locator()));
+  locator.registerFactory(() => DiscountBloc(
+        getActiveDiscount: locator(),
+        getUnseenDiscountCount: locator(),
+        markDiscountsAsSeen: locator(),
+      ));
+  locator.registerFactory(() => ReportBloc(getTodaySummary: locator()));
+  locator.registerFactory(() => SyncCubit(
+    syncProducts: locator(),
+    syncPendingOrders: locator(),
+    sharedPreferences: locator(),
+  ));
+  locator.registerFactory(() => ThemeCubit(sharedPreferences: locator()));
+  locator.registerFactory(() => StoreProfileBloc(getStoreProfile: locator()));
+  
+  // CostSetting Feature
+  locator.registerLazySingleton<CostSettingRemoteDataSource>(
+    () => CostSettingRemoteDataSourceImpl(dio: locator()),
+  );
+  locator.registerLazySingleton<CostSettingLocalDataSource>(
+    () => CostSettingLocalDataSourceImpl(sharedPreferences: locator()),
+  );
+  locator.registerLazySingleton<CostSettingRepository>(
+    () => CostSettingRepositoryImpl(
+      remoteDataSource: locator(),
+      localDataSource: locator(),
+      authLocalDataSource: locator(),
+    ),
+  );
+  locator.registerLazySingleton(() => GetCostSetting(locator()));
+  locator.registerLazySingleton(() => GetCachedCostSetting(locator()));
+  locator.registerLazySingleton(() => UpdateCostSetting(locator()));
+  
+  // Add SyncPendingOrders to Use cases if missing
+  locator.registerLazySingleton(() => SyncPendingOrders(locator()));
+  
+  locator.registerFactory(() => CostSettingBloc(
+    getCostSetting: locator(),
+    updateCostSetting: locator(),
+    getCachedCostSetting: locator(),
+  ));
 }

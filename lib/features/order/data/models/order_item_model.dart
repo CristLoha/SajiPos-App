@@ -9,6 +9,7 @@ class OrderItemModel extends Equatable {
     required this.quantity,
     required this.price,
     required this.note,
+    this.productName,
   });
 
   final int? id;
@@ -17,8 +18,14 @@ class OrderItemModel extends Equatable {
   final int quantity;
   final int price;
   final String note;
+  final String? productName;
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
+    String? pName;
+    if (json['product'] != null && json['product'] is Map) {
+      pName = json['product']['name']?.toString();
+    }
+
     return OrderItemModel(
       id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()),
       orderId: json['order_id'] is int ? json['order_id'] as int : int.tryParse(json['order_id'].toString()),
@@ -26,6 +33,7 @@ class OrderItemModel extends Equatable {
       quantity: json['quantity'] is int ? json['quantity'] as int : int.tryParse(json['quantity'].toString()) ?? 0,
       price: json['price'] is int ? json['price'] as int : int.tryParse(json['price'].toString()) ?? 0,
       note: json['note']?.toString() ?? '',
+      productName: pName,
     );
   }
 

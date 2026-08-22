@@ -15,7 +15,7 @@ class HeaderSection extends StatelessWidget {
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTitle(),
+              _buildTitle(context),
               const SizedBox(height: 16),
               _buildSearchBar(context),
             ],
@@ -23,29 +23,33 @@ class HeaderSection extends StatelessWidget {
         : Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildTitle(),
+              _buildTitle(context),
               SizedBox(width: 320, child: _buildSearchBar(context)),
             ],
           );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'SajiPOS',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: isDark ? Colors.white : AppColors.textPrimary,
             letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           _getFormattedDate(),
-          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          style: TextStyle(
+            fontSize: 13, 
+            color: isDark ? Colors.white70 : AppColors.textSecondary,
+          ),
         ),
       ],
     );
@@ -84,12 +88,14 @@ class HeaderSection extends StatelessWidget {
   }
 
   Widget _buildSearchBar(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: isDark ? theme.colorScheme.surface : AppColors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
+        border: isDark ? null : Border.all(color: AppColors.border),
       ),
       child: TextField(
         onChanged: (value) {
@@ -99,10 +105,13 @@ class HeaderSection extends StatelessWidget {
         },
         decoration: InputDecoration(
           hintText: 'Cari makanan, minuman...',
-          hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          hintStyle: TextStyle(
+            color: isDark ? Colors.white54 : AppColors.textSecondary, 
+            fontSize: 14,
+          ),
           prefixIcon: Icon(
             Icons.search_rounded,
-            color: AppColors.textSecondary,
+            color: isDark ? Colors.white54 : AppColors.textSecondary,
           ),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
@@ -111,6 +120,11 @@ class HeaderSection extends StatelessWidget {
             horizontal: 16,
             vertical: 14,
           ),
+          fillColor: Colors.transparent,
+          filled: true,
+        ),
+        style: TextStyle(
+          color: isDark ? Colors.white : AppColors.textPrimary,
         ),
       ),
     );

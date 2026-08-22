@@ -21,6 +21,7 @@ class Order extends Equatable {
     this.qrImageUrl,
     this.paymentStatus,
     this.expiryTime,
+    this.receiptToken,
   });
 
   final int id;
@@ -41,6 +42,7 @@ class Order extends Equatable {
   final String? qrImageUrl;
   final String? paymentStatus;
   final String? expiryTime;
+  final String? receiptToken;
 
   @override
   List<Object?> get props => [
@@ -62,5 +64,6 @@ class Order extends Equatable {
     qrImageUrl,
     paymentStatus,
     expiryTime,
+    receiptToken,
   ];
 }

@@ -33,7 +33,7 @@ class CategoryTabs extends StatelessWidget {
           return Skeletonizer(
             enabled: true,
 
-            child: _buildList(_dummyCategories),
+            child: _buildList(context, _dummyCategories),
           );
         }
 
@@ -46,7 +46,7 @@ class CategoryTabs extends StatelessWidget {
             const Category(id: 0, name: 'Semua', createdAt: '', updatedAt: ''),
             ...state.categories,
           ];
-          return _buildList(categories);
+          return _buildList(context, categories);
         }
 
         return const SizedBox(height: 42);
@@ -54,7 +54,10 @@ class CategoryTabs extends StatelessWidget {
     );
   }
 
-  Widget _buildList(List<Category> categories) {
+  Widget _buildList(BuildContext context, List<Category> categories) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return SizedBox(
       height: 42,
       child: ListView.separated(
@@ -73,9 +76,9 @@ class CategoryTabs extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.accent : AppColors.white,
+                color: isSelected ? AppColors.accent : (isDark ? theme.colorScheme.surface : AppColors.white),
                 borderRadius: BorderRadius.circular(12),
-                border: isSelected ? null : Border.all(color: AppColors.border),
+                border: isSelected || isDark ? null : Border.all(color: AppColors.border),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
@@ -89,7 +92,7 @@ class CategoryTabs extends StatelessWidget {
               child: Text(
                 categoryName,
                 style: TextStyle(
-                  color: isSelected ? AppColors.white : AppColors.textSecondary,
+                  color: isSelected ? AppColors.white : (isDark ? Colors.white70 : AppColors.textSecondary),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   fontSize: 14,
                 ),

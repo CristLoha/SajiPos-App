@@ -26,6 +26,14 @@ class AppColors {
   // Semantic
   static const Color success = Color(0xFF22C55E); // Green
   static const Color danger = Color(0xFFEF4444); // Red
+  static const Color warning = Color(0xFFF59E0B); // Orange
+  static const Color warningLight = Color(0xFFFFF7ED); // Light orange bg
+  static const Color warningBorder = Color(0xFFFED7AA); // Orange border
+  static const Color warningText = Color(0xFFC2410C); // Dark orange text
+  static const Color info = Color(0xFF3B82F6); // Blue
+  static const Color infoLight = Color(0xFFEFF6FF); // Light blue bg
+  static const Color successLight = Color(0xFFF0FDF4); // Light green bg
+  static const Color purple = Color(0xFFA855F7); // Purple for transfer
 
   static const Color grey = Color(0xFF9CA3AF); // Grey
 }

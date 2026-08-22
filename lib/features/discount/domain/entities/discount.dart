@@ -41,4 +41,36 @@ class Discount extends Equatable {
     startDate,
     expiredDate,
   ];
+
+  factory Discount.fromJson(Map<String, dynamic> json) {
+    return Discount(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      code: json['code'] as String,
+      description: json['description'] as String?,
+      type: json['type'] as String,
+      value: json['value'] != null ? (json['value'] as num).toDouble() : null,
+      minTransaction: json['minTransaction'] != null ? (json['minTransaction'] as num).toDouble() : null,
+      maxDiscount: json['maxDiscount'] != null ? (json['maxDiscount'] as num).toDouble() : null,
+      status: json['status'] as String,
+      startDate: DateTime.tryParse(json['startDate']?.toString() ?? '') ?? DateTime.now(),
+      expiredDate: DateTime.tryParse(json['expiredDate']?.toString() ?? '') ?? DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'code': code,
+      'description': description,
+      'type': type,
+      'value': value,
+      'minTransaction': minTransaction,
+      'maxDiscount': maxDiscount,
+      'status': status,
+      'startDate': startDate.toIso8601String(),
+      'expiredDate': expiredDate.toIso8601String(),
+    };
+  }
 }

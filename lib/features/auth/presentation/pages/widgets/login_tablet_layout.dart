@@ -31,7 +31,7 @@ class LoginTabletLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 880,
-      height: 520,
+      height: 600,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         boxShadow: [

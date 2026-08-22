@@ -22,6 +22,7 @@ class OrderModel extends Equatable {
     this.qrImageUrl,
     this.paymentStatus,
     this.expiryTime,
+    this.receiptToken,
   });
 
   final int? id;
@@ -42,6 +43,7 @@ class OrderModel extends Equatable {
   final String? qrImageUrl;
   final String? paymentStatus;
   final String? expiryTime;
+  final String? receiptToken;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     final paymentDetails = json['payment_details'] as Map<String, dynamic>?;
@@ -84,6 +86,7 @@ class OrderModel extends Equatable {
       qrImageUrl: paymentDetails?['qr_image_url']?.toString(),
       paymentStatus: paymentDetails?['status']?.toString(),
       expiryTime: paymentDetails?['expiry_time']?.toString(),
+      receiptToken: json['receipt_token']?.toString(),
     );
   }
 
@@ -98,6 +101,7 @@ class OrderModel extends Equatable {
       'tax': tax,
       'total': total,
       'payment_method': paymentMethod,
+      'receipt_token': receiptToken,
       'order_items': orderItems.map((e) => e.toJson()).toList(),
       if (transactionId != null || qrString != null || snapToken != null || snapRedirectUrl != null || qrImageUrl != null)
         'payment_details': {
@@ -132,6 +136,7 @@ class OrderModel extends Equatable {
       qrImageUrl: qrImageUrl,
       paymentStatus: paymentStatus,
       expiryTime: expiryTime,
+      receiptToken: receiptToken,
     );
   }
 
@@ -155,5 +160,6 @@ class OrderModel extends Equatable {
         qrImageUrl,
         paymentStatus,
         expiryTime,
+        receiptToken,
       ];
 }
