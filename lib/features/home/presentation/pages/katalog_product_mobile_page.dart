@@ -123,9 +123,7 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
                   builder: (context, cartState) {
                     return RefreshIndicator(
                       onRefresh: () async {
-                        // To do sync, we need to call SyncCubit.
                         context.read<SyncCubit>().syncData();
-                        // wait for sync to complete? we can just await a short delay or listen.
                         await Future.delayed(const Duration(seconds: 1));
                       },
                       color: AppColors.accent,

@@ -39,7 +39,6 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    // Auto-sync on startup (Second Striker pattern)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SyncCubit>().syncData();
     });
@@ -59,7 +58,6 @@ class _DashboardPageState extends State<DashboardPage> {
         BlocListener<SyncCubit, SyncState>(
           listener: (context, state) {
             if (state.isSuccess && !state.isLoading) {
-              // Jika sync sukses, refresh data di memory (BLoC)
               context.read<ProductBloc>().add(GetProductsEvent());
               context.read<CategoryBloc>().add(GetCategoriesEvent());
               context.read<DiscountBloc>().add(
