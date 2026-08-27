@@ -46,14 +46,8 @@ class LoginTabletLayout extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         child: Row(
           children: [
-            Expanded(
-              flex: 5,
-              child: _buildBrandingPanel(),
-            ),
-            Expanded(
-              flex: 4,
-              child: _buildFormPanel(),
-            ),
+            Expanded(flex: 5, child: _buildBrandingPanel()),
+            Expanded(flex: 4, child: _buildFormPanel()),
           ],
         ),
       ),
@@ -85,7 +79,11 @@ class LoginTabletLayout extends StatelessWidget {
         color: AppColors.accent,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Icon(Icons.storefront_rounded, size: 40, color: AppColors.white),
+      child: const Icon(
+        Icons.storefront_rounded,
+        size: 40,
+        color: AppColors.white,
+      ),
     );
   }
 

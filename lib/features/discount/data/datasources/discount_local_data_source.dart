@@ -14,13 +14,16 @@ class DiscountLocalDataSourceImpl implements DiscountLocalDataSource {
   final DatabaseHelper dbHelper;
   final SharedPreferences sharedPreferences;
 
-  DiscountLocalDataSourceImpl({required this.dbHelper, required this.sharedPreferences});
+  DiscountLocalDataSourceImpl({
+    required this.dbHelper,
+    required this.sharedPreferences,
+  });
 
   @override
   Future<void> cacheDiscounts(List<Discount> discounts) async {
     final db = await dbHelper.database;
     final batch = db.batch();
-    
+
     await db.delete('discounts');
 
     for (var discount in discounts) {
@@ -59,15 +62,19 @@ class DiscountLocalDataSourceImpl implements DiscountLocalDataSource {
           minTransaction: map['minTransaction'] as double?,
           maxDiscount: map['maxDiscount'] as double?,
           status: map['status'] as String,
-          startDate: DateTime.tryParse(map['startDate'] as String? ?? '') ?? DateTime.now(),
-          expiredDate: DateTime.tryParse(map['expiredDate'] as String? ?? '') ?? DateTime.now(),
+          startDate:
+              DateTime.tryParse(map['startDate'] as String? ?? '') ??
+              DateTime.now(),
+          expiredDate:
+              DateTime.tryParse(map['expiredDate'] as String? ?? '') ??
+              DateTime.now(),
         );
       }).toList();
     } else {
       return [];
     }
   }
-  
+
   @override
   Future<void> clearCache() async {
     final db = await dbHelper.database;
@@ -76,7 +83,10 @@ class DiscountLocalDataSourceImpl implements DiscountLocalDataSource {
 
   @override
   Future<void> saveSeenDiscounts(List<int> ids) async {
-    await sharedPreferences.setStringList('seen_discount_ids', ids.map((e) => e.toString()).toList());
+    await sharedPreferences.setStringList(
+      'seen_discount_ids',
+      ids.map((e) => e.toString()).toList(),
+    );
   }
 
   @override

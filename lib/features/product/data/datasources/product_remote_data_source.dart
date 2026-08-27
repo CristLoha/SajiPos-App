@@ -55,13 +55,17 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
           response.data as Map<String, dynamic>,
         ).productList;
       } else {
-        debugPrint('🔥 [API ERROR] Gagal ambil produk: ${response.statusCode} - ${response.statusMessage}');
+        debugPrint(
+          '🔥 [API ERROR] Gagal ambil produk: ${response.statusCode} - ${response.statusMessage}',
+        );
         throw ServerException(
           'Wah gagal narik data nih: ${response.statusMessage}',
         );
       }
     } on DioException catch (e) {
-      debugPrint('🔥 [DIO EXCEPTION] getProducts: ${e.response?.statusCode} - ${e.message}');
+      debugPrint(
+        '🔥 [DIO EXCEPTION] getProducts: ${e.response?.statusCode} - ${e.message}',
+      );
       debugPrint('🔥 [DIO RESPONSE DATA]: ${e.response?.data}');
       throw ServerException(e.message ?? 'Terjadi kesalahan koneksi');
     } catch (e) {

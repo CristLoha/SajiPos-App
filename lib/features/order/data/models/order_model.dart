@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:saji_pos_app/features/order/data/models/order_item_model.dart';
 import 'package:saji_pos_app/features/order/domain/entities/order.dart';
@@ -46,33 +47,43 @@ class OrderModel extends Equatable {
   final String? receiptToken;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
-    final paymentDetails = json['payment_details'] as Map<String, dynamic>?;
+    Map<String, dynamic>? paymentDetails;
+    if (json['payment_details'] is Map) {
+      paymentDetails = json['payment_details'] as Map<String, dynamic>;
+    } else if (json['payment_details'] is String) {
+      try {
+        paymentDetails = jsonDecode(json['payment_details']);
+      } catch (e) {
+        paymentDetails = null;
+      }
+    }
+
     return OrderModel(
-      id: json['id'] is int
-          ? json['id'] as int
-          : int.tryParse(json['id'].toString()),
+      id: (json['id'] ?? json['order_id']) is int
+          ? (json['id'] ?? json['order_id']) as int
+          : int.tryParse((json['id'] ?? json['order_id'])?.toString() ?? ''),
       cashierId: json['cashier_id'] is int
           ? json['cashier_id'] as int
-          : int.tryParse(json['cashier_id'].toString()) ?? 0,
+          : int.tryParse(json['cashier_id']?.toString() ?? '') ?? 0,
       transactionTime: json['transaction_time']?.toString() ?? '',
-      subTotal: json['sub_total'] is int
-          ? json['sub_total'] as int
-          : int.tryParse(json['sub_total'].toString()) ?? 0,
+      subTotal: (json['sub_total'] ?? json['subtotal']) is int
+          ? (json['sub_total'] ?? json['subtotal']) as int
+          : int.tryParse((json['sub_total'] ?? json['subtotal'])?.toString() ?? '') ?? 0,
       discountAmount: json['discount_amount'] is int
           ? json['discount_amount'] as int
-          : int.tryParse(json['discount_amount'].toString()) ?? 0,
+          : int.tryParse(json['discount_amount']?.toString() ?? '') ?? 0,
       shippingCost: json['shipping_cost'] is int
           ? json['shipping_cost'] as int
-          : int.tryParse(json['shipping_cost'].toString()) ?? 0,
+          : int.tryParse(json['shipping_cost']?.toString() ?? '') ?? 0,
       serviceCharge: json['service_charge'] is int
           ? json['service_charge'] as int
-          : int.tryParse(json['service_charge'].toString()) ?? 0,
+          : int.tryParse(json['service_charge']?.toString() ?? '') ?? 0,
       tax: json['tax'] is int
           ? json['tax'] as int
-          : int.tryParse(json['tax'].toString()) ?? 0,
-      total: json['total'] is int
-          ? json['total'] as int
-          : int.tryParse(json['total'].toString()) ?? 0,
+          : int.tryParse(json['tax']?.toString() ?? '') ?? 0,
+      total: (json['total'] ?? json['grand_total']) is int
+          ? (json['total'] ?? json['grand_total']) as int
+          : int.tryParse((json['total'] ?? json['grand_total'])?.toString() ?? '') ?? 0,
       paymentMethod: json['payment_method']?.toString() ?? '',
       orderItems: json['items'] != null
           ? List<OrderItemModel>.from(
@@ -103,7 +114,11 @@ class OrderModel extends Equatable {
       'payment_method': paymentMethod,
       'receipt_token': receiptToken,
       'order_items': orderItems.map((e) => e.toJson()).toList(),
-      if (transactionId != null || qrString != null || snapToken != null || snapRedirectUrl != null || qrImageUrl != null)
+      if (transactionId != null ||
+          qrString != null ||
+          snapToken != null ||
+          snapRedirectUrl != null ||
+          qrImageUrl != null)
         'payment_details': {
           if (transactionId != null) 'transaction_id': transactionId,
           if (qrString != null) 'qr_string': qrString,
@@ -112,7 +127,7 @@ class OrderModel extends Equatable {
           if (qrImageUrl != null) 'qr_image_url': qrImageUrl,
           if (paymentStatus != null) 'status': paymentStatus,
           if (expiryTime != null) 'expiry_time': expiryTime,
-        }
+        },
     };
   }
 
@@ -142,24 +157,24 @@ class OrderModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        cashierId,
-        transactionTime,
-        subTotal,
-        discountAmount,
-        shippingCost,
-        serviceCharge,
-        tax,
-        total,
-        paymentMethod,
-        orderItems,
-        transactionId,
-        qrString,
-        snapToken,
-        snapRedirectUrl,
-        qrImageUrl,
-        paymentStatus,
-        expiryTime,
-        receiptToken,
-      ];
+    id,
+    cashierId,
+    transactionTime,
+    subTotal,
+    discountAmount,
+    shippingCost,
+    serviceCharge,
+    tax,
+    total,
+    paymentMethod,
+    orderItems,
+    transactionId,
+    qrString,
+    snapToken,
+    snapRedirectUrl,
+    qrImageUrl,
+    paymentStatus,
+    expiryTime,
+    receiptToken,
+  ];
 }

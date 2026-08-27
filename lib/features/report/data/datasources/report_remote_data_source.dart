@@ -19,11 +19,8 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
     try {
       final String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final response = await dio.get(
-        ApiConstants.ordersEndpoint, 
-        queryParameters: {
-          'start_date': today,
-          'end_date': today,
-        },
+        ApiConstants.ordersEndpoint,
+        queryParameters: {'start_date': today, 'end_date': today},
         options: Options(
           headers: {
             'Content-Type': 'application/json',
@@ -34,10 +31,15 @@ class ReportRemoteDataSourceImpl implements ReportRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final reportResponse = ReportSummaryResponse.fromJson(response.data as Map<String, dynamic>);
+        final reportResponse = ReportSummaryResponse.fromJson(
+          response.data as Map<String, dynamic>,
+        );
         return ReportSummaryModel.fromOrders(reportResponse.orderList);
       } else {
-        throw ServerException(response.statusMessage ?? 'Data laporan hari ini belum bisa dimuat nih.');
+        throw ServerException(
+          response.statusMessage ??
+              'Data laporan hari ini belum bisa dimuat nih.',
+        );
       }
     } on DioException catch (e) {
       throw ServerException(e.message ?? 'Terjadi kesalahan jaringan');

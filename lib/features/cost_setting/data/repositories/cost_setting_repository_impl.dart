@@ -24,7 +24,9 @@ class CostSettingRepositoryImpl implements CostSettingRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
+        return const Left(
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
+        );
       }
       final model = await remoteDataSource.getCostSetting(token);
       await localDataSource.cacheCostSetting(model);
@@ -35,14 +37,21 @@ class CostSettingRepositoryImpl implements CostSettingRepository {
   }
 
   @override
-  Future<Either<Failure, CostSetting>> updateCostSetting(CostSetting costSetting) async {
+  Future<Either<Failure, CostSetting>> updateCostSetting(
+    CostSetting costSetting,
+  ) async {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
+        return const Left(
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
+        );
       }
       final model = CostSettingModel.fromEntity(costSetting);
-      final updatedModel = await remoteDataSource.updateCostSetting(token, model);
+      final updatedModel = await remoteDataSource.updateCostSetting(
+        token,
+        model,
+      );
       await localDataSource.cacheCostSetting(updatedModel);
       return Right(updatedModel.toEntity());
     } catch (e) {
@@ -56,7 +65,9 @@ class CostSettingRepositoryImpl implements CostSettingRepository {
       final model = await localDataSource.getCachedCostSetting();
       return Right(model.toEntity());
     } catch (e) {
-      return const Left(CacheFailure('Data pajak di perangkat belum bisa diambil.'));
+      return const Left(
+        CacheFailure('Data pajak di perangkat belum bisa diambil.'),
+      );
     }
   }
 }

@@ -6,7 +6,8 @@ class DiscountResponse extends Equatable {
 
   const DiscountResponse({required this.discountList});
 
-  factory DiscountResponse.fromJson(Map<String, dynamic> json) => DiscountResponse(
+  factory DiscountResponse.fromJson(Map<String, dynamic> json) =>
+      DiscountResponse(
         discountList: json["data"] != null
             ? List<DiscountModel>.from(
                 (json["data"] as List).map((x) => DiscountModel.fromJson(x)),
@@ -15,8 +16,8 @@ class DiscountResponse extends Equatable {
       );
 
   Map<String, dynamic> toJson() => {
-        "data": List<dynamic>.from(discountList.map((x) => x.toJson())),
-      };
+    "data": List<dynamic>.from(discountList.map((x) => x.toJson())),
+  };
 
   @override
   List<Object> get props => [discountList];

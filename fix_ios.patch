@@ -1,0 +1,13 @@
+--- ios/Runner/Info.plist
++++ ios/Runner/Info.plist
+@@ -62,5 +62,10 @@
+ 	<string>Aplikasi memerlukan izin untuk menyimpan gambar QRIS ke galeri.</string>
+ 	<key>NSPhotoLibraryAddUsageDescription</key>
+ 	<string>Aplikasi memerlukan izin untuk menyimpan gambar QRIS ke galeri.</string>
++	<key>UIBackgroundModes</key>
++	<array>
++		<string>fetch</string>
++		<string>remote-notification</string>
++	</array>
+ </dict>
+ </plist>

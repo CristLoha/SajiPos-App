@@ -1,3 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:saji_pos_app/firebase_options.dart';
+import 'package:saji_pos_app/features/notification/presentation/bloc/notification_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,14 +16,24 @@ import 'package:saji_pos_app/features/report/presentation/bloc/report_bloc.dart'
 import 'package:saji_pos_app/features/settings/presentation/cubit/sync_cubit.dart';
 import 'package:saji_pos_app/features/store_profile/presentation/bloc/store_profile_bloc.dart';
 import 'package:saji_pos_app/features/cost_setting/presentation/bloc/cost_setting_bloc.dart';
+import 'package:saji_pos_app/features/history/presentation/bloc/history_bloc.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
 import 'injection.dart' as di;
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint("Handling a background message: ${message.messageId}");
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting('id_ID', null);
   await di.init();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.landscapeLeft,
@@ -37,6 +50,12 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
+          lazy: false,
+          create: (_) =>
+              di.locator<NotificationBloc>()
+                ..add(InitializeNotificationEvent()),
+        ),
+        BlocProvider(
           create: (_) => di.locator<AuthBloc>()..add(AuthCheckStatus()),
         ),
         BlocProvider(
@@ -51,13 +70,18 @@ class MyApp extends StatelessWidget {
 
         BlocProvider(
           create: (_) =>
-              di.locator<DiscountBloc>()..add(const FetchActiveDiscounts(status: 'active')),
+              di.locator<DiscountBloc>()
+                ..add(const FetchActiveDiscounts(status: 'active')),
         ),
         BlocProvider(create: (_) => di.locator<ReportBloc>()),
         BlocProvider(create: (_) => di.locator<SyncCubit>()),
         BlocProvider(create: (_) => di.locator<ThemeCubit>()),
-        BlocProvider(create: (_) => di.locator<CostSettingBloc>()..add(LoadCachedCostSetting())),
+        BlocProvider(
+          create: (_) =>
+              di.locator<CostSettingBloc>()..add(LoadCachedCostSetting()),
+        ),
         BlocProvider(create: (_) => di.locator<StoreProfileBloc>()),
+        BlocProvider(create: (_) => di.locator<HistoryBloc>()),
       ],
       child: BlocBuilder<ThemeCubit, bool>(
         builder: (context, isDark) {

@@ -10,6 +10,7 @@ import 'package:saji_pos_app/features/report/presentation/bloc/report_event.dart
 import 'package:saji_pos_app/features/cost_setting/presentation/bloc/cost_setting_bloc.dart';
 import 'package:saji_pos_app/features/settings/presentation/cubit/sync_cubit.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
+import 'package:saji_pos_app/features/notification/presentation/bloc/notification_bloc.dart';
 import '../../../../../core/utils/responsive_layout.dart';
 import '../widgets/dashboard_mobile_layout.dart';
 import '../widgets/dashboard_tablet_layout.dart';
@@ -25,7 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
   int _selectedIndex = 0;
 
   void _onItemSelected(int index) {
-    if (index == 4) {
+    if (index == 5) {
       _showLogoutDialog();
     }
     if (index == 1) {
@@ -80,8 +81,17 @@ class _DashboardPageState extends State<DashboardPage> {
                 shippingFeeAmount: state.costSetting.shippingFee,
                 serviceFeeAmount: state.costSetting.serviceFee,
                 includeShippingInTax: state.costSetting.includeShippingInTax,
-                includeServiceFeeInTax: state.costSetting.includeServiceFeeInTax,
+                includeServiceFeeInTax:
+                    state.costSetting.includeServiceFeeInTax,
               );
+            }
+          },
+        ),
+        BlocListener<NotificationBloc, NotificationState>(
+          listener: (context, state) {
+            if (state is NotificationRouteToPromo) {
+              // Langsung arahkan ke beranda (index 0) sesuai permintaan
+              _onItemSelected(0);
             }
           },
         ),

@@ -22,7 +22,9 @@ class OngkirDialog extends StatelessWidget {
         ),
         child: BlocBuilder<CostSettingBloc, CostSettingState>(
           builder: (context, costState) {
-            final costSetting = costState is CostSettingLoaded ? costState.costSetting : null;
+            final costSetting = costState is CostSettingLoaded
+                ? costState.costSetting
+                : null;
             final defaultFee = costSetting?.shippingFee ?? 0.0;
 
             return BlocBuilder<CartCubit, CartState>(
@@ -64,7 +66,11 @@ class OngkirDialog extends StatelessWidget {
                               color: AppColors.accent,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.close, color: AppColors.white, size: 20),
+                            child: const Icon(
+                              Icons.close,
+                              color: AppColors.white,
+                              size: 20,
+                            ),
                           ),
                         ),
                       ],
@@ -89,7 +95,7 @@ class OngkirDialog extends StatelessWidget {
                           style: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
-                    
+
                     const SizedBox(height: 16),
                   ],
                 );

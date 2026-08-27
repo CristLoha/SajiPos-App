@@ -22,5 +22,4 @@ class AuthLoginProcess extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
-
 class AuthLogoutProcess extends AuthEvent {}

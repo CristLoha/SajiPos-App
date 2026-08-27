@@ -1,0 +1,19 @@
+--- lib/features/notification/data/datasources/local_notification_helper.dart
++++ lib/features/notification/data/datasources/local_notification_helper.dart
+@@ -2,6 +2,7 @@
+ import 'package:firebase_messaging/firebase_messaging.dart';
+ import 'dart:convert';
++import 'package:saji_pos_app/features/notification/models/notification_payload_model.dart';
+ import 'package:saji_pos_app/features/notification/presentation/bloc/notification_bloc.dart';
+ import 'package:saji_pos_app/injection.dart' as di;
+ 
+@@ -26,8 +27,8 @@
+     );
+ 
+     await _notificationsPlugin.initialize(
+-      initSettings,
++      settings: initSettings,
+       onDidReceiveNotificationResponse: (NotificationResponse response) {
+         if (response.payload != null) {
+           try {
+             final Map<String, dynamic> data = jsonDecode(response.payload!);

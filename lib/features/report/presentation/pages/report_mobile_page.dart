@@ -82,7 +82,9 @@ class ReportMobilePage extends StatelessWidget {
                     title: 'Total Transaksi',
                     value: '$totalTransaksi',
                     icon: Icons.shopping_bag,
-                    valueColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textPrimary,
+                    valueColor: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : AppColors.textPrimary,
                     iconColor: AppColors.success,
                     iconBgColor: AppColors.successLight,
                     padding: 16,

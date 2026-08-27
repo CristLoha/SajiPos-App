@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "85232593928",
+    "project_id": "sajipos-app",
+    "storage_bucket": "sajipos-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85232593928:android:5379628340e439443735bd",
+        "android_client_info": {
+          "package_name": "com.example.saji_pos_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGxqCrEN7x07n5xuh2pM-0FXxmq7KEcm4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

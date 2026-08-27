@@ -11,7 +11,7 @@ class DiscountBloc extends Bloc<DiscountEvent, DiscountState> {
   final GetActiveDiscount getActiveDiscount;
   final GetUnseenDiscountCount getUnseenDiscountCount;
   final MarkDiscountsAsSeen markDiscountsAsSeen;
-  
+
   DiscountBloc({
     required this.getActiveDiscount,
     required this.getUnseenDiscountCount,

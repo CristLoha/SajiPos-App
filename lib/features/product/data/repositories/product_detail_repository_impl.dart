@@ -20,14 +20,27 @@ class ProductDetailRepositoryImpl implements ProductDetailRepository {
     try {
       final token = await localDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
+        return const Left(
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
+        );
       }
-      final productDetailModel = await remoteDataSource.getProductDetail(token, id);
+      final productDetailModel = await remoteDataSource.getProductDetail(
+        token,
+        id,
+      );
       return Right(productDetailModel.toEntity());
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Detail produknya ngumpet nih, coba di-refresh.'));
+      return Left(
+        ServerFailure(
+          e.message ?? 'Detail produknya ngumpet nih, coba di-refresh.',
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 }

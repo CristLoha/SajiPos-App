@@ -32,6 +32,29 @@ class _PaymentViewState extends State<PaymentView> {
   Timer? _timer;
 
   @override
+  void initState() {
+    super.initState();
+    // Kembalikan state pembayaran jika sebelumnya sudah di-generate (berguna untuk mobile & tablet saat back/pindah menu)
+    final orderState = context.read<OrderBloc>().state;
+    
+    // Kembalikan state pembayaran jika sebelumnya sudah di-generate
+    if (orderState is OrderSuccess || orderState is OrderStatusChecked) {
+      final order = (orderState is OrderSuccess) ? orderState.order : (orderState as OrderStatusChecked).order;
+      final snapUrl = order.snapRedirectUrl ?? order.qrImageUrl ?? order.qrString;
+      
+      if (snapUrl != null && snapUrl.isNotEmpty) {
+        _currentOrderId = order.id;
+        _snapRedirectUrl = snapUrl;
+        if (order.paymentMethod.toUpperCase() == 'QRIS') {
+          _selectedTabIndex = 1;
+        } else if (order.paymentMethod.toUpperCase() == 'TRANSFER') {
+          _selectedTabIndex = 2;
+        }
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
     super.dispose();
@@ -140,25 +163,26 @@ class _PaymentViewState extends State<PaymentView> {
                   child: BlocConsumer<OrderBloc, OrderState>(
                     listener: (context, state) {
                       if (state is OrderSuccess) {
-                        final snapUrl = state.order.snapRedirectUrl;
-                        _currentOrderId = state.order.id;
+                        final order = state.order;
+                        final snapUrl = order.snapRedirectUrl ?? order.qrImageUrl ?? order.qrString;
+                        _currentOrderId = order.id;
 
-                        if (snapUrl != null && snapUrl.isNotEmpty) {
-                          debugPrint(
-                            '\n=============================================',
-                          );
-                          debugPrint(
-                            '🔗 LINK MIDTRANS (KLIK & BUKA DI LAPTOP):',
-                          );
+                        if (order.paymentMethod == 'CASH') {
+                          widget.onConfirm();
+                        } else if (snapUrl != null && snapUrl.isNotEmpty) {
+                          debugPrint('\n=============================================');
+                          debugPrint('🔗 LINK / QRIS:');
                           debugPrint(snapUrl);
-                          debugPrint(
-                            '=============================================\n',
-                          );
+                          debugPrint('=============================================\n');
                           setState(() {
                             _snapRedirectUrl = snapUrl;
                           });
                         } else {
-                          widget.onConfirm();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Link pembayaran belum tersedia dari server.'),
+                            ),
+                          );
                         }
                       } else if (state is OrderStatusChecked) {
                         final status = state.order.paymentStatus?.toLowerCase();
@@ -265,9 +289,13 @@ class _PaymentViewState extends State<PaymentView> {
     final isSelected = _selectedTabIndex == index;
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedTabIndex = index;
-        });
+        if (_selectedTabIndex != index) {
+          setState(() {
+            _selectedTabIndex = index;
+            _snapRedirectUrl = null;
+            _currentOrderId = null;
+          });
+        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -395,6 +423,29 @@ class _PaymentViewState extends State<PaymentView> {
             ),
             textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 32),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Panduan Pembayaran QRIS:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                ),
+                const SizedBox(height: 12),
+                _buildInstructionRow('1', 'Pastikan pesanan sudah sesuai, lalu klik tombol "Konfirmasi" di bawah.'),
+                _buildInstructionRow('2', 'Klik kotak QRIS di atas untuk membuka link pembayaran dari Midtrans.'),
+                _buildInstructionRow('3', 'Scan QR Code yang muncul menggunakan aplikasi e-Wallet atau m-Banking Anda.'),
+                _buildInstructionRow('4', 'Setelah berhasil bayar, kembali ke aplikasi ini dan klik "Cek Status Pembayaran".'),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -484,6 +535,69 @@ class _PaymentViewState extends State<PaymentView> {
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Panduan Bank Transfer / Virtual Account:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                ),
+                const SizedBox(height: 12),
+                _buildInstructionRow('1', 'Pastikan pesanan sudah sesuai, lalu klik tombol "Konfirmasi" di bawah.'),
+                _buildInstructionRow('2', 'Klik kotak Transfer di atas untuk membuka link pembayaran.'),
+                _buildInstructionRow('3', 'Pilih bank tujuan, lalu salin nomor Virtual Account yang muncul.'),
+                _buildInstructionRow('4', 'Lakukan transfer via ATM, Internet Banking, atau m-Banking.'),
+                _buildInstructionRow('5', 'Setelah berhasil bayar, kembali ke aplikasi ini dan klik "Cek Status Pembayaran".'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInstructionRow(String number, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              number,
+              style: const TextStyle(
+                color: AppColors.accent,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+                height: 1.4,
+              ),
+            ),
           ),
         ],
       ),

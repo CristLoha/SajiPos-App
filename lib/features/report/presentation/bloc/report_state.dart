@@ -3,7 +3,7 @@ import '../../domain/entities/report_summary.dart';
 
 abstract class ReportState extends Equatable {
   const ReportState();
-  
+
   @override
   List<Object> get props => [];
 }

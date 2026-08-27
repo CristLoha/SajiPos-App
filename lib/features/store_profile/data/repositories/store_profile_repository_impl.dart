@@ -20,12 +20,16 @@ class StoreProfileRepositoryImpl implements StoreProfileRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
+        return const Left(
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
+        );
       }
       final storeProfileModel = await remoteDataSource.getStoreProfile(token);
       return Right(storeProfileModel.toEntity());
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Profil toko belum bisa dimuat nih.'));
+      return Left(
+        ServerFailure(e.message ?? 'Profil toko belum bisa dimuat nih.'),
+      );
     } catch (e) {
       return Left(ServerFailure('Profil toko gagal dimuat nih.'));
     }

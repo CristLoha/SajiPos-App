@@ -71,9 +71,15 @@ class _CostSettingPageState extends State<CostSettingPage> {
       listener: (context, state) {
         if (state is CostSettingLoaded) {
           final cs = state.costSetting;
-          _taxPercentageController.text = cs.taxPercentage > 0 ? cs.taxPercentage.toString() : '';
-          _shippingFeeController.text = cs.shippingFee > 0 ? cs.shippingFee.toString() : '';
-          _serviceFeeController.text = cs.serviceFee > 0 ? cs.serviceFee.toString() : '';
+          _taxPercentageController.text = cs.taxPercentage > 0
+              ? cs.taxPercentage.toString()
+              : '';
+          _shippingFeeController.text = cs.shippingFee > 0
+              ? cs.shippingFee.toString()
+              : '';
+          _serviceFeeController.text = cs.serviceFee > 0
+              ? cs.serviceFee.toString()
+              : '';
           setState(() {
             _includeShippingInTax = cs.includeShippingInTax;
             _includeServiceFeeInTax = cs.includeServiceFeeInTax;
@@ -92,9 +98,15 @@ class _CostSettingPageState extends State<CostSettingPage> {
             final contentWidth = isTablet ? 560.0 : constraints.maxWidth;
 
             return SingleChildScrollView(
-              physics: widget.isEmbedded ? const NeverScrollableScrollPhysics() : null,
+              physics: widget.isEmbedded
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
               padding: EdgeInsets.symmetric(
-                horizontal: widget.isEmbedded ? 0 : (isTablet ? (constraints.maxWidth - contentWidth) / 2 : 20),
+                horizontal: widget.isEmbedded
+                    ? 0
+                    : (isTablet
+                          ? (constraints.maxWidth - contentWidth) / 2
+                          : 20),
                 vertical: widget.isEmbedded ? 0 : 24,
               ),
               child: Column(
@@ -105,7 +117,10 @@ class _CostSettingPageState extends State<CostSettingPage> {
                       padding: EdgeInsets.only(bottom: 24.0, left: 4.0),
                       child: Text(
                         'Kelola Pembayaran',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   // ─── CARD: Pajak ───
@@ -148,7 +163,9 @@ class _CostSettingPageState extends State<CostSettingPage> {
                         _buildCheckbox(
                           label: 'Masukkan ke kalkulasi pajak',
                           value: _includeServiceFeeInTax,
-                          onChanged: (val) => setState(() => _includeServiceFeeInTax = val ?? false),
+                          onChanged: (val) => setState(
+                            () => _includeServiceFeeInTax = val ?? false,
+                          ),
                           isDark: isDark,
                         ),
                       ],
@@ -178,7 +195,9 @@ class _CostSettingPageState extends State<CostSettingPage> {
                         _buildCheckbox(
                           label: 'Masukkan ke kalkulasi pajak',
                           value: _includeShippingInTax,
-                          onChanged: (val) => setState(() => _includeShippingInTax = val ?? false),
+                          onChanged: (val) => setState(
+                            () => _includeShippingInTax = val ?? false,
+                          ),
                           isDark: isDark,
                         ),
                       ],
@@ -203,7 +222,10 @@ class _CostSettingPageState extends State<CostSettingPage> {
                       ),
                       child: const Text(
                         'Simpan',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -301,9 +323,7 @@ class _CostSettingPageState extends State<CostSettingPage> {
     return TextField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))],
       style: TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w500,
@@ -313,7 +333,10 @@ class _CostSettingPageState extends State<CostSettingPage> {
         labelText: label,
         hintText: hint,
         labelStyle: TextStyle(color: labelColor, fontSize: 14),
-        hintStyle: TextStyle(color: labelColor.withValues(alpha: 0.5), fontSize: 14),
+        hintStyle: TextStyle(
+          color: labelColor.withValues(alpha: 0.5),
+          fontSize: 14,
+        ),
         filled: true,
         fillColor: fillColor,
         prefixText: prefix != null ? '$prefix  ' : null,
@@ -336,7 +359,10 @@ class _CostSettingPageState extends State<CostSettingPage> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }

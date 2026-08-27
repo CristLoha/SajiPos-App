@@ -50,11 +50,19 @@ class Discount extends Equatable {
       description: json['description'] as String?,
       type: json['type'] as String,
       value: json['value'] != null ? (json['value'] as num).toDouble() : null,
-      minTransaction: json['minTransaction'] != null ? (json['minTransaction'] as num).toDouble() : null,
-      maxDiscount: json['maxDiscount'] != null ? (json['maxDiscount'] as num).toDouble() : null,
+      minTransaction: json['minTransaction'] != null
+          ? (json['minTransaction'] as num).toDouble()
+          : null,
+      maxDiscount: json['maxDiscount'] != null
+          ? (json['maxDiscount'] as num).toDouble()
+          : null,
       status: json['status'] as String,
-      startDate: DateTime.tryParse(json['startDate']?.toString() ?? '') ?? DateTime.now(),
-      expiredDate: DateTime.tryParse(json['expiredDate']?.toString() ?? '') ?? DateTime.now(),
+      startDate:
+          DateTime.tryParse(json['startDate']?.toString() ?? '') ??
+          DateTime.now(),
+      expiredDate:
+          DateTime.tryParse(json['expiredDate']?.toString() ?? '') ??
+          DateTime.now(),
     );
   }
 

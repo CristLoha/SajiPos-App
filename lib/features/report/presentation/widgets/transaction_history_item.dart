@@ -30,16 +30,21 @@ class TransactionHistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-    
+    final currencyFormat = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+
     // Convert status to readable text and color
     String statusText = 'Selesai';
     Color statusColor = AppColors.success;
-    
+
     if (status.toLowerCase() == 'pending') {
       statusText = 'Tertunda';
       statusColor = Colors.orange;
-    } else if (status.toLowerCase() == 'cancelled' || status.toLowerCase() == 'failed') {
+    } else if (status.toLowerCase() == 'cancelled' ||
+        status.toLowerCase() == 'failed') {
       statusText = 'Batal';
       statusColor = AppColors.danger;
     }
@@ -55,10 +60,7 @@ class TransactionHistoryItem extends StatelessWidget {
             color: AppColors.background,
             borderRadius: BorderRadius.circular(iconSize > 40 ? 12 : 8),
           ),
-          child: const Icon(
-            Icons.receipt_long,
-            color: AppColors.textSecondary,
-          ),
+          child: const Icon(Icons.receipt_long, color: AppColors.textSecondary),
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -66,7 +68,10 @@ class TransactionHistoryItem extends StatelessWidget {
             Expanded(
               child: Text(
                 id,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: titleFontSize),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: titleFontSize,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -84,7 +89,10 @@ class TransactionHistoryItem extends StatelessWidget {
               if (customerName.isNotEmpty)
                 Text(
                   'Pelanggan: $customerName',
-                  style: TextStyle(fontSize: titleFontSize - 2, color: AppColors.textSecondary),
+                  style: TextStyle(
+                    fontSize: titleFontSize - 2,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
             ],
           ),
@@ -113,7 +121,9 @@ class TransactionHistoryItem extends StatelessWidget {
                 style: TextStyle(
                   color: statusColor,
                   fontSize: titleFontSize - 3,
-                  fontWeight: iconSize > 40 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: iconSize > 40
+                      ? FontWeight.bold
+                      : FontWeight.normal,
                 ),
               ),
             ),

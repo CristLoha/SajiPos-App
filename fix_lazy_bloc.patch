@@ -1,0 +1,10 @@
+--- lib/main.dart
++++ lib/main.dart
+@@ -43,6 +43,7 @@
+     return MultiBlocProvider(
+       providers: [
+         BlocProvider(
++          lazy: false,
+           create: (_) =>
+               di.locator<NotificationBloc>()
+                 ..add(InitializeNotificationEvent()),

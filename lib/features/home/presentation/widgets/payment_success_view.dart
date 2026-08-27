@@ -27,7 +27,7 @@ class PaymentSuccessView extends StatefulWidget {
 
 class _PaymentSuccessViewState extends State<PaymentSuccessView> {
   final GlobalKey _boundaryKey = GlobalKey();
-  
+
   @override
   void initState() {
     super.initState();
@@ -72,7 +72,10 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
               // Scrollable receipt area
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 32.0,
+                  ),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 380),
@@ -86,21 +89,35 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
                             child: BlocBuilder<StoreProfileBloc, StoreProfileState>(
                               builder: (context, storeProfileState) {
                                 String storeName = 'SAJI POS';
-                                String storeAddress = 'Alamat Toko Belum Diatur';
+                                String storeAddress =
+                                    'Alamat Toko Belum Diatur';
                                 String storePhone = '-';
                                 bool showAddress = true;
                                 bool showPhone = true;
 
                                 if (storeProfileState is StoreProfileLoaded) {
-                                  storeName = storeProfileState.storeProfile.name;
-                                  if (storeProfileState.storeProfile.address.isNotEmpty) {
-                                    storeAddress = storeProfileState.storeProfile.address;
+                                  storeName =
+                                      storeProfileState.storeProfile.name;
+                                  if (storeProfileState
+                                      .storeProfile
+                                      .address
+                                      .isNotEmpty) {
+                                    storeAddress =
+                                        storeProfileState.storeProfile.address;
                                   }
-                                  if (storeProfileState.storeProfile.phone.isNotEmpty) {
-                                    storePhone = storeProfileState.storeProfile.phone;
+                                  if (storeProfileState
+                                      .storeProfile
+                                      .phone
+                                      .isNotEmpty) {
+                                    storePhone =
+                                        storeProfileState.storeProfile.phone;
                                   }
-                                  showAddress = storeProfileState.storeProfile.showAddressOnReceipt;
-                                  showPhone = storeProfileState.storeProfile.showPhoneOnReceipt;
+                                  showAddress = storeProfileState
+                                      .storeProfile
+                                      .showAddressOnReceipt;
+                                  showPhone = storeProfileState
+                                      .storeProfile
+                                      .showPhoneOnReceipt;
                                 }
 
                                 return Column(
@@ -144,204 +161,246 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
                                     const SizedBox(height: 16),
                                     _buildDashedDivider(),
                                     const SizedBox(height: 16),
-                                
-                                // Status
-                                const Text(
-                                  'LUNAS',
-                                  style: TextStyle(
-                                    fontFamily: 'Courier',
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  dateFormat.format(now),
-                                  style: const TextStyle(
-                                    fontFamily: 'Courier',
-                                    fontSize: 12,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                _buildDashedDivider(),
-                                const SizedBox(height: 16),
 
-                                // Item list
-                                ...items.map((item) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.product.name,
-                                        style: const TextStyle(
-                                          fontFamily: 'Courier',
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            '${item.quantity}x @ ${formatCurrency.format(item.product.price)}',
-                                            style: const TextStyle(
-                                              fontFamily: 'Courier',
-                                              color: Colors.black87,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          Text(
-                                            formatCurrency.format(item.totalPrice),
-                                            style: const TextStyle(
-                                              fontFamily: 'Courier',
-                                              color: Colors.black,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                )),
-                                const SizedBox(height: 4),
-                                _buildDashedDivider(),
-                                const SizedBox(height: 12),
-
-                                // Summary rows
-                                _buildReceiptRow('Subtotal', formatCurrency.format(subTotal)),
-                                if (cartState.shippingFeeAmount > 0) ...[
-                                  const SizedBox(height: 6),
-                                  _buildReceiptRow('Ongkos Kirim', '+ ${formatCurrency.format(cartState.shippingFeeAmount)}'),
-                                ],
-                                if (cartState.serviceFeeAmount > 0) ...[
-                                  const SizedBox(height: 6),
-                                  _buildReceiptRow('Biaya Layanan', '+ ${formatCurrency.format(cartState.serviceFeeAmount)}'),
-                                ],
-                                if (cartState.taxPercentage > 0) ...[
-                                  const SizedBox(height: 6),
-                                  _buildReceiptRow('Pajak (${cartState.taxPercentage.toStringAsFixed(cartState.taxPercentage.truncateToDouble() == cartState.taxPercentage ? 0 : 1)}%)', '+ ${formatCurrency.format(cartState.pajak)}'),
-                                ],
-                                if (cartState.diskon > 0) ...[
-                                  const SizedBox(height: 6),
-                                  _buildReceiptRow('Diskon', '- ${formatCurrency.format(cartState.diskon)}'),
-                                ],
-                                const SizedBox(height: 12),
-                                _buildDashedDivider(),
-                                const SizedBox(height: 12),
-
-                                // Total
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
+                                    // Status
                                     const Text(
-                                      'TOTAL',
+                                      'LUNAS',
                                       style: TextStyle(
                                         fontFamily: 'Courier',
-                                        fontSize: 16,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
                                       ),
                                     ),
+                                    const SizedBox(height: 6),
                                     Text(
-                                      formatCurrency.format(cartState.total),
+                                      dateFormat.format(now),
                                       style: const TextStyle(
                                         fontFamily: 'Courier',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
+                                        fontSize: 12,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildDashedDivider(),
+                                    const SizedBox(height: 16),
+
+                                    // Item list
+                                    ...items.map(
+                                      (item) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 12,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item.product.name,
+                                              style: const TextStyle(
+                                                fontFamily: 'Courier',
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  '${item.quantity}x @ ${formatCurrency.format(item.product.price)}',
+                                                  style: const TextStyle(
+                                                    fontFamily: 'Courier',
+                                                    color: Colors.black87,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  formatCurrency.format(
+                                                    item.totalPrice,
+                                                  ),
+                                                  style: const TextStyle(
+                                                    fontFamily: 'Courier',
+                                                    color: Colors.black,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    _buildDashedDivider(),
+                                    const SizedBox(height: 12),
+
+                                    // Summary rows
+                                    _buildReceiptRow(
+                                      'Subtotal',
+                                      formatCurrency.format(subTotal),
+                                    ),
+                                    if (cartState.shippingFeeAmount > 0) ...[
+                                      const SizedBox(height: 6),
+                                      _buildReceiptRow(
+                                        'Ongkos Kirim',
+                                        '+ ${formatCurrency.format(cartState.shippingFeeAmount)}',
+                                      ),
+                                    ],
+                                    if (cartState.serviceFeeAmount > 0) ...[
+                                      const SizedBox(height: 6),
+                                      _buildReceiptRow(
+                                        'Biaya Layanan',
+                                        '+ ${formatCurrency.format(cartState.serviceFeeAmount)}',
+                                      ),
+                                    ],
+                                    if (cartState.taxPercentage > 0) ...[
+                                      const SizedBox(height: 6),
+                                      _buildReceiptRow(
+                                        'Pajak (${cartState.taxPercentage.toStringAsFixed(cartState.taxPercentage.truncateToDouble() == cartState.taxPercentage ? 0 : 1)}%)',
+                                        '+ ${formatCurrency.format(cartState.pajak)}',
+                                      ),
+                                    ],
+                                    if (cartState.diskon > 0) ...[
+                                      const SizedBox(height: 6),
+                                      _buildReceiptRow(
+                                        'Diskon',
+                                        '- ${formatCurrency.format(cartState.diskon)}',
+                                      ),
+                                    ],
+                                    const SizedBox(height: 12),
+                                    _buildDashedDivider(),
+                                    const SizedBox(height: 12),
+
+                                    // Total
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          'TOTAL',
+                                          style: TextStyle(
+                                            fontFamily: 'Courier',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          formatCurrency.format(
+                                            cartState.total,
+                                          ),
+                                          style: const TextStyle(
+                                            fontFamily: 'Courier',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+
+                                    // Payment method
+                                    BlocBuilder<OrderBloc, OrderState>(
+                                      builder: (context, orderState) {
+                                        String paymentMethod =
+                                            'Tidak diketahui';
+                                        String? receiptToken;
+
+                                        if (orderState is OrderSuccess) {
+                                          paymentMethod =
+                                              orderState.order.paymentMethod;
+                                          receiptToken =
+                                              orderState.order.receiptToken;
+                                        } else if (orderState
+                                            is OrderStatusChecked) {
+                                          paymentMethod =
+                                              orderState.order.paymentMethod;
+                                          receiptToken =
+                                              orderState.order.receiptToken;
+                                        }
+
+                                        if (paymentMethod.toLowerCase() ==
+                                            'qris') {
+                                          paymentMethod = 'QRIS';
+                                        } else if (paymentMethod
+                                                .toLowerCase() ==
+                                            'transfer') {
+                                          paymentMethod = 'Transfer Bank';
+                                        } else if (paymentMethod
+                                                .toLowerCase() ==
+                                            'cash') {
+                                          paymentMethod = 'Tunai / Cash';
+                                        }
+
+                                        return Column(
+                                          children: [
+                                            _buildReceiptRow(
+                                              'METODE BAYAR',
+                                              paymentMethod.toUpperCase(),
+                                            ),
+                                            const SizedBox(height: 24),
+                                            _buildDashedDivider(),
+                                            const SizedBox(height: 16),
+
+                                            // QR Code
+                                            if (receiptToken != null) ...[
+                                              QrImageView(
+                                                data:
+                                                    '${ApiConstants.baseUrl.replaceAll('/api', '')}/struk/$receiptToken',
+                                                version: QrVersions.auto,
+                                                size: 120.0,
+                                                backgroundColor: Colors.white,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              const Text(
+                                                'Scan QR untuk struk digital',
+                                                style: TextStyle(
+                                                  fontFamily: 'Courier',
+                                                  fontSize: 10,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                            ] else ...[
+                                              const Text(
+                                                '(Struk online menunggu sinkronisasi)',
+                                                style: TextStyle(
+                                                  fontFamily: 'Courier',
+                                                  fontSize: 10,
+                                                  color: Colors.black54,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        );
+                                      },
+                                    ),
+
+                                    const SizedBox(height: 24),
+                                    const Text(
+                                      'Terima kasih telah berbelanja!',
+                                      style: TextStyle(
+                                        fontFamily: 'Courier',
+                                        fontSize: 12,
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.black87,
                                       ),
                                     ),
                                   ],
-                                ),
-                                const SizedBox(height: 12),
-
-                                // Payment method
-                                BlocBuilder<OrderBloc, OrderState>(
-                                  builder: (context, orderState) {
-                                    String paymentMethod = 'Tidak diketahui';
-                                    String? receiptToken;
-
-                                    if (orderState is OrderSuccess) {
-                                      paymentMethod = orderState.order.paymentMethod;
-                                      receiptToken = orderState.order.receiptToken;
-                                    } else if (orderState is OrderStatusChecked) {
-                                      paymentMethod = orderState.order.paymentMethod;
-                                      receiptToken = orderState.order.receiptToken;
-                                    }
-
-                                    if (paymentMethod.toLowerCase() == 'qris') {
-                                      paymentMethod = 'QRIS';
-                                    } else if (paymentMethod.toLowerCase() == 'transfer') {
-                                      paymentMethod = 'Transfer Bank';
-                                    } else if (paymentMethod.toLowerCase() == 'cash') {
-                                      paymentMethod = 'Tunai / Cash';
-                                    }
-                                    
-                                    return Column(
-                                      children: [
-                                        _buildReceiptRow('METODE BAYAR', paymentMethod.toUpperCase()),
-                                        const SizedBox(height: 24),
-                                        _buildDashedDivider(),
-                                        const SizedBox(height: 16),
-
-                                        // QR Code
-                                        if (receiptToken != null) ...[
-                                          QrImageView(
-                                            data: '${ApiConstants.baseUrl.replaceAll('/api', '')}/struk/$receiptToken',
-                                            version: QrVersions.auto,
-                                            size: 120.0,
-                                            backgroundColor: Colors.white,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          const Text(
-                                            'Scan QR untuk struk digital',
-                                            style: TextStyle(
-                                              fontFamily: 'Courier',
-                                              fontSize: 10,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                        ] else ...[
-                                          const Text(
-                                            '(Struk online menunggu sinkronisasi)',
-                                            style: TextStyle(
-                                              fontFamily: 'Courier',
-                                              fontSize: 10,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    );
-                                  },
-                                ),
-                                
-                                const SizedBox(height: 24),
-                                const Text(
-                                  'Terima kasih telah berbelanja!',
-                                  style: TextStyle(
-                                    fontFamily: 'Courier',
-                                    fontSize: 12,
-                                    fontStyle: FontStyle.italic,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                                );
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
 
               // Action Buttons (Outside of Receipt)
               Container(
@@ -367,21 +426,35 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
                             height: 48,
                             child: OutlinedButton.icon(
                               onPressed: () async {
-                                final url = Uri.parse('${ApiConstants.baseUrl.replaceAll('/api', '')}/struk/$receiptToken');
+                                final url = Uri.parse(
+                                  '${ApiConstants.baseUrl.replaceAll('/api', '')}/struk/$receiptToken',
+                                );
                                 if (await canLaunchUrl(url)) {
-                                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                                  await launchUrl(
+                                    url,
+                                    mode: LaunchMode.externalApplication,
+                                  );
                                 } else {
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Link struknya gak bisa dibuka nih.')),
+                                    const SnackBar(
+                                      content: Text(
+                                        'Link struknya gak bisa dibuka nih.',
+                                      ),
+                                    ),
                                   );
                                 }
                               },
-                              icon: const Icon(Icons.open_in_browser_rounded, size: 20),
+                              icon: const Icon(
+                                Icons.open_in_browser_rounded,
+                                size: 20,
+                              ),
                               label: const Text('Bagikan Struk Digital (URL)'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primary,
-                                side: const BorderSide(color: AppColors.primary),
+                                side: const BorderSide(
+                                  color: AppColors.primary,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -395,7 +468,10 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
                           height: 54,
                           child: ElevatedButton.icon(
                             onPressed: () => _captureAndSavePng(context),
-                            icon: const Icon(Icons.download_rounded, color: AppColors.white),
+                            icon: const Icon(
+                              Icons.download_rounded,
+                              color: AppColors.white,
+                            ),
                             label: const Text(
                               'Simpan Gambar Struk',
                               style: TextStyle(
@@ -456,8 +532,8 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
           label,
           style: const TextStyle(
             fontFamily: 'Courier',
-            color: Colors.black87, 
-            fontSize: 12
+            color: Colors.black87,
+            fontSize: 12,
           ),
         ),
         Text(
@@ -478,7 +554,8 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
       builder: (context, constraints) {
         final dashWidth = 6.0;
         final dashSpace = 4.0;
-        final dashCount = (constraints.maxWidth / (dashWidth + dashSpace)).floor();
+        final dashCount = (constraints.maxWidth / (dashWidth + dashSpace))
+            .floor();
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(dashCount, (_) {
@@ -497,15 +574,20 @@ class _PaymentSuccessViewState extends State<PaymentSuccessView> {
 
   Future<void> _captureAndSavePng(BuildContext context) async {
     try {
-      final boundary = _boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary =
+          _boundaryKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (boundary == null) return;
-      
+
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData?.buffer.asUint8List();
-      
+
       if (pngBytes != null) {
-        await Gal.putImageBytes(pngBytes, name: 'struk_${DateTime.now().millisecondsSinceEpoch}.png');
+        await Gal.putImageBytes(
+          pngBytes,
+          name: 'struk_${DateTime.now().millisecondsSinceEpoch}.png',
+        );
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

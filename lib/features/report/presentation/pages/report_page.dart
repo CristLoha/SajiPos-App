@@ -29,18 +29,24 @@ class _ReportPageState extends State<ReportPage> {
     return BlocBuilder<ReportBloc, ReportState>(
       builder: (context, state) {
         if (state is ReportLoading) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         } else if (state is ReportError) {
           return Scaffold(
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(state.message, style: const TextStyle(color: Colors.red)),
+                  Text(
+                    state.message,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onFocusChange: null,
-                    onPressed: () => context.read<ReportBloc>().add(FetchTodaySummary()),
+                    onPressed: () =>
+                        context.read<ReportBloc>().add(FetchTodaySummary()),
                     child: const Text('Coba Lagi'),
                   ),
                 ],

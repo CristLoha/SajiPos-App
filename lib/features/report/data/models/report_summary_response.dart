@@ -6,7 +6,8 @@ class ReportSummaryResponse extends Equatable {
 
   const ReportSummaryResponse({required this.orderList});
 
-  factory ReportSummaryResponse.fromJson(Map<String, dynamic> json) => ReportSummaryResponse(
+  factory ReportSummaryResponse.fromJson(Map<String, dynamic> json) =>
+      ReportSummaryResponse(
         orderList: json["data"] != null
             ? List<OrderModel>.from(
                 (json["data"] as List).map((x) => OrderModel.fromJson(x)),
@@ -15,8 +16,8 @@ class ReportSummaryResponse extends Equatable {
       );
 
   Map<String, dynamic> toJson() => {
-        "data": List<dynamic>.from(orderList.map((x) => x.toJson())),
-      };
+    "data": List<dynamic>.from(orderList.map((x) => x.toJson())),
+  };
 
   @override
   List<Object> get props => [orderList];

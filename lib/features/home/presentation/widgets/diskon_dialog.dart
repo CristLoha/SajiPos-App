@@ -88,7 +88,9 @@ class DiskonDialog extends StatelessWidget {
 
                           final isSelected = selectedIds.contains(discount.id);
 
-                          String discountType = discount.type.trim().toLowerCase();
+                          String discountType = discount.type
+                              .trim()
+                              .toLowerCase();
                           String subtitle;
                           if (discountType == 'percent' ||
                               discountType == 'percentage' ||

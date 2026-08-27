@@ -151,8 +151,10 @@ class ProductCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).brightness == Brightness.dark 
-                                  ? Colors.white54 
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.white54
                                   : AppColors.textSecondary,
                             ),
                           ),
@@ -177,7 +179,9 @@ class ProductCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).textTheme.bodyLarge?.color,
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.color,
                               ),
                             ),
                           ],
@@ -192,41 +196,68 @@ class ProductCard extends StatelessWidget {
                 Positioned(
                   top: 10,
                   right: 10,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: quantity > 0
-                          ? AppColors.accent
-                          : AppColors.accent.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        if (quantity > 0)
-                          BoxShadow(
-                            color: AppColors.accent.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                      ],
-                    ),
-                    child: Center(
-                      child: quantity > 0
-                          ? Text(
-                              '$quantity',
-                              style: const TextStyle(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                  child: quantity > 0
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.accent,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.accent.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
                               ),
-                            )
-                          : const Icon(
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              InkWell(
+                                onTap: onRemove,
+                                borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                  child: Icon(Icons.remove, color: AppColors.white, size: 16),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: Text(
+                                  '$quantity',
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: onAdd ?? onTap,
+                                borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                  child: Icon(Icons.add, color: AppColors.white, size: 16),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Icon(
                               Icons.shopping_cart_outlined,
                               color: AppColors.white,
                               size: 18,
                             ),
-                    ),
-                  ),
+                          ),
+                        ),
                 )
               else
                 Positioned(

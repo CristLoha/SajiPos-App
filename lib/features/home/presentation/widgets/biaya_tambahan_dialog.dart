@@ -21,7 +21,9 @@ class BiayaTambahanDialog extends StatelessWidget {
         ),
         child: BlocBuilder<CostSettingBloc, CostSettingState>(
           builder: (context, costState) {
-            final costSetting = costState is CostSettingLoaded ? costState.costSetting : null;
+            final costSetting = costState is CostSettingLoaded
+                ? costState.costSetting
+                : null;
             final defaultTax = costSetting?.taxPercentage ?? 0.0;
 
             return BlocBuilder<CartCubit, CartState>(
@@ -67,17 +69,20 @@ class BiayaTambahanDialog extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    
+
                     if (defaultTax > 0)
                       _buildTaxOption(
                         title: 'Pajak (PPN)',
-                        subtitle: '${defaultTax.toStringAsFixed(defaultTax.truncateToDouble() == defaultTax ? 0 : 1)}%',
+                        subtitle:
+                            '${defaultTax.toStringAsFixed(defaultTax.truncateToDouble() == defaultTax ? 0 : 1)}%',
                         isSelected: isSelected,
                         onChanged: () {
                           context.read<CartCubit>().updateCosts(
                             taxPercentage: isSelected ? 0.0 : defaultTax,
-                            includeShippingInTax: costSetting?.includeShippingInTax ?? false,
-                            includeServiceFeeInTax: costSetting?.includeServiceFeeInTax ?? false,
+                            includeShippingInTax:
+                                costSetting?.includeShippingInTax ?? false,
+                            includeServiceFeeInTax:
+                                costSetting?.includeServiceFeeInTax ?? false,
                           );
                         },
                       )
@@ -88,7 +93,7 @@ class BiayaTambahanDialog extends StatelessWidget {
                           style: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
-                    
+
                     const SizedBox(height: 16),
                   ],
                 );

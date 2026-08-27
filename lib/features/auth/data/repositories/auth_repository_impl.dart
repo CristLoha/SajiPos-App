@@ -30,9 +30,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return Right(remoteAuth.toEntity());
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Yah login gagal, pastikan datanya bener ya.'));
+      return Left(
+        ServerFailure(
+          e.message ?? 'Yah login gagal, pastikan datanya bener ya.',
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 
@@ -48,10 +56,18 @@ class AuthRepositoryImpl implements AuthRepository {
       return const Right(null);
     } on ServerException catch (e) {
       await localDataSource.clearToken();
-      return Left(ServerFailure(e.message ?? 'Belum bisa logout nih, koneksinya aman gak?'));
+      return Left(
+        ServerFailure(
+          e.message ?? 'Belum bisa logout nih, koneksinya aman gak?',
+        ),
+      );
     } catch (e) {
       await localDataSource.clearToken();
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 

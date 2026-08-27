@@ -31,7 +31,9 @@ class DiscountRepositoryImpl implements DiscountRepository {
         if (syncResult.isRight()) {
           cachedDiscounts = await localDataSource.getCachedDiscounts();
         } else {
-          return Left(ServerFailure(syncResult.fold((l) => l.message, (r) => 'Error')));
+          return Left(
+            ServerFailure(syncResult.fold((l) => l.message, (r) => 'Error')),
+          );
         }
       }
 
@@ -40,7 +42,13 @@ class DiscountRepositoryImpl implements DiscountRepository {
         filtered = filtered.where((d) => d.status == status).toList();
       }
       if (search != null && search.isNotEmpty) {
-        filtered = filtered.where((d) => d.name.toLowerCase().contains(search.toLowerCase()) || d.code.toLowerCase().contains(search.toLowerCase())).toList();
+        filtered = filtered
+            .where(
+              (d) =>
+                  d.name.toLowerCase().contains(search.toLowerCase()) ||
+                  d.code.toLowerCase().contains(search.toLowerCase()),
+            )
+            .toList();
       }
 
       return Right(filtered);
@@ -62,9 +70,17 @@ class DiscountRepositoryImpl implements DiscountRepository {
       final remoteModel = await remoteDataSource.checkDiscountCode(token, code);
       return Right(remoteModel.toEntity());
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Kode diskonnya gagal dicek, jangan-jangan typo?'));
+      return Left(
+        ServerFailure(
+          e.message ?? 'Kode diskonnya gagal dicek, jangan-jangan typo?',
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 
@@ -73,14 +89,20 @@ class DiscountRepositoryImpl implements DiscountRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
+        return const Left(
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
+        );
       }
       final remoteModels = await remoteDataSource.getDiscounts(token);
       final discounts = remoteModels.map((m) => m.toEntity()).toList();
       await localDataSource.cacheDiscounts(discounts);
       return const Right(true);
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Data diskon terbaru belum bisa ditarik nih.'));
+      return Left(
+        ServerFailure(
+          e.message ?? 'Data diskon terbaru belum bisa ditarik nih.',
+        ),
+      );
     } catch (e) {
       return Left(ServerFailure('Gagal memuat diskon terbaru dari server.'));
     }
@@ -90,16 +112,21 @@ class DiscountRepositoryImpl implements DiscountRepository {
   Future<Either<Failure, int>> getUnseenDiscountCount() async {
     try {
       final activeDiscountsResult = await getActiveDiscounts(status: 'active');
-      return activeDiscountsResult.fold(
-        (failure) => Left(failure),
-        (discounts) async {
-          final seenIds = await localDataSource.getSeenDiscounts();
-          final unseenCount = discounts.where((d) => !seenIds.contains(d.id)).length;
-          return Right(unseenCount);
-        },
-      );
+      return await activeDiscountsResult.fold((failure) async => Left(failure), (
+        discounts,
+      ) async {
+        final seenIds = await localDataSource.getSeenDiscounts();
+        final unseenCount = discounts
+            .where((d) => !seenIds.contains(d.id))
+            .length;
+        return Right(unseenCount);
+      });
     } catch (e) {
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 
@@ -107,16 +134,19 @@ class DiscountRepositoryImpl implements DiscountRepository {
   Future<Either<Failure, void>> markDiscountsAsSeen() async {
     try {
       final activeDiscountsResult = await getActiveDiscounts(status: 'active');
-      return activeDiscountsResult.fold(
-        (failure) => Left(failure),
-        (discounts) async {
-          final ids = discounts.map((d) => d.id).toList();
-          await localDataSource.saveSeenDiscounts(ids);
-          return const Right(null);
-        },
-      );
+      return await activeDiscountsResult.fold((failure) async => Left(failure), (
+        discounts,
+      ) async {
+        final ids = discounts.map((d) => d.id).toList();
+        await localDataSource.saveSeenDiscounts(ids);
+        return const Right(null);
+      });
     } catch (e) {
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 }

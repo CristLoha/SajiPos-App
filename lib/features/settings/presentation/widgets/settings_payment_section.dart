@@ -158,8 +158,11 @@ class SettingsPaymentSection extends StatelessWidget {
               : '',
           hint: '11',
           suffix: '%',
-          onSave: (val) => _updateCostField(context,
-              current: costSetting, taxPercentage: val),
+          onSave: (val) => _updateCostField(
+            context,
+            current: costSetting,
+            taxPercentage: val,
+          ),
         ),
       ),
       const Divider(height: 1),
@@ -178,8 +181,8 @@ class SettingsPaymentSection extends StatelessWidget {
               : '',
           hint: '10000',
           prefix: 'Rp',
-          onSave: (val) => _updateCostField(context,
-              current: costSetting, shippingFee: val),
+          onSave: (val) =>
+              _updateCostField(context, current: costSetting, shippingFee: val),
         ),
       ),
       const Divider(height: 1),
@@ -198,8 +201,8 @@ class SettingsPaymentSection extends StatelessWidget {
               : '',
           hint: '5000',
           prefix: 'Rp',
-          onSave: (val) => _updateCostField(context,
-              current: costSetting, serviceFee: val),
+          onSave: (val) =>
+              _updateCostField(context, current: costSetting, serviceFee: val),
         ),
       ),
     ];
@@ -207,9 +210,7 @@ class SettingsPaymentSection extends StatelessWidget {
     return SettingsCard(
       children: [
         Theme(
-          data: Theme.of(
-            context,
-          ).copyWith(dividerColor: Colors.transparent),
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
             initiallyExpanded: inactiveCount > 0,
             tilePadding: const EdgeInsets.symmetric(

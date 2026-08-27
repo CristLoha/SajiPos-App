@@ -6,7 +6,8 @@ import 'store_profile_state.dart';
 class StoreProfileBloc extends Bloc<StoreProfileEvent, StoreProfileState> {
   final GetStoreProfile getStoreProfile;
 
-  StoreProfileBloc({required this.getStoreProfile}) : super(StoreProfileInitial()) {
+  StoreProfileBloc({required this.getStoreProfile})
+    : super(StoreProfileInitial()) {
     on<FetchStoreProfileEvent>((event, emit) async {
       emit(StoreProfileLoading());
       final result = await getStoreProfile.execute();

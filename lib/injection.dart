@@ -1,4 +1,19 @@
 import 'package:get_it/get_it.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:saji_pos_app/features/history/data/datasources/history_remote_data_source.dart';
+import 'package:saji_pos_app/features/history/data/repositories/history_repository_impl.dart';
+import 'package:saji_pos_app/features/history/domain/repositories/history_repository.dart';
+import 'package:saji_pos_app/features/history/domain/usecases/get_transactions.dart';
+import 'package:saji_pos_app/features/history/domain/usecases/sync_midtrans_status.dart';
+import 'package:saji_pos_app/features/history/presentation/bloc/history_bloc.dart';
+import 'package:saji_pos_app/features/notification/data/datasources/notification_remote_data_source.dart';
+import 'package:saji_pos_app/features/notification/data/repositories/notification_repository_impl.dart';
+import 'package:saji_pos_app/features/notification/domain/repositories/notification_repository.dart';
+import 'package:saji_pos_app/features/notification/domain/usecases/get_initial_notification.dart';
+import 'package:saji_pos_app/features/notification/domain/usecases/on_notification_opened_app.dart';
+import 'package:saji_pos_app/features/notification/domain/usecases/subscribe_to_promo_topic.dart';
+import 'package:saji_pos_app/features/notification/presentation/bloc/notification_bloc.dart';
+
 import 'package:saji_pos_app/features/category/presentation/bloc/category_bloc.dart';
 import 'package:saji_pos_app/features/discount/data/datasources/discount_remote_data_source.dart';
 import 'package:saji_pos_app/features/discount/data/repositories/discount_repository_impl.dart';
@@ -87,7 +102,10 @@ Future<void> init() async {
     () => CategoryLocalDataSourceImpl(dbHelper: locator()),
   );
   locator.registerLazySingleton<DiscountLocalDataSource>(
-    () => DiscountLocalDataSourceImpl(dbHelper: locator(), sharedPreferences: locator()),
+    () => DiscountLocalDataSourceImpl(
+      dbHelper: locator(),
+      sharedPreferences: locator(),
+    ),
   );
   locator.registerLazySingleton<OrderLocalDataSource>(
     () => OrderLocalDataSourceImpl(dbHelper: locator()),
@@ -118,6 +136,9 @@ Future<void> init() async {
   );
   locator.registerLazySingleton<StoreProfileRemoteDataSource>(
     () => StoreProfileRemoteDataSourceImpl(dio: locator()),
+  );
+  locator.registerLazySingleton<HistoryRemoteDataSource>(
+    () => HistoryRemoteDataSourceImpl(dio: locator(), sharedPreferences: locator()),
   );
 
   // Repositories
@@ -176,6 +197,9 @@ Future<void> init() async {
       authLocalDataSource: locator(),
     ),
   );
+  locator.registerLazySingleton<HistoryRepository>(
+    () => HistoryRepositoryImpl(remoteDataSource: locator()),
+  );
 
   // Use cases
   locator.registerLazySingleton(() => GetToken(locator()));
@@ -190,8 +214,12 @@ Future<void> init() async {
   locator.registerLazySingleton(() => GetUnseenDiscountCount(locator()));
   locator.registerLazySingleton(() => MarkDiscountsAsSeen(locator()));
   locator.registerLazySingleton(() => GetTodaySummary(locator()));
-  locator.registerLazySingleton(() => SyncProducts(locator(), locator(), locator()));
+  locator.registerLazySingleton(
+    () => SyncProducts(locator(), locator(), locator()),
+  );
   locator.registerLazySingleton(() => GetStoreProfile(locator()));
+  locator.registerLazySingleton(() => GetTransactions(locator()));
+  locator.registerLazySingleton(() => SyncMidtransStatus(locator()));
 
   // Bloc
   locator.registerFactory(
@@ -208,21 +236,28 @@ Future<void> init() async {
   locator.registerFactory(
     () => OrderBloc(submitOrder: locator(), getOrderStatus: locator()),
   );
+  locator.registerFactory(
+    () => HistoryBloc(getTransactions: locator(), syncMidtransStatus: locator()),
+  );
 
-  locator.registerFactory(() => DiscountBloc(
-        getActiveDiscount: locator(),
-        getUnseenDiscountCount: locator(),
-        markDiscountsAsSeen: locator(),
-      ));
+  locator.registerFactory(
+    () => DiscountBloc(
+      getActiveDiscount: locator(),
+      getUnseenDiscountCount: locator(),
+      markDiscountsAsSeen: locator(),
+    ),
+  );
   locator.registerFactory(() => ReportBloc(getTodaySummary: locator()));
-  locator.registerFactory(() => SyncCubit(
-    syncProducts: locator(),
-    syncPendingOrders: locator(),
-    sharedPreferences: locator(),
-  ));
+  locator.registerFactory(
+    () => SyncCubit(
+      syncProducts: locator(),
+      syncPendingOrders: locator(),
+      sharedPreferences: locator(),
+    ),
+  );
   locator.registerFactory(() => ThemeCubit(sharedPreferences: locator()));
   locator.registerFactory(() => StoreProfileBloc(getStoreProfile: locator()));
-  
+
   // CostSetting Feature
   locator.registerLazySingleton<CostSettingRemoteDataSource>(
     () => CostSettingRemoteDataSourceImpl(dio: locator()),
@@ -240,13 +275,33 @@ Future<void> init() async {
   locator.registerLazySingleton(() => GetCostSetting(locator()));
   locator.registerLazySingleton(() => GetCachedCostSetting(locator()));
   locator.registerLazySingleton(() => UpdateCostSetting(locator()));
-  
+
   // Add SyncPendingOrders to Use cases if missing
   locator.registerLazySingleton(() => SyncPendingOrders(locator()));
-  
-  locator.registerFactory(() => CostSettingBloc(
-    getCostSetting: locator(),
-    updateCostSetting: locator(),
-    getCachedCostSetting: locator(),
-  ));
+
+  locator.registerFactory(
+    () => CostSettingBloc(
+      getCostSetting: locator(),
+      updateCostSetting: locator(),
+      getCachedCostSetting: locator(),
+    ),
+  );
+  // Notification Feature
+  locator.registerLazySingleton(() => FirebaseMessaging.instance);
+  locator.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(firebaseMessaging: locator()),
+  );
+  locator.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(remoteDataSource: locator()),
+  );
+  locator.registerLazySingleton(() => SubscribeToPromoTopic(locator()));
+  locator.registerLazySingleton(() => GetInitialNotification(locator()));
+  locator.registerLazySingleton(() => OnNotificationOpenedApp(locator()));
+  locator.registerFactory(
+    () => NotificationBloc(
+      subscribeToPromoTopic: locator(),
+      getInitialNotification: locator(),
+      onNotificationOpenedApp: locator(),
+    ),
+  );
 }

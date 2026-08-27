@@ -27,14 +27,19 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return CategoryResponse.fromJson(response.data as Map<String, dynamic>).categoryList;
+        return CategoryResponse.fromJson(
+          response.data as Map<String, dynamic>,
+        ).categoryList;
       } else {
         throw ServerException(
           'Data kategori belum bisa ditarik: ${response.statusMessage}',
         );
       }
     } on DioException catch (e) {
-      final message = e.response?.data['message']?.toString() ?? e.message ?? 'Terjadi kesalahan koneksi';
+      final message =
+          e.response?.data['message']?.toString() ??
+          e.message ??
+          'Terjadi kesalahan koneksi';
       throw ServerException(message);
     } catch (e) {
       throw ServerException('Masalah koneksi internet atau server: $e');

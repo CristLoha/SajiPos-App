@@ -114,11 +114,17 @@ class PaymentRow extends StatelessWidget {
           children: [
             Text(
               '$name ($trx x)',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: titleFontSize),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: titleFontSize,
+              ),
             ),
             Text(
               currencyFormat.format(amount),
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: valueFontSize),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: valueFontSize,
+              ),
             ),
           ],
         ),
@@ -165,11 +171,16 @@ class TopMenuItem extends StatelessWidget {
             ),
             child: Text(
               '$rank',
-              style: TextStyle(fontSize: fontSize > 14 ? 14 : 12, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: fontSize > 14 ? 14 : 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Text(name, style: TextStyle(fontSize: fontSize))),
+          Expanded(
+            child: Text(name, style: TextStyle(fontSize: fontSize)),
+          ),
           Text(
             '$qty porsi',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
@@ -212,9 +223,15 @@ class DiscountCard extends StatelessWidget {
         children: [
           Text(
             'Diskon Terpakai',
-            style: TextStyle(fontSize: padding > 16 ? 18 : 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: padding > 16 ? 18 : 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          if (padding > 16) const SizedBox(height: 16) else const SizedBox(height: 8),
+          if (padding > 16)
+            const SizedBox(height: 16)
+          else
+            const SizedBox(height: 8),
           Text(
             currencyFormat.format(diskonTerpakai),
             style: TextStyle(
@@ -395,11 +412,11 @@ class CollapsibleAdditionalInfo extends StatelessWidget {
   final double pajakTerkumpul;
   final NumberFormat currencyFormat;
   final double fontSize;
-  
+
   const CollapsibleAdditionalInfo({
-    super.key, 
-    required this.summary, 
-    required this.pajakTerkumpul, 
+    super.key,
+    required this.summary,
+    required this.pajakTerkumpul,
     required this.currencyFormat,
     this.fontSize = 14,
   });
@@ -410,18 +427,26 @@ class CollapsibleAdditionalInfo extends StatelessWidget {
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         initiallyExpanded: false,
-        title: const Text('Info Tambahan', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Info Tambahan',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Theme.of(context).colorScheme.surface,
         collapsedBackgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         childrenPadding: const EdgeInsets.all(16),
         children: [
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'Menu Terlaris',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize > 14 ? 16 : 14),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize > 14 ? 16 : 14,
+              ),
             ),
           ),
           SizedBox(height: fontSize > 14 ? 12 : 8),
@@ -442,7 +467,10 @@ class CollapsibleAdditionalInfo extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Pajak (PPN) Terkumpul', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'Pajak (PPN) Terkumpul',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text(
                 currencyFormat.format(pajakTerkumpul),
                 style: const TextStyle(fontWeight: FontWeight.bold),

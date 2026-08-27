@@ -1,0 +1,80 @@
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'dart:convert';
+import 'package:saji_pos_app/features/notification/models/notification_payload_model.dart';
+import 'package:saji_pos_app/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:saji_pos_app/injection.dart' as di;
+
+class LocalNotificationHelper {
+  static final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  static Future<void> init() async {
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await _notificationsPlugin.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        if (response.payload != null) {
+          try {
+            final Map<String, dynamic> data = jsonDecode(response.payload!);
+            final payloadModel = NotificationPayloadModel.fromJson(data);
+            di.locator<NotificationBloc>().add(
+              NotificationReceivedEvent(payloadModel),
+            );
+          } catch(e) {}
+        }
+      },
+    );
+
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'promo_channel',
+      'Promo Notifications',
+      description: 'Notifikasi khusus info promo dan diskon',
+      importance: Importance.max,
+    );
+
+    await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  }
+
+  static void showNotification(RemoteMessage message) {
+    final notification = message.notification;
+    if (notification == null) return;
+
+    _notificationsPlugin.show(
+      id: notification.hashCode,
+      title: notification.title,
+      body: notification.body,
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'promo_channel',
+          'Promo Notifications',
+          channelDescription: 'Notifikasi khusus info promo dan diskon',
+          importance: Importance.max,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: jsonEncode(message.data),
+    );
+  }
+}

@@ -45,15 +45,21 @@ class CustomSidebar extends StatelessWidget {
                     if (state is DiscountLoaded) {
                       count = state.unseenCount;
                     }
-                    return _buildNavItem(1, Icons.discount_rounded, 'Diskon', badgeCount: count);
+                    return _buildNavItem(
+                      1,
+                      Icons.discount_rounded,
+                      'Diskon',
+                      badgeCount: count,
+                    );
                   },
                 ),
-                _buildNavItem(2, Icons.analytics_rounded, 'Report'),
-                _buildNavItem(3, Icons.settings_rounded, 'Settings'),
+                _buildNavItem(2, Icons.receipt_long_rounded, 'Riwayat'),
+                _buildNavItem(3, Icons.analytics_rounded, 'Report'),
+                _buildNavItem(4, Icons.settings_rounded, 'Settings'),
               ],
             ),
           ),
-          _buildNavItem(4, Icons.logout_rounded, 'Keluar'),
+          _buildNavItem(5, Icons.logout_rounded, 'Keluar'),
           const SizedBox(height: 28),
         ],
       ),
@@ -76,7 +82,12 @@ class CustomSidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    String label, {
+    int badgeCount = 0,
+  }) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
       onTap: () => onItemSelected(index),
@@ -95,7 +106,9 @@ class CustomSidebar extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: isSelected ? AppColors.white : AppColors.white.withValues(alpha: 0.45),
+                  color: isSelected
+                      ? AppColors.white
+                      : AppColors.white.withValues(alpha: 0.45),
                   size: 24,
                 ),
                 if (badgeCount > 0)
@@ -124,7 +137,9 @@ class CustomSidebar extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? AppColors.white : AppColors.white.withValues(alpha: 0.45),
+                color: isSelected
+                    ? AppColors.white
+                    : AppColors.white.withValues(alpha: 0.45),
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),

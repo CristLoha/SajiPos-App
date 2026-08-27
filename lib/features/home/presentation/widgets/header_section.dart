@@ -47,7 +47,7 @@ class HeaderSection extends StatelessWidget {
         Text(
           _getFormattedDate(),
           style: TextStyle(
-            fontSize: 13, 
+            fontSize: 13,
             color: isDark ? Colors.white70 : AppColors.textSecondary,
           ),
         ),
@@ -106,7 +106,7 @@ class HeaderSection extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'Cari makanan, minuman...',
           hintStyle: TextStyle(
-            color: isDark ? Colors.white54 : AppColors.textSecondary, 
+            color: isDark ? Colors.white54 : AppColors.textSecondary,
             fontSize: 14,
           ),
           prefixIcon: Icon(
@@ -123,9 +123,7 @@ class HeaderSection extends StatelessWidget {
           fillColor: Colors.transparent,
           filled: true,
         ),
-        style: TextStyle(
-          color: isDark ? Colors.white : AppColors.textPrimary,
-        ),
+        style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary),
       ),
     );
   }

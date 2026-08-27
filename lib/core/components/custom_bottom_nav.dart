@@ -39,19 +39,29 @@ class CustomBottomNav extends StatelessWidget {
                 if (state is DiscountLoaded) {
                   count = state.unseenCount;
                 }
-                return _buildNavItem(1, Icons.discount_rounded, 'Diskon', badgeCount: count);
+                return _buildNavItem(
+                  1,
+                  Icons.discount_rounded,
+                  'Diskon',
+                  badgeCount: count,
+                );
               },
             ),
-            _buildNavItem(2, Icons.analytics_rounded, 'Report'),
-            _buildNavItem(3, Icons.settings_rounded, 'Settings'),
-            _buildNavItem(4, Icons.logout_rounded, 'Keluar'),
+            _buildNavItem(2, Icons.receipt_long_rounded, 'Riwayat'),
+            _buildNavItem(3, Icons.analytics_rounded, 'Report'),
+            _buildNavItem(4, Icons.settings_rounded, 'Settings'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label, {int badgeCount = 0}) {
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    String label, {
+    int badgeCount = 0,
+  }) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
       onTap: () => onItemSelected(index),
@@ -70,7 +80,9 @@ class CustomBottomNav extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: isSelected ? AppColors.white : AppColors.white.withValues(alpha: 0.5),
+                  color: isSelected
+                      ? AppColors.white
+                      : AppColors.white.withValues(alpha: 0.5),
                   size: 22,
                 ),
                 if (badgeCount > 0)
@@ -99,7 +111,9 @@ class CustomBottomNav extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? AppColors.white : AppColors.white.withValues(alpha: 0.5),
+                color: isSelected
+                    ? AppColors.white
+                    : AppColors.white.withValues(alpha: 0.5),
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),

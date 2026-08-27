@@ -32,13 +32,15 @@ class CartState extends Equatable {
     return result < 0 ? 0 : result;
   }
 
-  double get taxBase => subTotalAfterDiscount 
-      + (includeShippingInTax ? shippingFeeAmount : 0) 
-      + (includeServiceFeeInTax ? serviceFeeAmount : 0);
+  double get taxBase =>
+      subTotalAfterDiscount +
+      (includeShippingInTax ? shippingFeeAmount : 0) +
+      (includeServiceFeeInTax ? serviceFeeAmount : 0);
 
   double get pajak => taxBase * (taxPercentage / 100);
-  
-  double get total => subTotalAfterDiscount + shippingFeeAmount + serviceFeeAmount + pajak;
+
+  double get total =>
+      subTotalAfterDiscount + shippingFeeAmount + serviceFeeAmount + pajak;
 
   CartState copyWith({
     List<CartItem>? items,
@@ -56,12 +58,15 @@ class CartState extends Equatable {
       items: items ?? this.items,
       diskon: diskon ?? this.diskon,
       selectedDiscountIds: selectedDiscountIds ?? this.selectedDiscountIds,
-      activeDiscount: clearDiscount ? null : (activeDiscount ?? this.activeDiscount),
+      activeDiscount: clearDiscount
+          ? null
+          : (activeDiscount ?? this.activeDiscount),
       taxPercentage: taxPercentage ?? this.taxPercentage,
       shippingFeeAmount: shippingFeeAmount ?? this.shippingFeeAmount,
       serviceFeeAmount: serviceFeeAmount ?? this.serviceFeeAmount,
       includeShippingInTax: includeShippingInTax ?? this.includeShippingInTax,
-      includeServiceFeeInTax: includeServiceFeeInTax ?? this.includeServiceFeeInTax,
+      includeServiceFeeInTax:
+          includeServiceFeeInTax ?? this.includeServiceFeeInTax,
     );
   }
 
@@ -81,12 +86,14 @@ class CartState extends Equatable {
 
   factory CartState.fromJson(Map<String, dynamic> json) {
     return CartState(
-      items: (json['items'] as List<dynamic>?)
+      items:
+          (json['items'] as List<dynamic>?)
               ?.map((e) => CartItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
       diskon: (json['diskon'] as num?)?.toDouble() ?? 0.0,
-      selectedDiscountIds: (json['selectedDiscountIds'] as List<dynamic>?)
+      selectedDiscountIds:
+          (json['selectedDiscountIds'] as List<dynamic>?)
               ?.map((e) => e as int)
               .toSet() ??
           const {},

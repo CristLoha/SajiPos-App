@@ -20,7 +20,6 @@ class UpdateCostSettingEvent extends CostSettingEvent {
 
 class LoadCachedCostSetting extends CostSettingEvent {}
 
-
 abstract class CostSettingState extends Equatable {
   const CostSettingState();
   @override
@@ -60,7 +59,10 @@ class CostSettingBloc extends Bloc<CostSettingEvent, CostSettingState> {
     on<LoadCachedCostSetting>(_onLoadCachedCostSetting);
   }
 
-  Future<void> _onLoadCostSetting(LoadCostSetting event, Emitter<CostSettingState> emit) async {
+  Future<void> _onLoadCostSetting(
+    LoadCostSetting event,
+    Emitter<CostSettingState> emit,
+  ) async {
     emit(CostSettingLoading());
     final result = await getCostSetting();
     result.fold(
@@ -69,7 +71,10 @@ class CostSettingBloc extends Bloc<CostSettingEvent, CostSettingState> {
     );
   }
 
-  Future<void> _onUpdateCostSetting(UpdateCostSettingEvent event, Emitter<CostSettingState> emit) async {
+  Future<void> _onUpdateCostSetting(
+    UpdateCostSettingEvent event,
+    Emitter<CostSettingState> emit,
+  ) async {
     emit(CostSettingLoading());
     final result = await updateCostSetting(event.costSetting);
     result.fold(
@@ -78,7 +83,10 @@ class CostSettingBloc extends Bloc<CostSettingEvent, CostSettingState> {
     );
   }
 
-  Future<void> _onLoadCachedCostSetting(LoadCachedCostSetting event, Emitter<CostSettingState> emit) async {
+  Future<void> _onLoadCachedCostSetting(
+    LoadCachedCostSetting event,
+    Emitter<CostSettingState> emit,
+  ) async {
     final result = await getCachedCostSetting();
     result.fold(
       (failure) => emit(CostSettingError(failure.message)),

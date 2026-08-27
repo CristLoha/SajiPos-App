@@ -164,6 +164,12 @@ class _KatalogProductPageState extends State<KatalogProductMobilePage> {
                             onTap: () {
                               context.read<CartCubit>().addToCart(product);
                             },
+                            onAdd: () {
+                              context.read<CartCubit>().addToCart(product);
+                            },
+                            onRemove: () {
+                              context.read<CartCubit>().decreaseQuantity(product);
+                            },
                           );
                         },
                       ),

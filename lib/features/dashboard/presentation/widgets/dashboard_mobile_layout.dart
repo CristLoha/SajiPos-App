@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/components/custom_bottom_nav.dart';
 import 'package:saji_pos_app/features/home/presentation/pages/checkout/mobile_order_confirmation_page.dart';
 import 'package:saji_pos_app/features/report/presentation/pages/report_page.dart';
+import 'package:saji_pos_app/features/history/presentation/pages/history_page.dart';
 import 'package:saji_pos_app/features/settings/presentation/pages/settings_page.dart';
 
 class DashboardMobileLayout extends StatelessWidget {
@@ -33,8 +34,10 @@ class DashboardMobileLayout extends StatelessWidget {
       case 1:
         return const DiscountPage();
       case 2:
-        return const ReportPage();
+        return const HistoryPage();
       case 3:
+        return const ReportPage();
+      case 4:
         return const SettingsPage();
       default:
         return const KatalogProductMobilePage();

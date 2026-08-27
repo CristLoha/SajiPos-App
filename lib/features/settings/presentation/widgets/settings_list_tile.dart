@@ -22,7 +22,7 @@ class SettingsListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return ListTile(
       onTap: onTap,
       leading: Container(

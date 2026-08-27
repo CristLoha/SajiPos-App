@@ -68,16 +68,16 @@ class OrderRequestModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        cashierId,
-        transactionTime,
-        subTotal,
-        discountId,
-        discountAmount,
-        shippingCost,
-        serviceCharge,
-        tax,
-        total,
-        paymentMethod,
-        orderItems,
-      ];
+    cashierId,
+    transactionTime,
+    subTotal,
+    discountId,
+    discountAmount,
+    shippingCost,
+    serviceCharge,
+    tax,
+    total,
+    paymentMethod,
+    orderItems,
+  ];
 }

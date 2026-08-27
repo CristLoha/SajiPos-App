@@ -16,7 +16,10 @@ class MobileOrderConfirmationPage extends StatelessWidget {
         iconTheme: const IconThemeData(color: AppColors.primary),
         title: const Text(
           'Detail Pesanan',
-          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SafeArea(

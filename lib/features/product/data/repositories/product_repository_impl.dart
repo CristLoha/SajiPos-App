@@ -27,20 +27,24 @@ class ProductRepositoryImpl implements ProductRepository {
   }) async {
     try {
       var cachedProducts = await productLocalDataSource.getCachedProducts();
-      
+
       if (cachedProducts.isEmpty) {
         final syncResult = await syncProducts();
         if (syncResult.isRight()) {
-           cachedProducts = await productLocalDataSource.getCachedProducts();
+          cachedProducts = await productLocalDataSource.getCachedProducts();
         } else {
-           // If sync fails and cache is empty, return the sync error
-           return Left(ServerFailure(syncResult.fold((l) => l.message, (r) => 'Error')));
+          // If sync fails and cache is empty, return the sync error
+          return Left(
+            ServerFailure(syncResult.fold((l) => l.message, (r) => 'Error')),
+          );
         }
       }
 
       var filtered = cachedProducts;
       if (search != null && search.isNotEmpty) {
-        filtered = filtered.where((p) => p.name.toLowerCase().contains(search.toLowerCase())).toList();
+        filtered = filtered
+            .where((p) => p.name.toLowerCase().contains(search.toLowerCase()))
+            .toList();
       }
       if (categoryId != null && categoryId > 0) {
         filtered = filtered.where((p) => p.categoryId == categoryId).toList();
@@ -69,9 +73,17 @@ class ProductRepositoryImpl implements ProductRepository {
       final products = productModels.map((model) => model.toEntity()).toList();
       return Right(products);
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Produknya nggak ketemu, coba kata kunci lain ya.'));
+      return Left(
+        ServerFailure(
+          e.message ?? 'Produknya nggak ketemu, coba kata kunci lain ya.',
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 
@@ -90,31 +102,56 @@ class ProductRepositoryImpl implements ProductRepository {
       );
       return Right(productDetailModel.toEntity());
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Detail produknya ngumpet nih, coba di-refresh.'));
+      return Left(
+        ServerFailure(
+          e.message ?? 'Detail produknya ngumpet nih, coba di-refresh.',
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 
+  static bool _isSyncing = false;
+
   @override
   Future<Either<Failure, bool>> syncProducts() async {
+    if (_isSyncing) {
+      // Jika sedang sync di thread lain, tunggu sebentar supaya tidak tabrakan DB (Database is locked)
+      await Future.delayed(const Duration(seconds: 2));
+      return const Right(true);
+    }
+    
+    _isSyncing = true;
     try {
       final token = await localDataSource.getToken();
       if (token == null) {
+        _isSyncing = false;
         return const Left(
           ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
         );
       }
       // Get remote data
       final productModels = await remoteDataSource.getProducts(token);
-      
+
       // Save to SQLite
       await productLocalDataSource.cacheProducts(productModels);
-      
+
+      _isSyncing = false;
       return const Right(true);
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Lagi susah nyambung ke server nih, sabar ya.'));
+      _isSyncing = false;
+      return Left(
+        ServerFailure(
+          e.message ?? 'Lagi susah nyambung ke server nih, sabar ya.',
+        ),
+      );
     } catch (e, stacktrace) {
+      _isSyncing = false;
       debugPrint('🔥 [SYNC ERROR]: $e');
       debugPrint('🔥 [STACKTRACE]: $stacktrace');
       return Left(ServerFailure('Gagal memuat produk terbaru dari server.'));

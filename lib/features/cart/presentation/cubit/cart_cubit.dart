@@ -39,8 +39,11 @@ class CartCubit extends Cubit<CartState> {
   }
 
   void _emitWithRecalculatedDiscount(List<CartItem> currentItems) {
-    double subTotal = currentItems.fold(0, (sum, item) => sum + item.totalPrice);
-    
+    double subTotal = currentItems.fold(
+      0,
+      (sum, item) => sum + item.totalPrice,
+    );
+
     if (state.activeDiscount == null) {
       final newState = state.copyWith(items: currentItems);
       emit(newState);
@@ -52,16 +55,16 @@ class CartCubit extends Cubit<CartState> {
     if (DateTime.now().isAfter(state.activeDiscount!.expiredDate)) {
       debugPrint('Discount expired: ${state.activeDiscount!.name}');
       final newState = state.copyWith(
-        items: currentItems, 
-        diskon: 0.0, 
-        clearDiscount: true, 
-        selectedDiscountIds: {}
+        items: currentItems,
+        diskon: 0.0,
+        clearDiscount: true,
+        selectedDiscountIds: {},
       );
       emit(newState);
       _saveCart(newState);
       return;
     }
-    
+
     if (state.activeDiscount!.minTransaction != null &&
         subTotal < state.activeDiscount!.minTransaction!) {
       // Syarat diskon tidak terpenuhi, diskon dinolkan tapi status tetap standby
@@ -75,7 +78,10 @@ class CartCubit extends Cubit<CartState> {
     double discountValue = state.activeDiscount!.value ?? 0.0;
     String discountType = state.activeDiscount!.type.trim().toLowerCase();
 
-    if (discountType == 'percent' || discountType == 'percentage' || discountType == 'persen' || discountType == 'persentase') {
+    if (discountType == 'percent' ||
+        discountType == 'percentage' ||
+        discountType == 'persen' ||
+        discountType == 'persentase') {
       discountAmount = subTotal * (discountValue / 100);
       if (state.activeDiscount!.maxDiscount != null &&
           discountAmount > state.activeDiscount!.maxDiscount!) {
@@ -85,7 +91,10 @@ class CartCubit extends Cubit<CartState> {
       discountAmount = discountValue;
     }
 
-    final newState = state.copyWith(items: currentItems, diskon: discountAmount);
+    final newState = state.copyWith(
+      items: currentItems,
+      diskon: discountAmount,
+    );
     emit(newState);
     _saveCart(newState);
   }
@@ -162,13 +171,21 @@ class CartCubit extends Cubit<CartState> {
   }
 
   void removeVoucherDiscount() {
-    final newState = state.copyWith(clearDiscount: true, diskon: 0.0, selectedDiscountIds: {});
+    final newState = state.copyWith(
+      clearDiscount: true,
+      diskon: 0.0,
+      selectedDiscountIds: {},
+    );
     emit(newState);
     _saveCart(newState);
   }
 
   void clearCart() {
-    final newState = const CartState(items: [], diskon: 0.0, selectedDiscountIds: {});
+    final newState = const CartState(
+      items: [],
+      diskon: 0.0,
+      selectedDiscountIds: {},
+    );
     emit(newState);
     _saveCart(newState);
   }

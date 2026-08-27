@@ -74,7 +74,9 @@ class DiscountRemoteDataSourceImpl implements DiscountRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return DiscountModel.fromJson(response.data['data'] as Map<String, dynamic>);
+        return DiscountModel.fromJson(
+          response.data['data'] as Map<String, dynamic>,
+        );
       } else {
         throw ServerException(
           response.statusMessage ?? 'Kode diskon tidak valid',

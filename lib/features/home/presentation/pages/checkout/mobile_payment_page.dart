@@ -16,7 +16,10 @@ class MobilePaymentPage extends StatelessWidget {
         iconTheme: const IconThemeData(color: AppColors.primary),
         title: const Text(
           'Selesaikan Pembayaran',
-          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: SafeArea(
@@ -27,7 +30,9 @@ class MobilePaymentPage extends StatelessWidget {
           onConfirm: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => const MobilePaymentSuccessPage()),
+              MaterialPageRoute(
+                builder: (_) => const MobilePaymentSuccessPage(),
+              ),
             );
           },
         ),

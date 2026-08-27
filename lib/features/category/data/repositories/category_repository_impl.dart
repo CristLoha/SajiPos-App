@@ -22,36 +22,57 @@ class CategoryRepositoryImpl implements CategoryRepository {
   Future<Either<Failure, List<Category>>> getCategories() async {
     try {
       var cachedCategories = await localDataSource.getCachedCategories();
-      
+
       if (cachedCategories.isEmpty) {
         final syncResult = await syncCategories();
         if (syncResult.isRight()) {
           cachedCategories = await localDataSource.getCachedCategories();
         } else {
-          return Left(ServerFailure(syncResult.fold((l) => l.message, (r) => 'Error')));
+          return Left(
+            ServerFailure(syncResult.fold((l) => l.message, (r) => 'Error')),
+          );
         }
       }
 
-      final categories = cachedCategories.map((model) => model.toEntity()).toList();
+      final categories = cachedCategories
+          .map((model) => model.toEntity())
+          .toList();
       return Right(categories);
     } catch (e) {
       return Left(ServerFailure('Kategori produk belum bisa dimuat nih.'));
     }
   }
 
+  static bool _isSyncing = false;
+
   @override
   Future<Either<Failure, bool>> syncCategories() async {
+    if (_isSyncing) {
+      await Future.delayed(const Duration(seconds: 2));
+      return const Right(true);
+    }
+    _isSyncing = true;
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
+        _isSyncing = false;
+        return const Left(
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
+        );
       }
       final categoryModels = await remoteDataSource.getCategories(token);
       await localDataSource.cacheCategories(categoryModels);
+      _isSyncing = false;
       return const Right(true);
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Update kategori lagi gangguan, ditunggu ya.'));
+      _isSyncing = false;
+      return Left(
+        ServerFailure(
+          e.message ?? 'Update kategori lagi gangguan, ditunggu ya.',
+        ),
+      );
     } catch (e) {
+      _isSyncing = false;
       return Left(ServerFailure('Gagal memuat kategori terbaru dari server.'));
     }
   }

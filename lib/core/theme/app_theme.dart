@@ -50,7 +50,9 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.background,
-        hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6)),
+        hintStyle: TextStyle(
+          color: AppColors.textSecondary.withValues(alpha: 0.6),
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -59,7 +61,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.accent, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
@@ -74,6 +79,7 @@ class AppTheme {
       ),
     );
   }
+
   static ThemeData get darkTheme {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
@@ -123,7 +129,9 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF1A1D3B), // Match card color
-        hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6)),
+        hintStyle: TextStyle(
+          color: AppColors.textSecondary.withValues(alpha: 0.6),
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -132,7 +140,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.accent, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       cardColor: const Color(0xFF1A1D3B), // Match AppColors.primary
       dividerTheme: const DividerThemeData(

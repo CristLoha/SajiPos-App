@@ -1,0 +1,11 @@
+--- lib/features/notification/data/datasources/local_notification_helper.dart
++++ lib/features/notification/data/datasources/local_notification_helper.dart
+@@ -26,7 +26,7 @@
+     );
+ 
+     await _notificationsPlugin.initialize(
+-      initSettings,
++      settings: initSettings,
+       onDidReceiveNotificationResponse: (NotificationResponse response) {
+         if (response.payload != null) {
+           try {

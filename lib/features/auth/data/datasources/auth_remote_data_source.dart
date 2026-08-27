@@ -24,7 +24,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       debugPrint('=== DEBUG LOGIN ===');
       debugPrint('URL: ${ApiConstants.loginEndpoint}');
       debugPrint('Payload: {"email": "$email", "password": "$password"}');
-      
+
       final response = await dio.post(
         ApiConstants.loginEndpoint,
         data: {'email': email, 'password': password},
@@ -54,22 +54,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       debugPrint('Response data: ${e.response?.data}');
       debugPrint('Error detail: ${e.error}');
 
-      String userFriendlyMessage = 'Yah login gagal nih. Silakan coba lagi nanti ya.';
+      String userFriendlyMessage =
+          'Yah login gagal nih. Silakan coba lagi nanti ya.';
 
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.sendTimeout) {
-        userFriendlyMessage = 'Koneksi internet lambat atau terputus. Silakan coba lagi.';
+        userFriendlyMessage =
+            'Koneksi internet lambat atau terputus. Silakan coba lagi.';
       } else if (e.type == DioExceptionType.connectionError) {
-        userFriendlyMessage = 'Tidak dapat terhubung ke server kasir. Periksa koneksi internet Anda.';
+        userFriendlyMessage =
+            'Tidak dapat terhubung ke server kasir. Periksa koneksi internet Anda.';
       } else if (e.response != null) {
         final int? statusCode = e.response?.statusCode;
         if (statusCode == 400 || statusCode == 401) {
-          userFriendlyMessage = 'Email atau kata sandi salah. Silakan coba lagi.';
+          userFriendlyMessage =
+              'Email atau kata sandi salah. Silakan coba lagi.';
         } else if (statusCode == 422) {
           userFriendlyMessage = 'Data yang Anda masukkan tidak sesuai format.';
         } else if (statusCode == 500) {
-          userFriendlyMessage = 'Server kasir sedang mengalami gangguan. Hubungi admin toko Anda.';
+          userFriendlyMessage =
+              'Server kasir sedang mengalami gangguan. Hubungi admin toko Anda.';
         }
       }
 
@@ -77,10 +82,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       debugPrint('=== DEBUG SYSTEM EXCEPTION ===');
       debugPrint('Error: $e');
-      throw const ServerException('Terjadi kesalahan tidak terduga. Silakan buka ulang aplikasi.');
+      throw const ServerException(
+        'Terjadi kesalahan tidak terduga. Silakan buka ulang aplikasi.',
+      );
     }
   }
-
 
   @override
   Future<void> logout(String token) async {
@@ -97,15 +103,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw const ServerException('Belum bisa logout nih, koneksinya aman gak?');
+        throw const ServerException(
+          'Belum bisa logout nih, koneksinya aman gak?',
+        );
       }
     } on DioException catch (e) {
       String userFriendlyMessage = 'Logout tertunda nih.';
-      
+
       if (e.type == DioExceptionType.connectionError) {
         userFriendlyMessage = 'Gagal logout, pastikan hp kamu ada internet ya.';
       }
-      
+
       throw ServerException(userFriendlyMessage);
     } catch (e) {
       throw const ServerException('Logout tertunda nih.');

@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-
 class OrderItemRequest extends Equatable {
   final int productId;
   final int quantity;

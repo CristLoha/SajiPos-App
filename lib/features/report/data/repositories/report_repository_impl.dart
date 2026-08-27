@@ -20,15 +20,26 @@ class ReportRepositoryImpl implements ReportRepository {
     try {
       final token = await localDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
+        return const Left(
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
+        );
       }
 
       final model = await remoteDataSource.getTodaySummary(token);
       return Right(model.toEntity());
     } on ServerException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Laporan belum bisa dimuat, coba tarik layar buat refresh.'));
+      return Left(
+        ServerFailure(
+          e.message ??
+              'Laporan belum bisa dimuat, coba tarik layar buat refresh.',
+        ),
+      );
     } catch (e) {
-      return Left(ServerFailure('Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.'));
+      return Left(
+        ServerFailure(
+          'Mohon maaf, sistem sedang ada kendala. Coba lagi nanti ya.',
+        ),
+      );
     }
   }
 }

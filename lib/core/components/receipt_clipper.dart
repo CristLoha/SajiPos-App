@@ -4,14 +4,14 @@ class ReceiptClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     Path path = Path();
-    double step = 8.0; 
-    
+    double step = 8.0;
+
     // Zigzag at the top
     path.moveTo(0, 0);
     double x = 0;
     double y = 0;
     bool up = false;
-    
+
     while (x < size.width) {
       x += step;
       if (x > size.width) x = size.width;
@@ -19,10 +19,10 @@ class ReceiptClipper extends CustomClipper<Path> {
       path.lineTo(x, y);
       up = !up;
     }
-    
+
     // Right side
     path.lineTo(size.width, size.height);
-    
+
     // Zigzag at the bottom
     x = size.width;
     up = true;
@@ -33,11 +33,11 @@ class ReceiptClipper extends CustomClipper<Path> {
       path.lineTo(x, y);
       up = !up;
     }
-    
+
     // Left side
     path.lineTo(0, 0);
     path.close();
-    
+
     return path;
   }
 

@@ -42,11 +42,13 @@ class _DiscountMobilePageState extends State<DiscountMobilePage> {
     }
 
     context.read<DiscountBloc>().add(
-          FetchActiveDiscounts(
-            search: _searchController.text.isNotEmpty ? _searchController.text : null,
-            status: status,
-          ),
-        );
+      FetchActiveDiscounts(
+        search: _searchController.text.isNotEmpty
+            ? _searchController.text
+            : null,
+        status: status,
+      ),
+    );
   }
 
   void _onSearchChanged(String query) {
@@ -72,10 +74,7 @@ class _DiscountMobilePageState extends State<DiscountMobilePage> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.filter_list), onPressed: () {}),
         ],
       ),
       body: Column(
@@ -231,18 +230,32 @@ class _DiscountMobilePageState extends State<DiscountMobilePage> {
     }
 
     String discountType = discount.type.toLowerCase();
-    String discountValueText = (discountType == 'percent' || discountType == 'percentage' || discountType == 'persen' || discountType == 'persentase')
+    String discountValueText =
+        (discountType == 'percent' ||
+            discountType == 'percentage' ||
+            discountType == 'persen' ||
+            discountType == 'persentase')
         ? '${discount.value?.toInt() ?? 0}%'
-        : NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
-            .format(discount.value ?? 0);
+        : NumberFormat.currency(
+            locale: 'id_ID',
+            symbol: 'Rp ',
+            decimalDigits: 0,
+          ).format(discount.value ?? 0);
 
-    String terms = discount.description ??
+    String terms =
+        discount.description ??
         (discount.minTransaction != null
             ? 'Min. transaksi ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(discount.minTransaction)}'
             : 'Tanpa min. transaksi');
 
-    String startDate = DateFormat('dd MMM yyyy', 'id_ID').format(discount.startDate);
-    String endDate = DateFormat('dd MMM yyyy', 'id_ID').format(discount.expiredDate);
+    String startDate = DateFormat(
+      'dd MMM yyyy',
+      'id_ID',
+    ).format(discount.startDate);
+    String endDate = DateFormat(
+      'dd MMM yyyy',
+      'id_ID',
+    ).format(discount.expiredDate);
 
     return Container(
       decoration: BoxDecoration(
@@ -270,7 +283,9 @@ class _DiscountMobilePageState extends State<DiscountMobilePage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textPrimary,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -405,12 +420,16 @@ class _DiscountMobilePageState extends State<DiscountMobilePage> {
                 onPressed: () {
                   final cartCubit = context.read<CartCubit>();
                   cartCubit.applyVoucherDiscount(discount);
-                  
+
                   final cartSubTotal = cartCubit.state.subTotal;
-                  if (cartSubTotal == 0 || (discount.minTransaction != null && cartSubTotal < discount.minTransaction!)) {
+                  if (cartSubTotal == 0 ||
+                      (discount.minTransaction != null &&
+                          cartSubTotal < discount.minTransaction!)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Diskon diaktifkan. Silakan tambahkan pesanan minimal Rp ${NumberFormat.currency(locale: 'id_ID', symbol: '', decimalDigits: 0).format(discount.minTransaction ?? 0)}.'),
+                        content: Text(
+                          'Diskon diaktifkan. Silakan tambahkan pesanan minimal Rp ${NumberFormat.currency(locale: 'id_ID', symbol: '', decimalDigits: 0).format(discount.minTransaction ?? 0)}.',
+                        ),
                         backgroundColor: AppColors.success,
                       ),
                     );

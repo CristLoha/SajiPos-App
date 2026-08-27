@@ -6,6 +6,7 @@ import 'package:saji_pos_app/features/home/presentation/widgets/order_panel.dart
 import 'package:saji_pos_app/features/home/presentation/pages/katalog_product_tablet_page.dart';
 import '../../../report/presentation/pages/report_page.dart';
 import 'package:saji_pos_app/features/settings/presentation/pages/settings_page.dart';
+import 'package:saji_pos_app/features/history/presentation/pages/history_page.dart';
 
 class DashboardTabletLayout extends StatelessWidget {
   final int selectedIndex;
@@ -24,8 +25,10 @@ class DashboardTabletLayout extends StatelessWidget {
       case 1:
         return const DiscountPage();
       case 2:
-        return const ReportPage();
+        return const HistoryPage();
       case 3:
+        return const ReportPage();
+      case 4:
         return const SettingsPage();
       default:
         return const KatalogProductTabletPage();
@@ -49,9 +52,10 @@ class DashboardTabletLayout extends StatelessWidget {
                 child: _buildBody(),
               ),
             ),
-            
-            if (selectedIndex == 0)
-              Container(
+
+            Offstage(
+              offstage: selectedIndex != 0,
+              child: Container(
                 width: 360,
                 margin: const EdgeInsets.only(top: 16, right: 16, bottom: 16),
                 decoration: BoxDecoration(
@@ -68,6 +72,7 @@ class DashboardTabletLayout extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 child: const OrderPanel(),
               ),
+            ),
           ],
         ),
       ),

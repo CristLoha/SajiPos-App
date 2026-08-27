@@ -25,9 +25,7 @@ class SettingsCard extends StatelessWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: children,
-        ),
+        child: Column(children: children),
       ),
     );
   }

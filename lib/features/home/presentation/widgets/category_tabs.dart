@@ -76,9 +76,13 @@ class CategoryTabs extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.accent : (isDark ? theme.colorScheme.surface : AppColors.white),
+                color: isSelected
+                    ? AppColors.accent
+                    : (isDark ? theme.colorScheme.surface : AppColors.white),
                 borderRadius: BorderRadius.circular(12),
-                border: isSelected || isDark ? null : Border.all(color: AppColors.border),
+                border: isSelected || isDark
+                    ? null
+                    : Border.all(color: AppColors.border),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
@@ -92,7 +96,9 @@ class CategoryTabs extends StatelessWidget {
               child: Text(
                 categoryName,
                 style: TextStyle(
-                  color: isSelected ? AppColors.white : (isDark ? Colors.white70 : AppColors.textSecondary),
+                  color: isSelected
+                      ? AppColors.white
+                      : (isDark ? Colors.white70 : AppColors.textSecondary),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   fontSize: 14,
                 ),

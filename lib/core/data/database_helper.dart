@@ -69,7 +69,7 @@ class DatabaseHelper {
         expiredDate TEXT NOT NULL
       )
     ''');
-    
+
     await _createOrdersTables(db);
   }
 

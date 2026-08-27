@@ -1,0 +1,24 @@
+--- lib/features/dashboard/presentation/pages/dashboard_page.dart
++++ lib/features/dashboard/presentation/pages/dashboard_page.dart
+@@ -10,6 +10,7 @@
+ import 'package:saji_pos_app/features/cost_setting/presentation/bloc/cost_setting_bloc.dart';
+ import 'package:saji_pos_app/features/settings/presentation/cubit/sync_cubit.dart';
+ import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
++import 'package:saji_pos_app/features/notification/presentation/bloc/notification_bloc.dart';
+ import '../../../../../core/utils/responsive_layout.dart';
+ import '../widgets/dashboard_mobile_layout.dart';
+ import '../widgets/dashboard_tablet_layout.dart';
+@@ -79,6 +80,13 @@
+               );
+             }
+           },
+         ),
++        BlocListener<NotificationBloc, NotificationState>(
++          listener: (context, state) {
++            if (state is NotificationRouteToPromo) {
++              _onItemSelected(1);
++            }
++          },
++        ),
+       ],
+       child: ResponsiveLayout(

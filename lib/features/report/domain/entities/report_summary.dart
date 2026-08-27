@@ -43,13 +43,13 @@ class ReportSummary extends Equatable {
 
   @override
   List<Object?> get props => [
-        totalOmzet,
-        totalTransactions,
-        discountAmount,
-        taxAmount,
-        cash,
-        qris,
-        transfer,
-        topMenus,
-      ];
+    totalOmzet,
+    totalTransactions,
+    discountAmount,
+    taxAmount,
+    cash,
+    qris,
+    transfer,
+    topMenus,
+  ];
 }

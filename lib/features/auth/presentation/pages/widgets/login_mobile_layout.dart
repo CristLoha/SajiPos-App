@@ -34,7 +34,10 @@ class LoginMobileLayout extends StatelessWidget {
       child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 48.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32.0,
+              vertical: 48.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -59,7 +62,11 @@ class LoginMobileLayout extends StatelessWidget {
         color: AppColors.accent,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Icon(Icons.storefront_rounded, size: 36, color: AppColors.white),
+      child: const Icon(
+        Icons.storefront_rounded,
+        size: 36,
+        color: AppColors.white,
+      ),
     );
   }
 

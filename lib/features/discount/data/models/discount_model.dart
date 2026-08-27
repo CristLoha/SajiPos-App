@@ -38,7 +38,8 @@ class DiscountModel extends Equatable {
       minTransaction: json['min_transaction'],
       maxDiscount: json['max_discount'],
       startDate: json['start_date']?.toString() ?? DateTime.now().toString(),
-      expiredDate: json['expired_date']?.toString() ?? DateTime.now().toString(),
+      expiredDate:
+          json['expired_date']?.toString() ?? DateTime.now().toString(),
       status: json['status']?.toString() ?? '',
     );
   }
@@ -67,8 +68,12 @@ class DiscountModel extends Equatable {
       description: description,
       type: type,
       value: value != null ? double.tryParse(value!) : null,
-      minTransaction: minTransaction != null ? double.tryParse(minTransaction.toString()) : null,
-      maxDiscount: maxDiscount != null ? double.tryParse(maxDiscount.toString()) : null,
+      minTransaction: minTransaction != null
+          ? double.tryParse(minTransaction.toString())
+          : null,
+      maxDiscount: maxDiscount != null
+          ? double.tryParse(maxDiscount.toString())
+          : null,
       startDate: DateTime.tryParse(startDate) ?? DateTime.now(),
       expiredDate: DateTime.tryParse(expiredDate) ?? DateTime.now(),
       status: status,

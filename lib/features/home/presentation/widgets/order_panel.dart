@@ -35,7 +35,7 @@ class _OrderPanelState extends State<OrderPanel> {
       _currentState = OrderFlowState.success;
     });
   }
-  
+
   void _resetOrder() {
     context.read<CartCubit>().clearCart();
     setState(() {
@@ -56,7 +56,10 @@ class _OrderPanelState extends State<OrderPanel> {
       case OrderFlowState.confirmation:
         return OrderConfirmationView(onProceedToPayment: _goToPayment);
       case OrderFlowState.payment:
-        return PaymentView(onCancel: _goToConfirmation, onConfirm: _finishOrder);
+        return PaymentView(
+          onCancel: _goToConfirmation,
+          onConfirm: _finishOrder,
+        );
       case OrderFlowState.success:
         return PaymentSuccessView(onBackToHome: _resetOrder);
     }

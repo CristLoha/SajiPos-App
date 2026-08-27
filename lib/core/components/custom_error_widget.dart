@@ -10,7 +10,8 @@ class CustomErrorWidget extends StatelessWidget {
   const CustomErrorWidget({
     super.key,
     this.title = 'Oops! Data Belum Bisa Tampil',
-    this.message = 'Sepertinya server sedang bermasalah atau koneksimu terputus. Yuk coba lagi!',
+    this.message =
+        'Sepertinya server sedang bermasalah atau koneksimu terputus. Yuk coba lagi!',
     required this.onRetry,
     this.icon = Icons.cloud_off_rounded,
   });
@@ -29,11 +30,7 @@ class CustomErrorWidget extends StatelessWidget {
                 color: AppColors.danger.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 64,
-                color: AppColors.danger,
-              ),
+              child: Icon(icon, size: 64, color: AppColors.danger),
             ),
             const SizedBox(height: 24),
             Text(
@@ -72,10 +69,7 @@ class CustomErrorWidget extends StatelessWidget {
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text(
                   'Coba Lagi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

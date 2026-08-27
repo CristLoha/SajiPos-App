@@ -24,7 +24,7 @@ class OrderConfirmationView extends StatelessWidget {
     );
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Container(
       color: theme.cardColor,
       child: BlocBuilder<CartCubit, CartState>(
@@ -128,7 +128,11 @@ class OrderConfirmationView extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     color: theme.cardColor,
-                    border: Border(top: BorderSide(color: isDark ? Colors.grey[850]! : AppColors.border)),
+                    border: Border(
+                      top: BorderSide(
+                        color: isDark ? Colors.grey[850]! : AppColors.border,
+                      ),
+                    ),
                   ),
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
@@ -160,7 +164,7 @@ class OrderConfirmationView extends StatelessWidget {
                         const SizedBox(height: 10),
                         _buildSummaryRow(
                           context,
-                          'Pajak (${cartState.taxPercentage.toStringAsFixed(cartState.taxPercentage.truncateToDouble() == cartState.taxPercentage ? 0 : 1)}%)', 
+                          'Pajak (${cartState.taxPercentage.toStringAsFixed(cartState.taxPercentage.truncateToDouble() == cartState.taxPercentage ? 0 : 1)}%)',
                           '+ ${formatCurrency.format(cartState.pajak)}',
                         ),
                       ],
@@ -179,7 +183,9 @@ class OrderConfirmationView extends StatelessWidget {
                           horizontal: 16,
                         ),
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.accent.withValues(alpha: 0.15) : AppColors.accentLight,
+                          color: isDark
+                              ? AppColors.accent.withValues(alpha: 0.15)
+                              : AppColors.accentLight,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: _buildSummaryRow(
@@ -197,9 +203,8 @@ class OrderConfirmationView extends StatelessWidget {
                           onPressed: onProceedToPayment,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.accent,
-                            disabledBackgroundColor: AppColors.accent.withValues(
-                              alpha: 0.3,
-                            ),
+                            disabledBackgroundColor: AppColors.accent
+                                .withValues(alpha: 0.3),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
@@ -360,8 +365,8 @@ class OrderConfirmationView extends StatelessWidget {
                 height: 44,
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).brightness == Brightness.dark 
-                      ? Colors.grey[850] 
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey[850]
                       : AppColors.background,
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -416,12 +421,17 @@ class OrderConfirmationView extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildActionButton(context, Icons.local_shipping_outlined, 'Ongkir', () {
-          showDialog(
-            context: context,
-            builder: (context) => const OngkirDialog(),
-          );
-        }),
+        _buildActionButton(
+          context,
+          Icons.local_shipping_outlined,
+          'Ongkir',
+          () {
+            showDialog(
+              context: context,
+              builder: (context) => const OngkirDialog(),
+            );
+          },
+        ),
         _buildActionButton(context, Icons.discount_outlined, 'Diskon', () {
           showDialog(
             context: context,
@@ -444,7 +454,12 @@ class OrderConfirmationView extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+  Widget _buildActionButton(
+    BuildContext context,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
@@ -454,7 +469,9 @@ class OrderConfirmationView extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: isDark ? AppColors.accent.withValues(alpha: 0.15) : AppColors.accentLight,
+              color: isDark
+                  ? AppColors.accent.withValues(alpha: 0.15)
+                  : AppColors.accentLight,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(icon, color: AppColors.accent, size: 24),
@@ -473,7 +490,12 @@ class OrderConfirmationView extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryRow(BuildContext context, String label, String value, {bool isBold = false}) {
+  Widget _buildSummaryRow(
+    BuildContext context,
+    String label,
+    String value, {
+    bool isBold = false,
+  }) {
     final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -481,7 +503,9 @@ class OrderConfirmationView extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: isBold ? theme.textTheme.bodyLarge?.color : AppColors.textSecondary,
+            color: isBold
+                ? theme.textTheme.bodyLarge?.color
+                : AppColors.textSecondary,
             fontSize: isBold ? 16 : 14,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
           ),

@@ -16,7 +16,7 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
   Future<void> cacheProducts(List<ProductModel> products) async {
     final db = await dbHelper.database;
     final batch = db.batch();
-    
+
     await db.delete('products');
 
     for (var product in products) {
@@ -59,14 +59,15 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
           status: map['status'] as int,
           createdAt: map['createdAt'] as String,
           updatedAt: map['updatedAt'] as String,
-          category: null, // Since we don't store CategoryModel relation in products table yet
+          category:
+              null, // Since we don't store CategoryModel relation in products table yet
         );
       }).toList();
     } else {
       return [];
     }
   }
-  
+
   @override
   Future<void> clearCache() async {
     final db = await dbHelper.database;

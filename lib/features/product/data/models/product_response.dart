@@ -19,9 +19,7 @@ class ProductResponse extends Equatable {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      "data": List<dynamic>.from(productList.map((x) => x.toJson())),
-    };
+    return {"data": List<dynamic>.from(productList.map((x) => x.toJson()))};
   }
 
   @override

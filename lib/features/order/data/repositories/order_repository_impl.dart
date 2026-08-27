@@ -41,20 +41,24 @@ class OrderRepositoryImpl implements OrderRepository {
         tax: request.tax.toInt(),
         total: request.total.toInt(),
         paymentMethod: request.paymentMethod,
-        orderItems: request.orderItems.map((item) => OrderItem(
-          id: 0,
-          orderId: localOrderId,
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price.toInt(),
-          note: item.note,
-        )).toList(),
+        orderItems: request.orderItems
+            .map(
+              (item) => OrderItem(
+                id: 0,
+                orderId: localOrderId,
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.price.toInt(),
+                note: item.note,
+              ),
+            )
+            .toList(),
       );
 
       // 2. Ambil token untuk mencoba kirim ke server
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        // Jika tidak ada token (belum login tapi bisa transaksi offline?), 
+        // Jika tidak ada token (belum login tapi bisa transaksi offline?),
         // kita biarkan statusnya offline (0)
         return Right(offlineOrder);
       }
@@ -63,10 +67,13 @@ class OrderRepositoryImpl implements OrderRepository {
       try {
         final model = OrderRequestModel.fromEntity(request);
         final result = await remoteDataSource.submitOrder(token, model);
-        
+
         // Jika berhasil, update status di SQLite menjadi isSynced = 1
-        await localDataSource.updateOrderSyncedStatus(localOrderId, result.id ?? 0);
-        
+        await localDataSource.updateOrderSyncedStatus(
+          localOrderId,
+          result.id ?? 0,
+        );
+
         return Right(result.toEntity());
       } catch (e) {
         // Jika server mati atau tidak ada internet, JANGAN lempar error!
@@ -74,9 +81,14 @@ class OrderRepositoryImpl implements OrderRepository {
         return Right(offlineOrder);
       }
     } catch (e) {
-      return Left(ServerFailure('Wah, pesanan gagal disimpan di perangkat nih. Coba lagi ya.'));
+      return Left(
+        ServerFailure(
+          'Wah, pesanan gagal disimpan di perangkat nih. Coba lagi ya.',
+        ),
+      );
     }
   }
+
   @override
   Future<Either<Failure, Order>> getOrderStatus(int orderId) async {
     try {
@@ -92,10 +104,17 @@ class OrderRepositoryImpl implements OrderRepository {
       return Right(result.toEntity());
     } on ServerException catch (e) {
       return Left(
-        ServerFailure(e.message ?? 'Cek status pesanan lagi gagal nih, coba bentar lagi ya.'),
+        ServerFailure(
+          e.message ??
+              'Cek status pesanan lagi gagal nih, coba bentar lagi ya.',
+        ),
       );
     } catch (e) {
-      return Left(ServerFailure('Aduh, ada sedikit kendala. Coba ulangi beberapa saat lagi ya.'));
+      return Left(
+        ServerFailure(
+          'Aduh, ada sedikit kendala. Coba ulangi beberapa saat lagi ya.',
+        ),
+      );
     }
   }
 
@@ -104,7 +123,9 @@ class OrderRepositoryImpl implements OrderRepository {
     try {
       final token = await authLocalDataSource.getToken();
       if (token == null) {
-        return const Left(ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'));
+        return const Left(
+          ServerFailure('Sesi kamu udah habis nih, login lagi yuk.'),
+        );
       }
 
       final unsyncedOrders = await localDataSource.getUnsyncedOrders();
@@ -117,12 +138,16 @@ class OrderRepositoryImpl implements OrderRepository {
         try {
           // Convert Map dari database ke OrderRequestModel
           final List<dynamic> itemsList = orderMap['items'] ?? [];
-          final items = itemsList.map((item) => OrderItemRequestModel(
-            productId: item['productId'],
-            quantity: item['quantity'],
-            price: (item['price'] as num).toDouble(),
-            note: item['productName'] ?? '',
-          )).toList();
+          final items = itemsList
+              .map(
+                (item) => OrderItemRequestModel(
+                  productId: item['productId'],
+                  quantity: item['quantity'],
+                  price: (item['price'] as num).toDouble(),
+                  note: item['productName'] ?? '',
+                ),
+              )
+              .toList();
 
           final requestModel = OrderRequestModel(
             cashierId: orderMap['cashierId'],
@@ -138,8 +163,14 @@ class OrderRepositoryImpl implements OrderRepository {
             orderItems: items,
           );
 
-          final result = await remoteDataSource.submitOrder(token, requestModel);
-          await localDataSource.updateOrderSyncedStatus(orderMap['id'], result.id ?? 0);
+          final result = await remoteDataSource.submitOrder(
+            token,
+            requestModel,
+          );
+          await localDataSource.updateOrderSyncedStatus(
+            orderMap['id'],
+            result.id ?? 0,
+          );
           syncedCount++;
         } catch (e) {
           // Lanjut ke pesanan berikutnya jika satu gagal
@@ -149,7 +180,11 @@ class OrderRepositoryImpl implements OrderRepository {
 
       return Right(syncedCount);
     } catch (e) {
-      return Left(ServerFailure('Koneksi belum stabil nih, data pesanan offline belum bisa disinkronisasi.'));
+      return Left(
+        ServerFailure(
+          'Koneksi belum stabil nih, data pesanan offline belum bisa disinkronisasi.',
+        ),
+      );
     }
   }
 }

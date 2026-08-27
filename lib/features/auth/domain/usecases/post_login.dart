@@ -3,7 +3,6 @@ import '../../../../core/error/failures.dart';
 import '../entities/auth.dart';
 import '../repositories/auth_repository.dart';
 
-
 class PostLogin {
   final AuthRepository repository;
 

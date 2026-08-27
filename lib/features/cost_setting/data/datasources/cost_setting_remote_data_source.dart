@@ -5,7 +5,10 @@ import '../models/cost_setting_model.dart';
 
 abstract class CostSettingRemoteDataSource {
   Future<CostSettingModel> getCostSetting(String token);
-  Future<CostSettingModel> updateCostSetting(String token, CostSettingModel taxModel);
+  Future<CostSettingModel> updateCostSetting(
+    String token,
+    CostSettingModel taxModel,
+  );
 }
 
 class CostSettingRemoteDataSourceImpl implements CostSettingRemoteDataSource {
@@ -32,7 +35,10 @@ class CostSettingRemoteDataSourceImpl implements CostSettingRemoteDataSource {
   }
 
   @override
-  Future<CostSettingModel> updateCostSetting(String token, CostSettingModel taxModel) async {
+  Future<CostSettingModel> updateCostSetting(
+    String token,
+    CostSettingModel taxModel,
+  ) async {
     try {
       final response = await dio.put(
         '${ApiConstants.baseUrl}/settings/cost-calculation',

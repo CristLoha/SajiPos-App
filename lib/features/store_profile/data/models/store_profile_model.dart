@@ -58,12 +58,12 @@ class StoreProfileModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        name,
-        address,
-        phone,
-        logoUrl,
-        showPhoneOnReceipt,
-        showAddressOnReceipt,
-        showLogoOnReceipt,
-      ];
+    name,
+    address,
+    phone,
+    logoUrl,
+    showPhoneOnReceipt,
+    showAddressOnReceipt,
+    showLogoOnReceipt,
+  ];
 }

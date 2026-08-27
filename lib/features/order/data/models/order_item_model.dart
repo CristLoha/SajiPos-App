@@ -27,11 +27,21 @@ class OrderItemModel extends Equatable {
     }
 
     return OrderItemModel(
-      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()),
-      orderId: json['order_id'] is int ? json['order_id'] as int : int.tryParse(json['order_id'].toString()),
-      productId: json['product_id'] is int ? json['product_id'] as int : int.tryParse(json['product_id'].toString()) ?? 0,
-      quantity: json['quantity'] is int ? json['quantity'] as int : int.tryParse(json['quantity'].toString()) ?? 0,
-      price: json['price'] is int ? json['price'] as int : int.tryParse(json['price'].toString()) ?? 0,
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse(json['id'].toString()),
+      orderId: json['order_id'] is int
+          ? json['order_id'] as int
+          : int.tryParse(json['order_id'].toString()),
+      productId: json['product_id'] is int
+          ? json['product_id'] as int
+          : int.tryParse(json['product_id'].toString()) ?? 0,
+      quantity: json['quantity'] is int
+          ? json['quantity'] as int
+          : int.tryParse(json['quantity'].toString()) ?? 0,
+      price: json['price'] is int
+          ? json['price'] as int
+          : int.tryParse(json['price'].toString()) ?? 0,
       note: json['note']?.toString() ?? '',
       productName: pName,
     );

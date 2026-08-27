@@ -32,7 +32,6 @@ class LoginFormWidget extends StatelessWidget {
     return Form(
       key: formKey,
       child: Column(
-
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

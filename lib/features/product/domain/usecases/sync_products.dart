@@ -10,7 +10,11 @@ class SyncProducts {
   final CategoryRepository categoryRepository;
   final DiscountRepository discountRepository;
 
-  SyncProducts(this.productRepository, this.categoryRepository, this.discountRepository);
+  SyncProducts(
+    this.productRepository,
+    this.categoryRepository,
+    this.discountRepository,
+  );
 
   Future<Either<Failure, bool>> call() async {
     final catSync = await categoryRepository.syncCategories();

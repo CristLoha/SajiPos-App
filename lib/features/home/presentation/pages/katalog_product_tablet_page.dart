@@ -164,6 +164,12 @@ class _KatalogProductTabletPageState extends State<KatalogProductTabletPage> {
                             onTap: () {
                               context.read<CartCubit>().addToCart(product);
                             },
+                            onAdd: () {
+                              context.read<CartCubit>().addToCart(product);
+                            },
+                            onRemove: () {
+                              context.read<CartCubit>().decreaseQuantity(product);
+                            },
                           );
                         },
                       ),

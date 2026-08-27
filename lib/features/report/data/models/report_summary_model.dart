@@ -28,7 +28,7 @@ class ReportSummaryModel extends Equatable {
     int transactions = orders.length;
     double discount = 0;
     double tax = 0;
-    
+
     double cashAmount = 0;
     int cashCount = 0;
     double qrisAmount = 0;
@@ -63,11 +63,11 @@ class ReportSummaryModel extends Equatable {
 
     var sortedMenus = menuCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    
-    List<Map<String, dynamic>> topMenusData = sortedMenus.take(5).map((e) => {
-      'name': e.key,
-      'qty': e.value,
-    }).toList();
+
+    List<Map<String, dynamic>> topMenusData = sortedMenus
+        .take(5)
+        .map((e) => {'name': e.key, 'qty': e.value})
+        .toList();
 
     return ReportSummaryModel(
       totalOmzet: omzet,
@@ -88,26 +88,32 @@ class ReportSummaryModel extends Equatable {
       discountAmount: discountAmount,
       taxAmount: taxAmount,
       cash: PaymentSummary(
-        amount: (cash['amount'] as num).toDouble(), 
-        count: cash['count'] as int
+        amount: (cash['amount'] as num).toDouble(),
+        count: cash['count'] as int,
       ),
       qris: PaymentSummary(
-        amount: (qris['amount'] as num).toDouble(), 
-        count: qris['count'] as int
+        amount: (qris['amount'] as num).toDouble(),
+        count: qris['count'] as int,
       ),
       transfer: PaymentSummary(
-        amount: (transfer['amount'] as num).toDouble(), 
-        count: transfer['count'] as int
+        amount: (transfer['amount'] as num).toDouble(),
+        count: transfer['count'] as int,
       ),
-      topMenus: topMenus.map((e) => TopMenu(
-        name: e['name'] as String, 
-        qty: e['qty'] as int
-      )).toList(),
+      topMenus: topMenus
+          .map((e) => TopMenu(name: e['name'] as String, qty: e['qty'] as int))
+          .toList(),
     );
   }
 
   @override
   List<Object?> get props => [
-    totalOmzet, totalTransactions, discountAmount, taxAmount, cash, qris, transfer, topMenus
+    totalOmzet,
+    totalTransactions,
+    discountAmount,
+    taxAmount,
+    cash,
+    qris,
+    transfer,
+    topMenus,
   ];
 }

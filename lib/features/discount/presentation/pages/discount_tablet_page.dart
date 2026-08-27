@@ -42,11 +42,13 @@ class _DiscountTabletPageState extends State<DiscountTabletPage> {
     }
 
     context.read<DiscountBloc>().add(
-          FetchActiveDiscounts(
-            search: _searchController.text.isNotEmpty ? _searchController.text : null,
-            status: status,
-          ),
-        );
+      FetchActiveDiscounts(
+        search: _searchController.text.isNotEmpty
+            ? _searchController.text
+            : null,
+        status: status,
+      ),
+    );
   }
 
   void _onSearchChanged(String query) {
@@ -89,7 +91,10 @@ class _DiscountTabletPageState extends State<DiscountTabletPage> {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textPrimary,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white
+                                : AppColors.textPrimary,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -112,7 +117,9 @@ class _DiscountTabletPageState extends State<DiscountTabletPage> {
                                     color: AppColors.textSecondary,
                                   ),
                                   filled: true,
-                                  fillColor: Theme.of(context).scaffoldBackgroundColor,
+                                  fillColor: Theme.of(
+                                    context,
+                                  ).scaffoldBackgroundColor,
                                   contentPadding: const EdgeInsets.symmetric(
                                     vertical: 0,
                                     horizontal: 16,
@@ -127,13 +134,19 @@ class _DiscountTabletPageState extends State<DiscountTabletPage> {
                             const SizedBox(width: 16),
                             Container(
                               decoration: BoxDecoration(
-                                color: Theme.of(context).scaffoldBackgroundColor,
+                                color: Theme.of(
+                                  context,
+                                ).scaffoldBackgroundColor,
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: IconButton(
                                 icon: Icon(
                                   Icons.filter_list_rounded,
-                                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textPrimary,
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : AppColors.textPrimary,
                                 ),
                                 onPressed: () {},
                               ),
@@ -196,11 +209,11 @@ class _DiscountTabletPageState extends State<DiscountTabletPage> {
                       ),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.75,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
+                            crossAxisCount: 3,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
                       itemCount: discounts.length,
                       itemBuilder: (context, index) {
                         return _buildDiscountCard(discounts[index]);
@@ -270,18 +283,32 @@ class _DiscountTabletPageState extends State<DiscountTabletPage> {
     }
 
     String discountType = discount.type.toLowerCase();
-    String discountValue = (discountType == 'percent' || discountType == 'percentage' || discountType == 'persen' || discountType == 'persentase')
+    String discountValue =
+        (discountType == 'percent' ||
+            discountType == 'percentage' ||
+            discountType == 'persen' ||
+            discountType == 'persentase')
         ? '${discount.value?.toInt() ?? 0}%'
-        : NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
-            .format(discount.value ?? 0);
+        : NumberFormat.currency(
+            locale: 'id_ID',
+            symbol: 'Rp ',
+            decimalDigits: 0,
+          ).format(discount.value ?? 0);
 
-    String terms = discount.description ??
+    String terms =
+        discount.description ??
         (discount.minTransaction != null
             ? 'Min. transaksi ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(discount.minTransaction)}'
             : 'Tanpa min. transaksi');
 
-    String startDate = DateFormat('dd MMM yyyy', 'id_ID').format(discount.startDate);
-    String endDate = DateFormat('dd MMM yyyy', 'id_ID').format(discount.expiredDate);
+    String startDate = DateFormat(
+      'dd MMM yyyy',
+      'id_ID',
+    ).format(discount.startDate);
+    String endDate = DateFormat(
+      'dd MMM yyyy',
+      'id_ID',
+    ).format(discount.expiredDate);
 
     return Container(
       decoration: BoxDecoration(
@@ -310,7 +337,9 @@ class _DiscountTabletPageState extends State<DiscountTabletPage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.textPrimary,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -449,12 +478,16 @@ class _DiscountTabletPageState extends State<DiscountTabletPage> {
                 onPressed: () {
                   final cartCubit = context.read<CartCubit>();
                   cartCubit.applyVoucherDiscount(discount);
-                  
+
                   final cartSubTotal = cartCubit.state.subTotal;
-                  if (cartSubTotal == 0 || (discount.minTransaction != null && cartSubTotal < discount.minTransaction!)) {
+                  if (cartSubTotal == 0 ||
+                      (discount.minTransaction != null &&
+                          cartSubTotal < discount.minTransaction!)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Diskon diaktifkan. Silakan tambahkan pesanan minimal Rp ${NumberFormat.currency(locale: 'id_ID', symbol: '', decimalDigits: 0).format(discount.minTransaction ?? 0)}.'),
+                        content: Text(
+                          'Diskon diaktifkan. Silakan tambahkan pesanan minimal Rp ${NumberFormat.currency(locale: 'id_ID', symbol: '', decimalDigits: 0).format(discount.minTransaction ?? 0)}.',
+                        ),
                         backgroundColor: AppColors.success,
                       ),
                     );

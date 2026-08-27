@@ -1,0 +1,15 @@
+--- lib/features/notification/data/datasources/notification_remote_data_source.dart
++++ lib/features/notification/data/datasources/notification_remote_data_source.dart
+@@ -28,9 +28,12 @@
+     // Minta Izin dulu ke User (wajib untuk iOS dan Android 13+)
+     await firebaseMessaging.requestPermission();
+ 
++    String? token = await firebaseMessaging.getToken();
++    print("==== FCM DEVICE TOKEN: $token ====");
++
+     // Subscribe topic
+     await firebaseMessaging.subscribeToTopic("promo_broadcast");
++    print("==== SUBSCRIBED TO TOPIC: promo_broadcast ====");
+   }
+ 
+   @override
