@@ -23,3 +23,11 @@ class CheckOrderStatusEvent extends OrderEvent {
   @override
   List<Object> get props => [orderId];
 }
+
+class CheckOrderStatusBackgroundEvent extends OrderEvent {
+  final int orderId;
+  const CheckOrderStatusBackgroundEvent(this.orderId);
+
+  @override
+  List<Object> get props => [orderId];
+}

@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:saji_pos_app/features/order/domain/entities/order_item_request.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:saji_pos_app/features/cart/presentation/cubit/cart_cubit.dart';
@@ -27,36 +28,79 @@ class PaymentView extends StatefulWidget {
 class _PaymentViewState extends State<PaymentView> {
   int _selectedTabIndex = 0;
   String? _snapRedirectUrl;
+  String? _qrString;
   int? _currentOrderId;
+  String? _expiresAt;
 
-  Timer? _timer;
+  Timer? _pollingTimer;
+  Timer? _countdownTimer;
+  Duration _remainingTime = Duration.zero;
+  bool _isExpired = false;
 
   @override
   void initState() {
     super.initState();
-    // Kembalikan state pembayaran jika sebelumnya sudah di-generate (berguna untuk mobile & tablet saat back/pindah menu)
+    // Kembalikan state pembayaran jika sebelumnya sudah di-generate
     final orderState = context.read<OrderBloc>().state;
     
-    // Kembalikan state pembayaran jika sebelumnya sudah di-generate
     if (orderState is OrderSuccess || orderState is OrderStatusChecked) {
       final order = (orderState is OrderSuccess) ? orderState.order : (orderState as OrderStatusChecked).order;
-      final snapUrl = order.snapRedirectUrl ?? order.qrImageUrl ?? order.qrString;
       
-      if (snapUrl != null && snapUrl.isNotEmpty) {
-        _currentOrderId = order.id;
-        _snapRedirectUrl = snapUrl;
-        if (order.paymentMethod.toUpperCase() == 'QRIS') {
-          _selectedTabIndex = 1;
-        } else if (order.paymentMethod.toUpperCase() == 'TRANSFER') {
-          _selectedTabIndex = 2;
+      _currentOrderId = order.id;
+      _snapRedirectUrl = order.snapRedirectUrl;
+      _qrString = order.qrString;
+      _expiresAt = order.expiryTime;
+      
+      if (order.paymentMethod.toUpperCase() == 'QRIS' || order.paymentMethod.toLowerCase() == 'midtrans - qris') {
+        _selectedTabIndex = 1;
+        _startQrisTimers();
+      } else if (order.paymentMethod.toUpperCase() == 'TRANSFER') {
+        _selectedTabIndex = 2;
+      }
+    }
+  }
+
+
+  void _startQrisTimers() {
+    _pollingTimer?.cancel();
+    _countdownTimer?.cancel();
+    _isExpired = false;
+
+    if (_currentOrderId != null) {
+      _pollingTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+        if (!_isExpired && _selectedTabIndex == 1) {
+          context.read<OrderBloc>().add(CheckOrderStatusBackgroundEvent(_currentOrderId!));
         }
+      });
+    }
+
+    if (_expiresAt != null) {
+      final expiryTime = DateTime.tryParse(_expiresAt!)?.toLocal();
+      if (expiryTime != null) {
+        _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+          if (!mounted) return;
+          final now = DateTime.now();
+          if (now.isAfter(expiryTime)) {
+            setState(() {
+              _remainingTime = Duration.zero;
+              _isExpired = true;
+            });
+            timer.cancel();
+          } else {
+            setState(() {
+              _remainingTime = expiryTime.difference(now);
+              _isExpired = false;
+            });
+          }
+        });
       }
     }
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _pollingTimer?.cancel();
+    _countdownTimer?.cancel();
     super.dispose();
   }
 
@@ -164,23 +208,26 @@ class _PaymentViewState extends State<PaymentView> {
                     listener: (context, state) {
                       if (state is OrderSuccess) {
                         final order = state.order;
-                        final snapUrl = order.snapRedirectUrl ?? order.qrImageUrl ?? order.qrString;
                         _currentOrderId = order.id;
 
                         if (order.paymentMethod == 'CASH') {
                           widget.onConfirm();
-                        } else if (snapUrl != null && snapUrl.isNotEmpty) {
-                          debugPrint('\n=============================================');
-                          debugPrint('🔗 LINK / QRIS:');
-                          debugPrint(snapUrl);
-                          debugPrint('=============================================\n');
+
+                        } else if ((order.qrString != null && order.qrString!.isNotEmpty) || (order.snapRedirectUrl != null && order.snapRedirectUrl!.isNotEmpty)) {
                           setState(() {
-                            _snapRedirectUrl = snapUrl;
+                            _snapRedirectUrl = order.snapRedirectUrl;
+                            _qrString = order.qrString;
+                            _expiresAt = order.expiryTime;
                           });
+                          if (_selectedTabIndex == 1) {
+                            _startQrisTimers();
+                          }
                         } else {
+
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Link pembayaran belum tersedia dari server.'),
+                            SnackBar(
+                              content: Text('Payment details missing. Method: ${order.paymentMethod}, qrString: ${order.qrString}, snapUrl: ${order.snapRedirectUrl}'),
+                              duration: const Duration(seconds: 10),
                             ),
                           );
                         }
@@ -219,15 +266,23 @@ class _PaymentViewState extends State<PaymentView> {
                         );
                       }
                     },
-                    builder: (context, state) {
+builder: (context, state) {
                       final isLoading = state is OrderLoading;
+                      
+                      bool isButtonDisabled = isLoading;
+                      if (_selectedTabIndex == 1 && _isExpired) {
+                        isButtonDisabled = true; // Disabled during expired, wait for user to click "Buat QR Baru"
+                      } else if (_selectedTabIndex == 1 && _qrString != null) {
+                        isButtonDisabled = true; // Auto-polling is running, no need manual confirm
+                      }
+                      
                       return ElevatedButton(
-                        onPressed: isLoading
+                        onPressed: isButtonDisabled
                             ? null
                             : () async {
                                 if (_selectedTabIndex == 1 ||
                                     _selectedTabIndex == 2) {
-                                  if (_snapRedirectUrl != null &&
+                                  if ((_snapRedirectUrl != null || _qrString != null) &&
                                       _currentOrderId != null) {
                                     context.read<OrderBloc>().add(
                                       CheckOrderStatusEvent(_currentOrderId!),
@@ -241,7 +296,7 @@ class _PaymentViewState extends State<PaymentView> {
                               },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
-                              (_snapRedirectUrl != null &&
+                              ((_snapRedirectUrl != null || _qrString != null) &&
                                   (_selectedTabIndex == 1 ||
                                       _selectedTabIndex == 2))
                               ? Colors.green
@@ -263,8 +318,8 @@ class _PaymentViewState extends State<PaymentView> {
                             : Text(
                                 (_selectedTabIndex == 1 ||
                                         _selectedTabIndex == 2)
-                                    ? (_snapRedirectUrl != null
-                                          ? 'Cek Status Pembayaran'
+                                    ? ((_snapRedirectUrl != null || _qrString != null)
+                                          ? (_selectedTabIndex == 1 ? 'Menunggu Pembayaran...' : 'Cek Status Pembayaran')
                                           : 'Konfirmasi')
                                     : 'Konfirmasi',
                                 style: const TextStyle(
@@ -338,91 +393,104 @@ class _PaymentViewState extends State<PaymentView> {
     );
   }
 
+
   Widget _buildQrisSection() {
+    String formattedTime = "${_remainingTime.inMinutes.toString().padLeft(2, '0')}:${(_remainingTime.inSeconds % 60).toString().padLeft(2, '0')}";
+    bool isWarning = _remainingTime.inSeconds > 0 && _remainingTime.inSeconds <= 60;
+
     return Center(
       child: Column(
         children: [
-          InkWell(
-            onTap: _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
-                ? () async {
-                    final uri = Uri.parse(_snapRedirectUrl!);
-                    try {
-                      final launched = await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                      if (!launched) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Browsernya gak mau kebuka nih di perangkat ini.',
+          Container(
+            width: 220,
+            height: 220,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _qrString != null ? AppColors.accent : AppColors.border,
+                width: _qrString != null ? 2 : 1,
+              ),
+            ),
+            child: _qrString != null && _qrString!.isNotEmpty
+                ? Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Opacity(
+                        opacity: _isExpired ? 0.3 : 1.0,
+                        child: QrImageView(
+                          data: _qrString!,
+                          version: QrVersions.auto,
+                          errorCorrectionLevel: QrErrorCorrectLevel.M,
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                      if (_isExpired)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withValues(alpha: 0.9),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'QR Kedaluwarsa',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
                           ),
-                        );
+                        ),
+                    ],
+                  )
+                : BlocBuilder<OrderBloc, OrderState>(
+                    builder: (context, state) {
+                      if (state is OrderLoading) {
+                        return const Center(child: CircularProgressIndicator());
                       }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error: Tidak dapat membuka link'),
-                        ),
+                      return Icon(
+                        Icons.qr_code_2_rounded,
+                        size: 140,
+                        color: AppColors.accent.withValues(alpha: 0.7),
                       );
-                    }
-                  }
-                : null,
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 200,
-              height: 200,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: _snapRedirectUrl != null
-                      ? AppColors.accent
-                      : AppColors.border,
-                  width: _snapRedirectUrl != null ? 2 : 1,
-                ),
-              ),
-              child: _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.open_in_browser_rounded,
-                          size: 80,
-                          color: AppColors.accent,
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Buka Link\nPembayaran',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.accent,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Icon(
-                      Icons.qr_code_2_rounded,
-                      size: 140,
-                      color: AppColors.accent.withValues(alpha: 0.7),
-                    ),
-            ),
+                    },
+                  ),
           ),
           const SizedBox(height: 16),
-          Text(
-            _snapRedirectUrl != null && _snapRedirectUrl!.isNotEmpty
-                ? 'Klik kotak di atas untuk membayar, lalu klik "Cek Status Pembayaran" di bawah'
-                : 'Pilih "Konfirmasi" untuk checkout',
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
+          if (_qrString != null && _qrString!.isNotEmpty && !_isExpired)
+            Text(
+              'Selesaikan dalam $formattedTime',
+              style: TextStyle(
+                color: isWarning ? Colors.red : AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
+          if (_isExpired)
+            ElevatedButton(
+              onPressed: () {
+                _submitOrder(context); // Regenerate QR
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: AppColors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Buat QR Baru'),
+            ),
+          if (_qrString == null || _qrString!.isEmpty)
+            const Text(
+              'Pilih "Konfirmasi" untuk membuat QRIS',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
           const SizedBox(height: 32),
           Container(
             padding: const EdgeInsets.all(16),
@@ -439,10 +507,11 @@ class _PaymentViewState extends State<PaymentView> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 12),
-                _buildInstructionRow('1', 'Pastikan pesanan sudah sesuai, lalu klik tombol "Konfirmasi" di bawah.'),
-                _buildInstructionRow('2', 'Klik kotak QRIS di atas untuk membuka link pembayaran dari Midtrans.'),
-                _buildInstructionRow('3', 'Scan QR Code yang muncul menggunakan aplikasi e-Wallet atau m-Banking Anda.'),
-                _buildInstructionRow('4', 'Setelah berhasil bayar, kembali ke aplikasi ini dan klik "Cek Status Pembayaran".'),
+                _buildInstructionRow('1', 'Buka aplikasi e-Wallet atau m-Banking di HP Anda.'),
+                _buildInstructionRow('2', 'Pilih menu Scan QR / Bayar dengan QRIS.'),
+                _buildInstructionRow('3', 'Arahkan kamera ke QR code di layar ini.'),
+                _buildInstructionRow('4', 'Selesaikan pembayaran di aplikasi e-Wallet/m-Banking Anda.'),
+                _buildInstructionRow('5', 'Halaman ini akan otomatis berpindah begitu pembayaran terkonfirmasi — tidak perlu menekan tombol apapun.'),
               ],
             ),
           ),
@@ -707,7 +776,7 @@ class _PaymentViewState extends State<PaymentView> {
       paymentMethod: _selectedTabIndex == 0
           ? 'CASH'
           : _selectedTabIndex == 1
-          ? 'QRIS'
+          ? 'qris'
           : 'transfer',
       orderItems: orderItems,
     );

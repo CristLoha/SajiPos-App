@@ -74,7 +74,17 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        return OrderModel.fromJson(response.data['data']);
+        final Map<String, dynamic> responseData = response.data;
+        final Map<String, dynamic> orderData = Map<String, dynamic>.from(
+          responseData['data'] ?? {},
+        );
+
+        if (responseData.containsKey('payment_details') &&
+            !orderData.containsKey('payment_details')) {
+          orderData['payment_details'] = responseData['payment_details'];
+        }
+
+        return OrderModel.fromJson(orderData);
       } else {
         throw const ServerException(
           'Cek status pesanan lagi gagal nih, coba bentar lagi ya.',

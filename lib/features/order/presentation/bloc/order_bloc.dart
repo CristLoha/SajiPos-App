@@ -35,5 +35,19 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         (success) => emit(OrderStatusChecked(success)),
       );
     });
+
+    on<CheckOrderStatusBackgroundEvent>((event, emit) async {
+      final result = await getOrderStatus(event.orderId);
+      
+      result.fold(
+        (failure) {
+          // You might not want to emit an error on background polling, or handle it differently
+          // emit(OrderError(failure.message));
+        },
+        (success) {
+          emit(OrderStatusChecked(success));
+        },
+      );
+    });
   }
 }

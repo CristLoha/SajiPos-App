@@ -96,7 +96,7 @@ class OrderModel extends Equatable {
       snapRedirectUrl: paymentDetails?['snap_redirect_url']?.toString(),
       qrImageUrl: paymentDetails?['qr_image_url']?.toString(),
       paymentStatus: paymentDetails?['status']?.toString(),
-      expiryTime: paymentDetails?['expiry_time']?.toString(),
+      expiryTime: (paymentDetails?['expires_at'] ?? paymentDetails?['expiry_time'])?.toString(),
       receiptToken: json['receipt_token']?.toString(),
     );
   }
